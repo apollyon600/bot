@@ -326,11 +326,10 @@ class ApiInterface:
 			
 		except aiohttp.client_exceptions.ClientResponseError as e:
 			if e.code == 429 or e.code == 403:
-				print(e.code)
 				await asyncio.sleep(1.5)
 				return await self.__call_api__(api, **kwargs)
 				
-			elif c.code == 500:
+			elif e.code == 500:
 				raise HypixelError(f'Hypixel\'s servers could not complete your request')
 				
 			else:

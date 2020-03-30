@@ -1680,7 +1680,7 @@ class Bot(discord.Client):
 		while True:
 			await embed.send()
 
-			resp = await self.respond(user, channel).content.lower()
+			resp = (await self.respond(user, channel)).content.lower()
 
 			if resp in ACTIVITIES:
 				break
