@@ -26,6 +26,13 @@ if os.environ.get('API_KEY') is None:
 	dotenv.load_dotenv()
 keys = os.getenv('API_KEY').split()
 
+class EndSession(Exception):
+	def __init__(self, message=''):
+		self.message = message
+		
+	def __str__(self):
+		return self.message
+
 def time_until(goal):
 	now = datetime.now(timezone.utc)
 	then = datetime.fromtimestamp(goal, timezone.utc)
@@ -111,6 +118,7 @@ RANKS = [
 ]
 
 # List of players that bug abused skills or severely macroed for stats
+'''
 EXPLOITERS = {
 	'6c80f48d85544035bb31e6cb9f40b948': ('farming', 'enchanting'),
 	'04e0ad3f4b7f4815bb39c3888249115c': ('farming',),
@@ -128,6 +136,8 @@ EXPLOITERS = {
 	'44d03c6e2cba41799ad5c9d2f837d03d': ('farming',),	
 	'446dea472dd0494b89260421b9981d15': ('combat',)	   
 }
+'''
+EXPLOITERS = {}
 
 PROFILE_EMOJIS = {
 	'Apple': '🍎',
@@ -413,16 +423,17 @@ def minecraft_to_discord(minecraft):
 	
 	def f(match):
 		code = match.group(1)
+		text = match.group(2)
 		format = formatting_codes[code]
 		
 		if isinstance(format, str):
-			return format % match.group(0)
+			return format % text
 		elif isinstance(format, tuple):
-			return colorize(format, match.group(0))
+			return colorize(text, format)
 		elif callable(format):
-			return format(match.group(0))
+			return format(text)
 	
-	return re.sub('§(.).*?', f, minecraft)
+	return re.sub('§(.)(.*)?', f, minecraft)
 		
 def optimizer(opt_goal, player, weapon_damage, base_str, base_cc, base_cd):
 	best = 0
@@ -570,6 +581,8 @@ def chunks(lst, n):
 },
 '''
 
+token = os.getenv('TOKEN')
+
 class Bot(discord.Client):
 	def __init__(self, *args, **kwargs):
 		self.callables = {}
@@ -686,7 +699,7 @@ class Bot(discord.Client):
 
 	async def on_error(self, *args, **kwargs):
 		error = traceback.format_exc().replace('```', '"""')
-		await self.get_user(270352691924959243).send(f'```python\n{error}```')
+		await self.get_user(270352691924959243).send(f'```{error[-1900:]}```')
 		print(error)
 
 	async def on_ready(self):
@@ -722,7 +735,7 @@ class Bot(discord.Client):
 
 		command = re.split('\s+', command)
 		command[0] = command[0].lower()
-		if command[0] == self.user.mention or command[0].lower() == 'sbs':
+		if command[0] == self.user.mention or command[0].lower() == token:
 			command = command[1:]
 		elif not dm:
 			return
@@ -766,46 +779,77 @@ class Bot(discord.Client):
 				f'{user.mention} you do not have permission to use this command here! Try using it on your own discord server')
 			return
 
-		error = Embed(
-			channel,
-			user=user,
-			title='Error!'
-		).add_field(
-			name=None,
-			value='Something terrible happened while running your command\n'
-			'The error has been automatically reported to SBS devs'
-		)
-
 		await self.log(f'{user.name} used {name} {args} in {"a DM" if dm else channel.guild.name}')
+		
 		if session:
 			self.hot_channels[channel] = user
 
-			try:
-				await function(message, *args)
-			except Exception as e:
-				error.send()
-				self.hot_channels.pop(channel)
-				raise e from None
+		error = None
 
+		try:
+			await function(message, *args)
+		except EndSession:
+			await channel.send(f'{user.mention} session closed')
+		except skypy.NeverPlayedSkyblockError:
+			await Embed(
+				channel,
+				user=user,
+				title='No Profiles!',
+				description='This user has never played Skyblock'
+			).send()
+		except skypy.BadGuildError as e:
+			await Embed(
+				channel,
+				user=user,
+				description=f'Invalid guildname: {e.guild}'
+			).send()
+		except skypy.BadNameError as e:
+			await Embed(
+				channel,
+				user=user,
+				description=f'Invalid username: {e.uname_or_uuid}'
+			).send()
+		except skypy.HypixelError:
+			await Embed(
+				channel,
+				user=user,
+				title='Hypixel API Error!',
+				description='The Hypixel API did not respond to your command'
+			).set_footer(
+				text='This error usually goes away after about a minute.\nIf not, the Hypixel API is down'
+			).send()
+		except skypy.ExternalAPIError as e:
+			await Embed(
+				channel,
+				user=user,
+				title='API Error!',
+				description=str(e)
+			).send()
+		except discord.errors.Forbidden as e:
+			await Embed(
+				channel,
+				user=user,
+				title='Insufficent Permissions',
+				description='I do not have permissions to do this. Try enabling your DMS or giving me admin'
+			).send()
+		except Exception as e:
+			await Embed(
+				channel,
+				user=user,
+				title='Error!',
+				description='Something terrible happened while running your command\n'
+				'The error has been automatically reported to SBS devs'
+			).send()
+			error = e
+
+		if session:
 			self.hot_channels.pop(channel)
-		else:
-			try:
-				await function(message, *args)
-			except Exception as e:
-				error.send()
-				raise e from None
+		
+		if error:
+			raise error from None
 
 	async def args_to_player(self, user, channel, *args):
-		try:
-			player = await skypy.Player(keys, uname=args[0], guild=True)
-			
-		except (skypy.BadNameError, skypy.NeverPlayedSkyblockError):
-			await channel.send(f'{user.mention} invalid username!')
-			return None
-			
-		except skypy.ExternalAPIError as e:
-			await channel.send(f'{user.mention} {e.reason}')
-			return None
+		player = await skypy.Player(keys, uname=args[0], guild=True)
 
 		if len(args) == 1:
 			await player.set_profile_automatically()
@@ -840,8 +884,6 @@ class Bot(discord.Client):
 			return
 
 		player = await self.args_to_player(user, channel, *args)
-		if player is None:
-			return
 
 		auctions = await player.auctions()
 		
@@ -914,9 +956,8 @@ class Bot(discord.Client):
 				)
 		
 			msg = await embed.send()
-			current = (await self.reaction_menu(msg, user, menu)).title()
-			if current is None:
-				break
+			current = await self.reaction_menu(msg, user, menu)
+			current = current.title()
 			await msg.delete()
 
 	async def price(self, message, *args):
@@ -1005,14 +1046,7 @@ class Bot(discord.Client):
 			return
 
 		name = args[0]
-		try:
-			_, uuid = await skypy.fetch_uuid_uname(name)
-		except skypy.BadNameError:
-			await channel.send(f'{user.mention} invalid username!')
-			return
-		except skypy.ExternalAPIError as e:
-			await channel.send(f'{user.mention} {e.reason}')
-			return
+		_, uuid = await skypy.fetch_uuid_uname(name)
 
 		async def pages(page_num):
 			query = 'query UserHistory($id: String, $type: String, $limit: Int, $skip: Int) { userHistory(id: $id, type: $type, limit: $limit, skip: $skip) { auctions { id seller itemData { texture id name tag quantity lore __typename } bids { bidder timestamp amount __typename } highestBidAmount end __typename } __typename } }'
@@ -1065,11 +1099,7 @@ class Bot(discord.Client):
 			return
 
 		name = args[0]
-		try:
-			_, uuid = await skypy.fetch_uuid_uname(name)
-		except skypy.BadNameError:
-			await channel.send(f'{user.mention} invalid username!')
-			return
+		_, uuid = await skypy.fetch_uuid_uname(name)
 
 		async def pages(page_num):
 			query = 'query UserHistory($id: String, $type: String, $limit: Int, $skip: Int) {userHistory(id: $id, type: $type, limit: $limit, skip: $skip) {auctions {id seller itemData {texture id name tag quantity lore __typename} bids {bidder timestamp amount __typename} highestBidAmount end __typename} __typename}}'
@@ -1121,8 +1151,6 @@ class Bot(discord.Client):
 			return
 
 		player = await self.args_to_player(user, channel, *args)
-		if player is None:
-			return
 			
 		player.load_all(False)
 
@@ -1177,8 +1205,6 @@ class Bot(discord.Client):
 			return
 
 		player = await self.args_to_player(user, channel, *args)
-		if player is None:
-			return
 			
 		player.load_pets()
 
@@ -1225,17 +1251,7 @@ class Bot(discord.Client):
 
 		args = ' '.join(args).lower()
 
-		try:
-			guild = await skypy.Guild(keys, gname=args)
-			
-		except skypy.BadNameError:
-			await channel.send(f'{user.mention} invalid guild!')
-			return
-			
-		except skypy.ExternalAPIError as e:
-			await channel.send(f'{user.mention} {e.reason}')
-			return
-
+		guild = await skypy.Guild(keys, gname=args)
 		guild.load_all(False)
 		await asyncio.gather(*[update_top_players(player) for player in guild])
 
@@ -1333,38 +1349,25 @@ class Bot(discord.Client):
 		while valid is False:
 			await channel.send(f'{user.mention} what is your Minecraft username?')
 			msg = await self.respond(user, channel)
-			if msg is None:
-				return
 
 			msg = msg.content.lower()
 
-			try:
-				player = await skypy.Player(keys, uname=msg)
-				if len(player.profiles) == 0:
-					await embed(
-						channel,
-						user=user,
-						title=f'{user.name}, the Hypixel API has returned invalid information'
-					).add_field(
-						name=None,
-						value='You can usually solve this issue by simply retrying in a few minutes, contact melon if otherwise'
-					).set_footer(
-						text='This error is rare, about the same chance as getting an overflux! Congratulations!'
-					).send()
-					return
-
-				else:
-					valid = True
-
-			except skypy.NeverPlayedSkyblockError:
-				await channel.send(f'You have never played skyblock{CLOSE_MESSAGE}')
-
-			except skypy.BadNameError:
-				await channel.send(f'Invalid username!{CLOSE_MESSAGE}')
-				
-			except skypy.ExternalAPIError as e:
-				await channel.send(f'{user.mention} {e.reason}')
+			player = await skypy.Player(keys, uname=msg)
+			if len(player.profiles) == 0:
+				await embed(
+					channel,
+					user=user,
+					title=f'{user.name}, the Hypixel API has returned invalid information'
+				).add_field(
+					name=None,
+					value='You can usually solve this issue by simply retrying in a few minutes, contact melon if otherwise'
+				).set_footer(
+					text='This error is rare, about the same chance as getting an overflux! Congratulations!'
+				).send()
 				return
+
+			else:
+				valid = True
 
 		if len(player.profiles) == 1:
 			await player.set_profile(list(player.profiles.values())[0])
@@ -1381,8 +1384,6 @@ class Bot(discord.Client):
 			)
 
 			result = await self.reaction_menu(await embed.send(), user, {PROFILE_EMOJIS[profile]: profile for profile in player.profiles.keys()})
-			if result is None:
-				return
 			await player.set_profile(player.profiles[result])
 
 		player.load_inventories().load_skills_slayers().load_misc().load_pets()
@@ -1412,10 +1413,7 @@ class Bot(discord.Client):
 					value=''.join([f'```{i + 1} > ' + weapon.name + '```' for i, weapon in enumerate(player.weapons)])
 				).send()
 
-				msg = await self.respond(user, channel)
-				if msg is None:
-					return
-				msg = msg.content.lower()
+				msg = (await self.respond(user, channel)).content.lower()
 
 				names = [weapon.name.lower() for weapon in player.weapons]
 
@@ -1482,8 +1480,6 @@ class Bot(discord.Client):
 			emojis = {numbers[level]: level for level in levels}
 
 			level = await self.reaction_menu(msg, user, emojis)
-			if level is None:
-				return
 
 			for name1, amount in buff.items():
 				stats[name1] += amount[level]
@@ -1518,8 +1514,6 @@ class Bot(discord.Client):
 
 		optimizers = {emoji: index for index, (emoji, _) in enumerate(optimizers)}
 		opt_goal = await self.reaction_menu(await embed.send(), user, optimizers)
-		if opt_goal is None:
-			return
 
 		def apply_stats(additional, reverse=False):
 			for key, value in additional.items():
@@ -1663,8 +1657,6 @@ class Bot(discord.Client):
 		for stat in stats.keys():
 			await channel.send(questions[stat])
 			resp = await self.respond(user, channel)
-			if resp is None:
-				return
 
 			if resp.content[0] == '+':
 				resp.content = resp.content[1:]
@@ -1688,10 +1680,7 @@ class Bot(discord.Client):
 		while True:
 			await embed.send()
 
-			resp = await self.respond(user, channel)
-			if resp is None:
-				return
-			resp = resp.content.lower()
+			resp = await self.respond(user, channel).content.lower()
 
 			if resp in ACTIVITIES:
 				break
@@ -1701,8 +1690,6 @@ class Bot(discord.Client):
 		msg = await channel.send(
 			f'{user.mention} do you want to use **level 5** or **level 6** enchantments? **[react to this message]**')
 		enchant_levels = await self.reaction_menu(msg, user, {'5️⃣': CHEAP_MAX_BOOK_LEVELS, '6️⃣': MAX_BOOK_LEVELS})
-		if enchant_levels is None:
-			return
 
 		modifier = stats['combat level'] * 4
 		for enchantment in ACTIVITIES[resp]:
@@ -1744,8 +1731,6 @@ class Bot(discord.Client):
 			return
 
 		player = await self.args_to_player(user, channel, *args)
-		if player is None:
-			return
 			
 		player.load_inventories()
 
@@ -1755,8 +1740,10 @@ class Bot(discord.Client):
 
 		talismans = skypy.talismans.copy()
 		for talisman in player.talismans:
-			if talisman.active and talisman.internal_name in talismans:
-				talismans.pop(talisman.internal_name)
+			if talisman.active:
+				for regex in skypy.talismans.keys():
+					if regex.match(talisman.internal_name):
+						talismans.pop(regex)
 
 		embed = Embed(
 			channel,
@@ -1831,15 +1818,9 @@ class Bot(discord.Client):
 			)
 
 		while True:
-			try:
-				msg = await embed.send()
-			except discord.errors.Forbidden:
-				await channel.send(f'{user.mention} your DM\'s are turned off')
-				return
+			msg = await embed.send()
 
 			box = await self.reaction_menu(msg, user, boxes)
-			if box is None:
-				return
 			if await self.back(await box.send(), user) is False:
 				return
 
@@ -1886,11 +1867,9 @@ class Bot(discord.Client):
 									  check=lambda message: message.author == user and message.channel == channel,
 									  timeout=60 * 3)
 		except asyncio.TimeoutError:
-			await channel.send(f'{user.mention} session timed out')
-			return None
+			raise EndSession
 		if msg.content.lower() == 'exit':
-			await channel.send(f'Session closed with {user.mention}')
-			return None
+			raise EndSession
 
 		return msg
 
@@ -1904,14 +1883,14 @@ class Bot(discord.Client):
 		check = lambda reaction, u: u == user and reaction.message.id == message.id and str(reaction) in reactions
 
 		try:
-			reaction, _ = await self.wait_for('reaction_add', check=check, timeout=600)
+			reaction, _ = await self.wait_for('reaction_add', check=check, timeout=45)
 			return reactions[str(reaction)]
 		except asyncio.TimeoutError:
 			for reaction in reactions.keys():
 				await message.remove_reaction(reaction, self.user)
 			for reaction in ['🇹', '🇮', '🇲', '🇪', '🇴', '🇺', '✝️']:
 				await message.add_reaction(reaction)
-			return None
+			raise EndSession
 
 	async def back(self, message, user):
 		return True if await self.reaction_menu(message, user, {'⬅️': True}) else False
@@ -1927,8 +1906,6 @@ class Bot(discord.Client):
 
 		if user.dm_channel != channel and channel.guild.me.permissions_in(channel).manage_messages:
 			r = await pages(page_num)
-			if r is None:
-				return
 			embed, last_page = r
 			
 			msg = await embed.send()
@@ -1942,21 +1919,15 @@ class Bot(discord.Client):
 					result = await self.reaction_menu(msg, user, backward, edit=True)
 				else:
 					result = await self.reaction_menu(msg, user, both, edit=True)
-				if result is None:
-					break
 				page_num += result
 				
 				r = await pages(page_num)
-				if r is None:
-					return
 				embed, last_page = r
 				
 				await msg.edit(embed=embed)
 		else:
 			while True:
 				r = await pages(page_num)
-				if r is None:
-					return
 				embed, last_page = r
 			
 				msg = await embed.send()
@@ -1969,8 +1940,6 @@ class Bot(discord.Client):
 					result = await self.reaction_menu(msg, user, backward, edit=False)
 				else:
 					result = await self.reaction_menu(msg, user, both, edit=False)
-				if result is None:
-					break
 				await msg.delete()
 				page_num += result
 
