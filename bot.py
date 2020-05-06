@@ -337,7 +337,22 @@ PET_EMOJIS = {
 	'TURTLE': '🐢',
 	'SPIDER': '🕸️',
 	'BLAZE': '🔥',
-	'JERRY': '🤡'
+	'JERRY': '🤡',
+	'PIG': '🐽',
+	'BLACK_CAT': '🐱',
+	'JELLYFISH': '🎐',
+	'MONKEY': '🐒',
+	'ELEPHANT': '🐘',
+	'ZOMBIE': '🧟',
+	'SKELETON": '💀',
+	'SPIDER': '🕷️',
+	'ENDERMITE': '🗿',
+	'ROCK': '🗿',
+	'DOLPHIN': '🐟',
+	'HOUND': '🐺',
+	'GHOUL': '🧟',
+	'TARANTULA': '🕸️',
+	'GOLEM': '🗿'
 }
 
 class Embed(discord.Embed):
