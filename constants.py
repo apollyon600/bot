@@ -509,7 +509,7 @@ pet_stats = {
     'SKELETON': {
         'name': 'Skeleton',
         'stats': {
-            'crit chance': lambda lvl: lvl // 6
+            'crit chance': lambda lvl: lvl // 6,
             'crit damage': lambda lvl: lvl // 3
         },
         'type': 'combat',
@@ -518,7 +518,7 @@ pet_stats = {
     'SPIDER': {
         'name': 'Spider',
         'stats': {
-            'strength': lambda lvl: lvl // 10
+            'strength': lambda lvl: lvl // 10,
             'crit chance': lambda lvl: lvl // 10
         },
         'type': 'combat',
@@ -569,8 +569,8 @@ pet_stats = {
     'TARANTULA': {
         'name': 'Tarantula',
         'stats': {
-            'strength': lambda lvl: lvl // 10
-            'crit chance': lambda lvl: lvl // 10
+            'strength': lambda lvl: lvl // 10,
+            'crit chance': lambda lvl: lvl // 10,
             'crit damage': lambda lvl: lvl * 3 // 10
         },
         'type': 'combat',
