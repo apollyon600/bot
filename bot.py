@@ -344,7 +344,7 @@ PET_EMOJIS = {
 	'MONKEY': '🐒',
 	'ELEPHANT': '🐘',
 	'ZOMBIE': '🧟',
-	'SKELETON": '💀',
+	'SKELETON': '💀',
 	'SPIDER': '🕷️',
 	'ENDERMITE': '🗿',
 	'ROCK': '🗿',
