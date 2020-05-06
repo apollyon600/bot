@@ -1,4 +1,5 @@
 import re
+import math
 
 sword_enchants = [
     'sharpness',
@@ -455,14 +456,6 @@ pet_stats = {
         'type': 'combat',
         'icon': '/head/212b58c841b394863dbcc54de1c2ad2648af8f03e648988c1f9cef0bc20ee23c'
     },
-    'SPIDER': {
-        'name': 'Spider', 
-        'stats': {
-            # No info :(
-        },
-        'type': 'unknown',
-        'icon': '/head/6eab75eaa5c9f2c43a0d23cfdce35f4df632e9815001850377385f7b2f039ce1'
-    },
     'BLAZE': {
         'name': 'Blaze', 
         'stats': {
@@ -476,9 +469,123 @@ pet_stats = {
         },
         'type': 'combat',
         'icon': '/head/822d8e751c8f2fd4c8942c44bdb2f5ca4d8ae8e575ed3eb34c18a86e93b'
+    },
+    'ZOMBIE': {
+        'name': 'Zombie',
+        'stats': {
+            'crit damage': lambda lvl: lvl * 10 // 3
+        }, # +0.25% zombie damage per level.
+        'type': 'combat',
+        'icon': '/head/822d8e751c8f2fd4c8942c44bdb2f5ca4d8ae8e575ed3eb34c18a86e93b'
+    },
+    'DOLPHIN': {
+        'name': 'Dolphin',
+        'stats': {
+        },
+        'type': 'fishing',
+        'icon': '/head/6271bda308834d738faf194677090bc3'
+    },
+    'JELLYFISH': {
+        'name': 'Jellyfish',
+        'stats': {
+        },
+        'type': 'alchemy',
+        'icon': '/head/913f086ccb56323f238ba3489ff2a1a34c0fdceeafc483acff0e5488cfd6c2f1'
+    },
+    'ELEPHANT': {
+        'name': 'Elephant',
+        'stats': {
+        },
+        'type': 'farming',
+        'icon': '/head/7071a76f669db5ed6d32b48bb2dba55d5317d7f45225cb3267ec435cfa514'
+    },
+    'MONKEY': {
+        'name': 'Monkey',
+        'stats': {
+        },
+        'type': 'foraging',
+        'icon': '/head/57ba53654c79265623b0aac6d2c611fe861b7fa22b392ef43674c11d8c8214c'
+    },
+    'SKELETON': {
+        'name': 'Skeleton',
+        'stats': {
+            'crit chance': lambda lvl: lvl // 6
+            'crit damage': lambda lvl: lvl // 3
+        },
+        'type': 'combat',
+        'icon': '/head/301268e9c492da1f0d88271cb492a4b302395f515a7bbf77f4a20b95fc02eb2'
+    },
+    'SPIDER': {
+        'name': 'Spider',
+        'stats': {
+            'strength': lambda lvl: lvl // 10
+            'crit chance': lambda lvl: lvl // 10
+        },
+        'type': 'combat',
+        'icon': '/head/cd541541daaff50896cd258bdbdd4cf80c3ba816735726078bfe393927e57f1'
+    },
+    'ENDERMITE': {
+        'name': 'Endermite',
+        'stats': {
+        },
+        'type': 'mining',
+        'icon': '/head/5a1a0831aa03afb4212adcbb24e5dfaa7f476a1173fce259ef75a85855'
+    },
+    'PIG': {
+        'name': 'Pig',
+        'stats': {
+        },
+        'type': 'farming',
+        'icon': '/head/621668ef7cb79dd9c22ce3d1f3f4cb6e2559893b6df4a469514e667c16aa4'
+    },
+    'ROCK': {
+        'name': 'Rock',
+        'stats': {
+        },
+        'type': 'mining',
+        'icon': '/head/ca979f76633f5dda89496511716948e9d7b8592f6e1e480c5de1c83238d3e32'
+    },
+    'ROCK': {
+        'name': 'Rock',
+        'stats': {
+        },
+        'type': 'mining',
+        'icon': '/head/ca979f76633f5dda89496511716948e9d7b8592f6e1e480c5de1c83238d3e32'
+    },
+    'HOUND': {
+        'name': 'Hound',
+        'stats': {
+        },
+        'type': 'combat',
+        'icon': '/head/b7c8bef6beb77e29af8627ecdc38d86aa2fea7ccd163dc73c00f9f258f9a1457'
+    },
+    'GHOUL': {
+        'name': 'Ghoul',
+        'stats': {
+        },
+        'type': 'combat',
+        'icon': ''
+    },
+    'TARANTULA': {
+        'name': 'Tarantula',
+        'stats': {
+            'strength': lambda lvl: lvl // 10
+            'crit chance': lambda lvl: lvl // 10
+            'crit damage': lambda lvl: lvl * 3 // 10
+        },
+        'type': 'combat',
+        'icon': '/head/8300986ed0a04ea79904f6ae53f49ed3a0ff5b1df62bba622ecbd3777f156df8'
+    },
+    'GOLEM': {
+        'name': 'Golem',
+        'stats': {
+            'strength': lambda lvl: lvl // 2
+        },
+        'type': 'combat',
+        'icon': '/head/89091d79ea0f59ef7ef94d7bba6e5f17f2f7d4572c44f90f76c4819a714'
     }
 }
-
+        
 fairy_soul_hp_bonus = [
 	3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8,
 	8, 9, 9, 10, 10, 11, 11, 12, 12,
