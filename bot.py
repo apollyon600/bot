@@ -598,7 +598,7 @@ def chunks(lst, n):
 
 token = os.getenv('TOKEN')
 
-class Bot(discord.Client):
+class Bot(discord.AutoShardedClient):
 	def __init__(self, *args, **kwargs):
 		self.callables = {}
 		self.commands = {
