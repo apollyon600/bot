@@ -62,7 +62,6 @@ skill_rewards = {
 talismans = {re.compile(k): v for k, v in {
     'FARMING_TALISMAN': 'Farming Talisman',
     'VACCINE_TALISMAN': 'Vaccine Talisman',
-    'SPEED_TALISMAN': 'Speed Talisman',
     'WOOD_TALISMAN': 'Wood Affinity Talisman',
     'SKELETON_TALISMAN': 'Skeleton Talisman',
     'COIN_TALISMAN': 'Talisman of Coins',
@@ -76,16 +75,17 @@ talismans = {re.compile(k): v for k, v in {
     'WOLF_PAW': 'Wolf Paw',
     'FIRE_TALISMAN': 'Fire Talisman',    
     'BROKEN_PIGGY_BANK': 'Broken Piggy Bank',
-	'CRACKED_PIGGY_BANK': 'Cracked Piggy Bank',
+    'CRACKED_PIGGY_BANK': 'Cracked Piggy Bank',
     'PIGGY_BANK': 'Piggy Bank',
     'PIGS_FOOT': 'Pig\'s Foot', 
+    'SPEED_ARTIFACT': 'Speed Artifact',
     'FROZEN_CHICKEN': 'Frozen Chicken',
     'FISH_AFFINITY_TALISMAN': 'Fish Affinity Talisman',
     'FARMER_ORB': 'Farmer Orb',
     'HASTE_RING': 'Haste Ring',
     'NEW_YEAR_CAKE_BAG': 'New Year Cake Bag',
     'NIGHT_CRYSTAL': 'Night Crystal', 
-	'DAY_CRYSTAL': 'Day Crystal',
+    'DAY_CRYSTAL': 'Day Crystal',
     'FEATHER_ARTIFACT': 'Feather Artifact',
     'ARTIFACT_POTION_AFFINITY': 'Potion Affinity Artifact',
     'HEALING_RING': 'Healing Ring', 
@@ -473,7 +473,7 @@ pet_stats = {
     'ZOMBIE': {
         'name': 'Zombie',
         'stats': {
-            'crit damage': lambda lvl: lvl * 10 // 3
+            'crit damage': lambda lvl: lvl * 3 // 10
         }, # +0.25% zombie damage per level.
         'type': 'combat',
         'icon': '/head/822d8e751c8f2fd4c8942c44bdb2f5ca4d8ae8e575ed3eb34c18a86e93b'
@@ -509,8 +509,8 @@ pet_stats = {
     'SKELETON': {
         'name': 'Skeleton',
         'stats': {
-            'crit chance': lambda lvl: lvl // 6,
-            'crit damage': lambda lvl: lvl // 3
+            'crit chance': lambda lvl: lvl * 1.5 // 10,
+            'crit damage': lambda lvl: lvl * 3 // 10
         },
         'type': 'combat',
         'icon': '/head/301268e9c492da1f0d88271cb492a4b302395f515a7bbf77f4a20b95fc02eb2'
@@ -619,6 +619,8 @@ tiered_talismans = {
 	'RING_POTION_AFFINITY': ['ARTIFACT_POTION_AFFINITY'],
 	'SEA_CREATURE_RING': ['SEA_CREATURE_ARTIFACT'],
 	'SEA_CREATURE_TALISMAN': ['SEA_CREATURE_RING', 'SEA_CREATURE_ARTIFACT'],
+	'SPEED_RING': ['SPEED_ARTIFACT'],
+	'SPEED_TALISMAN': ['SPEED_RING', 'SPEED_ARTIFACT'],
 	'SHADY_RING': ['CROOKED_ARTIFACT', 'SEAL_OF_THE_FAMILY'],
 	'SPIDER_RING': ['SPIDER_ARTIFACT'],
 	'SPIDER_TALISMAN': ['SPIDER_RING', 'SPIDER_ARTIFACT'],
