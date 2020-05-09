@@ -1408,7 +1408,7 @@ class Bot(discord.AutoShardedClient):
 			return
 		
 		if len(player.weapons) == 0:
-			await channel.send(f'{user.mention} you have `no weapons` in your inventory')
+			await channel.send(f'{user.mention}, you have `no weapons` in your inventory. If you have any items in your inventory or backpacks with no rarity, this will stop sbs from finding your weapons. If you do not have any, DM uwu your profile.')
 			return
 			
 		if len(player.weapons) == 1:
