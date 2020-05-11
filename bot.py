@@ -1883,7 +1883,7 @@ class Bot(discord.AutoShardedClient):
             channel,
             user=user,
             title='Discord Stats',
-            description=f'This Command was run on shard {message.guild.shard_id if message.guild else 0} / {self.shard_count}\n```{server_rankings}```'
+            description=f'This Command was run on shard {(message.guild.shard_id + 1) if message.guild else 0} / {self.shard_count}\n```{server_rankings}```'
         ).add_field(
             name='Servers',
             value=f'{self.user.name} is running in {len(self.guilds)} servers with {sum(len(guild.text_channels) for guild in self.guilds)} channels',
