@@ -583,7 +583,13 @@ pet_stats = {
         },
         'type': 'combat',
         'icon': '/head/89091d79ea0f59ef7ef94d7bba6e5f17f2f7d4572c44f90f76c4819a714'
-    }
+    },
+    'BLACK_CAT': {
+        'name': 'Black Cat',
+        'stats': {
+        },
+        'type': 'combat',
+        'icon': '/head/e4b45cbaa19fe3d68c856cd3846c03b5f59de81a480eec921ab4fa3cd81317'
 }
         
 fairy_soul_hp_bonus = [
