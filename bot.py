@@ -121,20 +121,20 @@ RANKS = [
 '''
 EXPLOITERS = {
 	'6c80f48d85544035bb31e6cb9f40b948': ('farming', 'enchanting'),
-	'04e0ad3f4b7f4815bb39c3888249115c': ('farming',),
-	'6ac668e787e74561b86bae8c496d0f97': ('farming',),
-	'02bd483c511b4e1fbd0f0c071e2d0411': ('farming',),
-	'e91e2680d7da4bc4adbb30c04366f6fa': ('farming',),
-	'd14403fd77664905929ee1a6e365e623': ('enchanting',),
-	'8f0d1d399aee48f59d5af5f0f69e4eee': ('enchanting',),
-	'720d2a83efe446969bc29fbc8c98b31e': ('enchanting',),
-	'f33f51a796914076abdaf66e3d047a71': ('enchanting',),
-	'73464a378313409d8232076f44074bcf': ('enchanting',),
-	'7b488582998f405a84c19ad7a4e9b2e7': ('enchanting',),
-	'6170dede383a42a99db6166ca46a8469': ('combat',),	
-	'6c5b615c2c47428aad137249d37c6fcc': ('farming',),	
-	'44d03c6e2cba41799ad5c9d2f837d03d': ('farming',),	
-	'446dea472dd0494b89260421b9981d15': ('combat',)	   
+	'04e0ad3f4b7f4815bb39c3888249115c': ('farming'),
+	'6ac668e787e74561b86bae8c496d0f97': ('farming'),
+	'02bd483c511b4e1fbd0f0c071e2d0411': ('farming'),
+	'e91e2680d7da4bc4adbb30c04366f6fa': ('farming'),
+	'd14403fd77664905929ee1a6e365e623': ('enchanting'),
+	'8f0d1d399aee48f59d5af5f0f69e4eee': ('enchanting'),
+	'720d2a83efe446969bc29fbc8c98b31e': ('enchanting'),
+	'f33f51a796914076abdaf66e3d047a71': ('enchanting'),
+	'73464a378313409d8232076f44074bcf': ('enchanting'),
+	'7b488582998f405a84c19ad7a4e9b2e7': ('enchanting'),
+	'6170dede383a42a99db6166ca46a8469': ('combat'),	
+	'6c5b615c2c47428aad137249d37c6fcc': ('farming'),	
+	'44d03c6e2cba41799ad5c9d2f837d03d': ('farming'),	
+	'446dea472dd0494b89260421b9981d15': ('combat')	   
 }
 '''
 EXPLOITERS = {}
@@ -212,7 +212,7 @@ CHEAP_MAX_BOOK_LEVELS = {
 	'execute': 5,
 	'impaling': 3,
 	'power': 5,
-	'dragon_hunter': 3,
+	'dragon_hunter': 0,
 	'snipe': 3,
 	'spiked_hook': 5
 }
@@ -309,18 +309,18 @@ RELEVANT_REFORGES = {
 CLOSE_MESSAGE = '\n> _use **exit** to close the session_'
 
 PET_EMOJIS = {
-	'SKELETON_HORSE': '💀',
+	'SKELETON_HORSE': '🦓',
 	'SNOWMAN': '⛄',
 	'BAT': '🦇',
 	'SHEEP': '🐑',
 	'CHICKEN': '🐔',
 	'WITHER_SKELETON': '🏴‍☠️',
-	'SILVERFISH': '🗿',
+	'SILVERFISH': '🐁',
 	'RABBIT': '🐇',
 	'HORSE': '🐴',
 	'PIGMAN': '🐽',
 	'WOLF': '🐺',
-	'OCELOT': '🐱',
+	'OCELOT': '🐆',
 	'LION': '🦁',
 	'ENDER_DRAGON': '🐲',
 	'GUARDIAN': '🛡️',
@@ -335,7 +335,7 @@ PET_EMOJIS = {
 	'PARROT': '🦜',
 	'TIGER': '🐯',
 	'TURTLE': '🐢',
-	'SPIDER': '🕸️',
+	'SPIDER': '🕷️',
 	'BLAZE': '🔥',
 	'JERRY': '🤡',
 	'PIG': '🐽',
@@ -345,12 +345,11 @@ PET_EMOJIS = {
 	'ELEPHANT': '🐘',
 	'ZOMBIE': '🧟',
 	'SKELETON': '💀',
-	'SPIDER': '🕷️',
-	'ENDERMITE': '🗿',
-	'ROCK': '🗿',
-	'DOLPHIN': '🐟',
-	'HOUND': '🐺',
-	'GHOUL': '🧟',
+	'ENDERMITE': '🦠',
+	'ROCK': '🥌',
+	'DOLPHIN': '🐬',
+	'HOUND': '🐶',
+	'GHOUL': '🧟‍♀️',
 	'TARANTULA': '🕸️',
 	'GOLEM': '🗿'
 }
@@ -388,7 +387,7 @@ def format_pet(pet):
 	return f'{pet.title} |{pet.rarity.upper()}|' if pet else ''
 
 WHITE = ('', '')   
-GRAY = ('brainfuck', '')
+GRAY = ('bf', '')
 GREY = GRAY
 PUKE = ('css', '')
 GREEN = ('yaml', '')
@@ -789,7 +788,7 @@ class Bot(discord.AutoShardedClient):
 				f'{user.mention} someone else is currently using me in this channel! Try sending me a DM with your command instead')
 			return
 
-		if security == 1 and not channel.permissions_for(user).administrator:
+		if security == 1 and not channel.permissions_for(user).manage_messages:
 			await channel.send(
 				f'{user.mention} you do not have permission to use this command here! Try using it on your own discord server')
 			return
@@ -816,7 +815,7 @@ class Bot(discord.AutoShardedClient):
 			await Embed(
 				channel,
 				user=user,
-				description=f'Invalid guildname: {e.guild}'
+				description=f'Invalid guild name: {e.guild}'
 			).send()
 		except skypy.BadNameError as e:
 			await Embed(
@@ -841,12 +840,17 @@ class Bot(discord.AutoShardedClient):
 				description=str(e)
 			).send()
 		except discord.errors.Forbidden as e:
-			await Embed(
-				channel,
-				user=user,
-				title='Insufficent Permissions',
-				description='I do not have permissions to do this. Try enabling your DMS or giving me admin'
-			).send()
+			if channel.permissions_for(channel.guild.me).send_messages:
+				if channel.permissions_for(channel.guild.me).embed_links:
+					await Embed(
+						channel,
+						user=user,
+						title='Insufficient Permissions',
+						description='I do not have permissions to do this. Try enabling your DMS or giving me admin'
+					).send()
+			       else:
+					await channel.send(
+						'Insufficient Permissions: I do not have permissions to do this. Try enabling your DMS or giving me admin')
 		except Exception as e:
 			await Embed(
 				channel,
@@ -1847,19 +1851,35 @@ class Bot(discord.AutoShardedClient):
 		server_rankings = f'{"Top Servers".ljust(28)} | Users\n' + '\n'.join(
 			[f'{guild.name[:28].ljust(28)} | {len(guild.members)}' for guild in server_rankings])
 
-		await Embed(
+		_embed = Embed(
 			channel,
 			user=user,
-			title='Discord Stats'
+			title='Discord Stats',
+			description=f'This Command was run on shard {message.guild.shard_id if message.guild else 0} / {self.shard_count}\n```{server_rankings}```'
 		).add_field(
 			name='Servers',
-			value=f'{self.user.name} is running in {len(self.guilds)} servers with {sum(len(guild.text_channels) for guild in self.guilds)} channels\n```{server_rankings}```',
+			value=f'{self.user.name} is running in {len(self.guilds)} servers with {sum(len(guild.text_channels) for guild in self.guilds)} channels',
 			inline=False
 		).add_field(
 			name='Users',
 			value=f'There are currently {sum(len(guild.members) for guild in self.guilds)} users with access to the bot',
 			inline=False
-		).add_field(
+		)
+		shards = []
+		for x in range(self.shard_count): shards.append([0,0,0])
+		for x in self.guilds:
+			shards[x.shard_id][0] += 1
+			shards[x.shard_id][1] += len(x.text_channels)
+			shards[x.shard_id][2] += len(x.members)
+		for x in range(self.shard_count):
+			_embed.add_field(
+				name=f'Shard {x + 1}',
+				value=f'''{shards[x][0]} servers
+{shards[x][1]} channels
+{shards[x][2]} members''',
+				inline=True
+		    	)
+		_embed.add_field(
 			name='Heartbeat',
 			value=f'This message was delivered in {self.latency * 1000:.0f} milliseconds',
 			inline=False
