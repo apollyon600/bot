@@ -590,6 +590,7 @@ pet_stats = {
         },
         'type': 'combat',
         'icon': '/head/e4b45cbaa19fe3d68c856cd3846c03b5f59de81a480eec921ab4fa3cd81317'
+    }
 }
         
 fairy_soul_hp_bonus = [
