@@ -62,6 +62,7 @@ skill_rewards = {
 talismans = {re.compile(k): v for k, v in {
     'FARMING_TALISMAN': 'Farming Talisman',
     'VACCINE_TALISMAN': 'Vaccine Talisman',
+    'SPEED_TALISMAN': 'Speed Talisman',
     'WOOD_TALISMAN': 'Wood Affinity Talisman',
     'SKELETON_TALISMAN': 'Skeleton Talisman',
     'COIN_TALISMAN': 'Talisman of Coins',
@@ -75,17 +76,16 @@ talismans = {re.compile(k): v for k, v in {
     'WOLF_PAW': 'Wolf Paw',
     'FIRE_TALISMAN': 'Fire Talisman',    
     'BROKEN_PIGGY_BANK': 'Broken Piggy Bank',
-    'CRACKED_PIGGY_BANK': 'Cracked Piggy Bank',
+	'CRACKED_PIGGY_BANK': 'Cracked Piggy Bank',
     'PIGGY_BANK': 'Piggy Bank',
     'PIGS_FOOT': 'Pig\'s Foot', 
-    'SPEED_ARTIFACT': 'Speed Artifact',
     'FROZEN_CHICKEN': 'Frozen Chicken',
     'FISH_AFFINITY_TALISMAN': 'Fish Affinity Talisman',
     'FARMER_ORB': 'Farmer Orb',
     'HASTE_RING': 'Haste Ring',
     'NEW_YEAR_CAKE_BAG': 'New Year Cake Bag',
     'NIGHT_CRYSTAL': 'Night Crystal', 
-    'DAY_CRYSTAL': 'Day Crystal',
+	'DAY_CRYSTAL': 'Day Crystal',
     'FEATHER_ARTIFACT': 'Feather Artifact',
     'ARTIFACT_POTION_AFFINITY': 'Potion Affinity Artifact',
     'HEALING_RING': 'Healing Ring', 
@@ -473,7 +473,7 @@ pet_stats = {
     'ZOMBIE': {
         'name': 'Zombie',
         'stats': {
-            'crit damage': lambda lvl: lvl * 3 // 10
+            'crit damage': lambda lvl: lvl * 10 // 3
         }, # +0.25% zombie damage per level.
         'type': 'combat',
         'icon': '/head/822d8e751c8f2fd4c8942c44bdb2f5ca4d8ae8e575ed3eb34c18a86e93b'
@@ -509,8 +509,8 @@ pet_stats = {
     'SKELETON': {
         'name': 'Skeleton',
         'stats': {
-            'crit chance': lambda lvl: lvl * 1.5 // 10,
-            'crit damage': lambda lvl: lvl * 3 // 10
+            'crit chance': lambda lvl: lvl // 6,
+            'crit damage': lambda lvl: lvl // 3
         },
         'type': 'combat',
         'icon': '/head/301268e9c492da1f0d88271cb492a4b302395f515a7bbf77f4a20b95fc02eb2'
@@ -537,13 +537,6 @@ pet_stats = {
         },
         'type': 'farming',
         'icon': '/head/621668ef7cb79dd9c22ce3d1f3f4cb6e2559893b6df4a469514e667c16aa4'
-    },
-    'ROCK': {
-        'name': 'Rock',
-        'stats': {
-        },
-        'type': 'mining',
-        'icon': '/head/ca979f76633f5dda89496511716948e9d7b8592f6e1e480c5de1c83238d3e32'
     },
     'ROCK': {
         'name': 'Rock',
@@ -583,13 +576,6 @@ pet_stats = {
         },
         'type': 'combat',
         'icon': '/head/89091d79ea0f59ef7ef94d7bba6e5f17f2f7d4572c44f90f76c4819a714'
-    },
-    'BLACK_CAT': {
-        'name': 'Black Cat',
-        'stats': {
-        },
-        'type': 'combat',
-        'icon': '/head/e4b45cbaa19fe3d68c856cd3846c03b5f59de81a480eec921ab4fa3cd81317'
     }
 }
         
@@ -626,8 +612,6 @@ tiered_talismans = {
 	'RING_POTION_AFFINITY': ['ARTIFACT_POTION_AFFINITY'],
 	'SEA_CREATURE_RING': ['SEA_CREATURE_ARTIFACT'],
 	'SEA_CREATURE_TALISMAN': ['SEA_CREATURE_RING', 'SEA_CREATURE_ARTIFACT'],
-	'SPEED_RING': ['SPEED_ARTIFACT'],
-	'SPEED_TALISMAN': ['SPEED_RING', 'SPEED_ARTIFACT'],
 	'SHADY_RING': ['CROOKED_ARTIFACT', 'SEAL_OF_THE_FAMILY'],
 	'SPIDER_RING': ['SPIDER_ARTIFACT'],
 	'SPIDER_TALISMAN': ['SPIDER_RING', 'SPIDER_ARTIFACT'],

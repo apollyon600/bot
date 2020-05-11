@@ -1911,7 +1911,8 @@ class Bot(discord.AutoShardedClient):
             name='Heartbeat',
             value=f'This message was delivered in {self.latency * 1000:.0f} milliseconds',
             inline=False
-        ).send()
+        )
+        await _embed.send()
 
     async def start_event(self, message, *args):
         await self.unimplemented(message)
