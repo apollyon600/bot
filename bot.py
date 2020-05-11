@@ -1,22 +1,21 @@
+import concurrent.futures
+from aiohttp import ClientError
+import cloudscraper
+from bs4 import BeautifulSoup
+from datetime import datetime, timezone, timedelta
+from statistics import mean, median, mode, pstdev, StatisticsError
+import random
+import re
+import itertools
+import motor.motor_asyncio
+import traceback
+import math
+import asyncio
+import discord
+import os
 import skypy
 skypy.enable_advanced_mode()
 
-import os
-import discord
-import asyncio
-import math
-import traceback
-import motor.motor_asyncio
-import itertools
-import re
-import random
-from statistics import mean, median, mode, pstdev, StatisticsError
-from datetime import datetime, timezone, timedelta
-from bs4 import BeautifulSoup
-import cloudscraper
-from aiohttp import ClientError
-import traceback
-import concurrent.futures
 
 TIME_FORMAT = '%m/%d %I:%M %p UTC'
 
@@ -26,27 +25,31 @@ if os.environ.get('API_KEY') is None:
 	dotenv.load_dotenv()
 keys = os.getenv('API_KEY').split()
 
+
 class EndSession(Exception):
 	def __init__(self, message=''):
 		self.message = message
-		
+
 	def __str__(self):
 		return self.message
+
 
 def time_until(goal):
 	now = datetime.now(timezone.utc)
 	then = datetime.fromtimestamp(goal, timezone.utc)
 	delta = then - now
-	
-	d, h, m, s = delta.days, delta // timedelta(hours=1), delta // timedelta(minutes=1), delta.seconds
-		
+
+	d, h, m, s = delta.days, delta // timedelta(
+	    hours=1), delta // timedelta(minutes=1), delta.seconds
+
 	if d:
 		return f'{d} days, {h} hours'
-	
+
 	if h:
 		return f'{h} hours'
-		
+
 	return f'0:{m:02}:{s:02}'
+
 
 DAMAGING_POTIONS = {
 	'critical': {
@@ -57,7 +60,8 @@ DAMAGING_POTIONS = {
 		'levels': [0, 3, 4]
 	},
 	'strength': {
-		'stats': {'strength': [0, 5.25, 13.125, 21, 31.5, 42, 52.5, 63, 78.75]},  # Assume cola
+		# Assume cola
+		'stats': {'strength': [0, 5.25, 13.125, 21, 31.5, 42, 52.5, 63, 78.75]},
 		'levels': [0, 5, 6, 7, 8]
 	},
 	'spirit': {
@@ -106,7 +110,8 @@ LEADERBOARDS = {
 LEVELS = {name: LEADERBOARDS[name] for name in skypy.skills + skypy.slayers}
 
 RANKS = [
-	['CAROLINA REAPER', 'GHOST PEPPER', 'HABAÑERO', 'JALAPEÑO', 'SWEET BANANA', 'BELL PEPPER'],
+	['CAROLINA REAPER', 'GHOST PEPPER', 'HABAÑERO',
+	    'JALAPEÑO', 'SWEET BANANA', 'BELL PEPPER'],
 	['WIZARD', 'KING', 'QUEEN', 'LORD', 'JESTER', 'PEASANT'],
 	['PRESIDENT', 'GENERAL', 'MAJOR', 'SERGEANT', 'CORPORAL', 'PRIVATE'],
 	['S', 'A', 'B', 'C', 'D', 'F'],
@@ -131,10 +136,10 @@ EXPLOITERS = {
 	'f33f51a796914076abdaf66e3d047a71': ('enchanting'),
 	'73464a378313409d8232076f44074bcf': ('enchanting'),
 	'7b488582998f405a84c19ad7a4e9b2e7': ('enchanting'),
-	'6170dede383a42a99db6166ca46a8469': ('combat'),	
-	'6c5b615c2c47428aad137249d37c6fcc': ('farming'),	
-	'44d03c6e2cba41799ad5c9d2f837d03d': ('farming'),	
-	'446dea472dd0494b89260421b9981d15': ('combat')	   
+	'6170dede383a42a99db6166ca46a8469': ('combat'),
+	'6c5b615c2c47428aad137249d37c6fcc': ('farming'),
+	'44d03c6e2cba41799ad5c9d2f837d03d': ('farming'),
+	'446dea472dd0494b89260421b9981d15': ('combat')
 }
 '''
 EXPLOITERS = {}
@@ -354,6 +359,7 @@ PET_EMOJIS = {
 	'GOLEM': '🗿'
 }
 
+
 class Embed(discord.Embed):
 	nbst = '\u200b'
 
@@ -382,11 +388,13 @@ class Embed(discord.Embed):
 	async def send(self):
 		return await self.channel.send(self.user.mention if self.user else None, embed=self)
 
+
 def format_pet(pet):
 	"""Returns a pretty string repersenting a pet"""
 	return f'{pet.title} |{pet.rarity.upper()}|' if pet else ''
 
-WHITE = ('', '')   
+
+WHITE = ('', '')
 GRAY = ('bf', '')
 GREY = GRAY
 PUKE = ('css', '')
@@ -395,17 +403,20 @@ BLUE = ('md', '#')
 YELLOW = ('fix', '')
 ORANGE = ('glsl', '#')
 RED = ('diff', '-')
-RARITY_COLORS = {'common': GREY, 'uncommon': GREEN, 'rare': BLUE, 'epic': ORANGE, 'legendary': YELLOW}
+RARITY_COLORS = {'common': GREY, 'uncommon': GREEN,
+    'rare': BLUE, 'epic': ORANGE, 'legendary': YELLOW}
+
 
 def colorize(s, color):
 	language, point = color
 	s = str(s)
-	
+
 	if s:
 		return f'```{language}\n{point}' + s.replace('\n', f'\n{point}') + '\n```'
 	else:
 		return ''
-		
+
+
 formatting_codes = {
 	'0': GREY,
 	'1': BLUE,
@@ -431,24 +442,27 @@ formatting_codes = {
 	'r': '%s'
 }
 
-#§
+# §
+
+
 def minecraft_to_discord(minecraft):
 	minecraft = '§r' + minecraft
-	
+
 	def f(match):
 		code = match.group(1)
 		text = match.group(2)
 		format = formatting_codes[code]
-		
+
 		if isinstance(format, str):
 			return format % text
 		elif isinstance(format, tuple):
 			return colorize(text, format)
 		elif callable(format):
 			return format(text)
-	
+
 	return re.sub('§(.)(.*)?', f, minecraft)
-		
+
+
 def optimizer(opt_goal, player, weapon_damage, base_str, base_cc, base_cd):
 	best = 0
 	best_route = []
@@ -466,11 +480,13 @@ def optimizer(opt_goal, player, weapon_damage, base_str, base_cc, base_cd):
 	if opt_goal == 1 or cc_mod(base_cc) > 100:
 		for c, u, r, e, l in itertools.product(
 				*[Route.routes(counts[key], 4, rarity_num) for rarity_num, key in enumerate(counts.keys())]):
-			strength = str_mod(base_str + c.strength + u.strength + r.strength + e.strength + l.strength)
+			strength = str_mod(base_str + c.strength + u.strength +
+			                   r.strength + e.strength + l.strength)
 			crit_damage = cd_mod(
 				base_cd + c.crit_damage + u.crit_damage + r.crit_damage + e.crit_damage + l.crit_damage, strength)
 
-			d = (5 + weapon_damage + strength // 5) * (1 + strength / 100) * (1 + crit_damage / 100)
+			d = (5 + weapon_damage + strength // 5) * \
+			     (1 + strength / 100) * (1 + crit_damage / 100)
 
 			if d > best:
 				best = d
@@ -487,12 +503,15 @@ def optimizer(opt_goal, player, weapon_damage, base_str, base_cc, base_cd):
 				crit_chance = cc_mod(
 					base_cc + c.crit_chance + u.crit_chance + r.crit_chance + e.crit_chance + l.crit_chance) // 1
 				if crit_chance >= 100:
-					strength = str_mod(base_str + c.strength + u.strength + r.strength + e.strength + l.strength)
+					strength = str_mod(base_str + c.strength + u.strength +
+					                   r.strength + e.strength + l.strength)
 					crit_damage = cd_mod(
-						base_cd + c.crit_damage + u.crit_damage + r.crit_damage + e.crit_damage + l.crit_damage,
+						base_cd + c.crit_damage + u.crit_damage +
+						    r.crit_damage + e.crit_damage + l.crit_damage,
 						strength)
 
-					d = (5 + weapon_damage + strength // 5) * (1 + strength / 100) * (1 + crit_damage / 100)
+					d = (5 + weapon_damage + strength // 5) * \
+					     (1 + strength / 100) * (1 + crit_damage / 100)
 
 					if d > best:
 						best = d
@@ -503,14 +522,18 @@ def optimizer(opt_goal, player, weapon_damage, base_str, base_cc, base_cd):
 		else:
 			for c, u, r, e, l in itertools.product(
 					*[Route.routes(counts[key], 4, rarity_num) for rarity_num, key in enumerate(counts.keys())]):
-				crit_chance = base_cc + c.crit_chance + u.crit_chance + r.crit_chance + e.crit_chance + l.crit_chance
+				crit_chance = base_cc + c.crit_chance + u.crit_chance + \
+				    r.crit_chance + e.crit_chance + l.crit_chance
 				if crit_chance >= 100:
-					strength = str_mod(base_str + c.strength + u.strength + r.strength + e.strength + l.strength)
+					strength = str_mod(base_str + c.strength + u.strength +
+					                   r.strength + e.strength + l.strength)
 					crit_damage = cd_mod(
-						base_cd + c.crit_damage + u.crit_damage + r.crit_damage + e.crit_damage + l.crit_damage,
+						base_cd + c.crit_damage + u.crit_damage +
+						    r.crit_damage + e.crit_damage + l.crit_damage,
 						strength)
 
-					d = (5 + weapon_damage + strength // 5) * (1 + strength / 100) * (1 + crit_damage / 100)
+					d = (5 + weapon_damage + strength // 5) * \
+					     (1 + strength / 100) * (1 + crit_damage / 100)
 
 					if d > best:
 						best = d
@@ -518,8 +541,9 @@ def optimizer(opt_goal, player, weapon_damage, base_str, base_cc, base_cd):
 						best_str = strength
 						best_cc = crit_chance
 						best_cd = crit_damage
-				
+
 	return best, best_route, best_str, best_cc, best_cd
+
 
 class Route:
 	def __init__(self, talismans, rarity):
@@ -530,7 +554,8 @@ class Route:
 		]
 		self.counts = talismans
 		self.rarity = rarity
-		self.rarity_str = ["common", "uncommon", "rare", "epic", "legendary"][self.rarity]
+		self.rarity_str = ["common", "uncommon",
+		    "rare", "epic", "legendary"][self.rarity]
 
 	def __str__(self):
 		return ' ߸ '.join(f'{c} '
@@ -571,6 +596,7 @@ def chunks(lst, n):
 	for i in range(0, len(lst), n):
 		yield lst[i:i + n]
 
+
 '''
 'skill events': {
 	'emoji': '😎',
@@ -596,6 +622,7 @@ def chunks(lst, n):
 '''
 
 token = os.getenv('TOKEN')
+
 
 class Bot(discord.AutoShardedClient):
 	def __init__(self, *args, **kwargs):
@@ -764,7 +791,8 @@ class Bot(discord.AutoShardedClient):
 			return
 
 		'''
-		whitelisted_servers = [int(server) for server in os.getenv('SERVERS').split()]
+		whitelisted_servers = [int(server)
+		                           for server in os.getenv('SERVERS').split()]
 		if not dm and not channel.guild.id in whitelisted_servers and len(channel.guild.members) > 50:
 			await Embed(
 				channel,
@@ -777,7 +805,7 @@ class Bot(discord.AutoShardedClient):
 			await self.log('Paywal enforced in server {guild.name}')
 			return
 		'''
-		
+
 		data = self.callables[name]
 		security = data['security'] if 'security' in data else 0
 		session = 'session' in data and data['session']
@@ -794,7 +822,7 @@ class Bot(discord.AutoShardedClient):
 			return
 
 		await self.log(f'{user.name} used {name} {args} in {"a DM" if dm else channel.guild.name}')
-		
+
 		if session:
 			self.hot_channels[channel] = user
 
@@ -879,7 +907,7 @@ class Bot(discord.AutoShardedClient):
 				await channel.send(f'{user.mention} invalid profile!')
 				return None
 				
-		#await update_top_players(player)
+		# await update_top_players(player)
 		
 		return player
 
@@ -1572,7 +1600,7 @@ class Bot(discord.AutoShardedClient):
 		base_cc = stats['crit chance']
 		base_cd = stats['crit damage']
 
-		#print(*(f"({n} {v})" for n, v in locals().items()))
+		# print(*(f"({n} {v})" for n, v in locals().items()))
 
 		best, best_route, best_str, best_cc, best_cd = await self.loop.run_in_executor(None,
 			optimizer,
