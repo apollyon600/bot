@@ -648,7 +648,7 @@ class Bot(discord.AutoShardedClient):
                     },
                     'invite': {
                         'function': self.invite,
-                        'desc': 'Do you wanna add the bot to your server? Use this command'
+                        'desc': 'Use this command to invite the bot to your server!'
                     }
                 }
             },
@@ -2079,7 +2079,7 @@ class Bot(discord.AutoShardedClient):
         await Embed(
             message.channel,
             user=message.author,
-            title='Here\'s a invite link',
+            title='Here\'s an invite link',
             description='[Click me to invite the bot](https://discord.com/oauth2/authorize?client_id=671040150251372569&permissions=8&scope=bot)'
         ).send()
 
