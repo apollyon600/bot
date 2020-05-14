@@ -405,6 +405,8 @@ ORANGE = ('glsl', '#')
 RED = ('diff', '-')
 RARITY_COLORS = {'common': GREY, 'uncommon': GREEN,
     'rare': BLUE, 'epic': ORANGE, 'legendary': YELLOW}
+RARITY_SCORES = {'common': 1, 'uncommon': 2,
+    'rare': 3, 'epic': 4, 'legendary': 5}
 
 
 def colorize(s, color):
@@ -643,6 +645,10 @@ class Bot(discord.AutoShardedClient):
                     'support': {
                         'function': self.support_server,
                         'desc': 'Have an question about the bot? Use this command'
+                    },
+                    'invite': {
+                        'function': self.invite,
+                        'desc': 'Use this command to invite the bot to your server!'
                     }
                 }
             },
@@ -768,7 +774,7 @@ class Bot(discord.AutoShardedClient):
         if channel in self.hot_channels and self.hot_channels[channel] == user:
             return
 
-        command = message.content.replace('!', '', 1)
+        command = message.content[1:] if message.content.startswith('!') else message.content
 
         if command == self.user.mention:
             await self.help(message)
@@ -1267,7 +1273,15 @@ class Bot(discord.AutoShardedClient):
         
         if player.pets:
             for chunk in chunks(sorted(player.pets, key=lambda pet: (pet.active, pet.xp), reverse=True), 18):
+                best_pets = {}
+                pet_score = 0
+                bonus_mf = 0
                 for pet in chunk:
+                    if best_pets.get(pet.internal_name, False):
+                        if RARITY_SCORES[pet.rarity] > best_pets[pet.internal_name]:
+                            best_pets[pet.internal_name] = RARITY_SCORES[pet.rarity]
+                    else:
+                        best_pets[pet.internal_name] = RARITY_SCORES[pet.rarity]
                     progress = 100 * pet.xp / (pet.xp + pet.xp_remaining)
                     progress = f'\n{progress:.2f}% to 100' if progress < 100 else ''
                     
@@ -1281,9 +1295,16 @@ class Bot(discord.AutoShardedClient):
                         name=f'{PET_EMOJIS[pet.internal_name]}\t{pet.name}{pin}',
                         value=value + colorize(pet.rarity.upper(), RARITY_COLORS[pet.rarity])
                     )
-                
+                for x in best_pets:
+                    pet_score += best_pets[x]
+                for x in [10,25,50,85,125]:
+                    bonus_mf += 1 if pet_score >= x else 0
+                embed.add_field(
+                    name=f'Pet Score',
+                    value=f'You gain {pet_score} points from {len(best_pets)} types. (+{bonus_mf} Magic Find)',
+                    inline=False
+                )
                 await embed.send()
-                embed = Embed(channel, user=user).set_thumbnail(url=player.avatar())
         else:
             embed.add_field(name=None, value='```❌ no pets found```')
             await embed.send()
@@ -1485,7 +1506,7 @@ class Bot(discord.AutoShardedClient):
             value=f'```{weapon.name}```',
             inline=False
         ).add_field(
-            name=f'{PET_EMOJIS[pet.internal_name] if pet else PET_EMOJIS["OCELOT"]}\tPet',
+            name=f'{PET_EMOJIS[pet.internal_name] if pet else '🐣'}\tPet',
             value=f'```{format_pet(pet) if pet else None}```',
             inline=False
         )
@@ -1829,7 +1850,7 @@ class Bot(discord.AutoShardedClient):
             dm,
             user=user,
             title='Skyblock Simplified',
-            description='Welcome to Skyblock Simplified, a Skyblock bot designed to streamline gameplay\nAdd to your server with https://tinyurl.com/add-sbs\n'
+            description='Welcome to Skyblock Simplified, a Skyblock bot designed to streamline gameplay\n[Click me](https://discord.com/oauth2/authorize?client_id=671040150251372569&permissions=8&scope=bot) to invite the bot to your server\n'
                         f'**React to this message with any of the emojis to view commands**\n{self.args_message}\n'
         ).set_footer(
             text='Skyblock Simplified for Hypixel Skyblock | Created by notnotmelon#7218'
@@ -2052,6 +2073,14 @@ class Bot(discord.AutoShardedClient):
             description='[https://discord.gg/8Wbh3p7]'
         ).set_footer(
             text='(ﾉ◕ヮ◕)ﾉ*:･ﾟ✧'
+        ).send()
+
+    async def invite(self, message, *args):
+        await Embed(
+            message.channel,
+            user=message.author,
+            title='Here\'s an invite link',
+            description='[Click me to invite the bot](https://discord.com/oauth2/authorize?client_id=671040150251372569&permissions=8&scope=bot)'
         ).send()
 
 async def craftlink(user, channel, query, *, operation, **kwargs):
