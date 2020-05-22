@@ -331,6 +331,9 @@ class ApiInterface:
 
 			elif e.code == 500:
 				raise HypixelError(f'Hypixel\'s servers could not complete your request')
+		
+			elif e.code == 502:
+				raise HypixelError(f'Hypixel\'s API is currently not working. Please try again in a few minutes.')
 
 			else:
 				raise e from None
