@@ -358,7 +358,8 @@ PET_EMOJIS = {
 	'HOUND': '🐶',
 	'GHOUL': '🧟‍♀️',
 	'TARANTULA': '🕸️',
-	'GOLEM': '🗿'
+	'GOLEM': '🗿',
+	'BABY_YETI': '❄️'
 }
 
 
