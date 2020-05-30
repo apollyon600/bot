@@ -583,7 +583,15 @@ pet_stats = {
         },
         'type': 'combat',
         'icon': '/head/e4b45cbaa19fe3d68c856cd3846c03b5f59de81a480eec921ab4fa3cd81317'
-    }
+    },
+    "BABY_YETI": {
+        'name': 'Baby Yeti',
+        'stats': {
+            'strength': lambda lvl: lvl * 2 // 5
+        },
+        'type': 'fishing',
+        'icon': '/head/ab126814fc3fa846dad934c349628a7a1de5b415021a03ef4211d62514d5'
+     }
 }
 
 fairy_soul_hp_bonus = [
