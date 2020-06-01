@@ -75,8 +75,9 @@ talismans = {re.compile(k): v for k, v in {
     'SCAVENGER_TALISMAN': 'Scavenger Talisman',
     'WOLF_PAW': 'Wolf Paw',
     'FIRE_TALISMAN': 'Fire Talisman',
+    'BROKEN_PIGGY_BANK': 'Broken Piggy Bank',
+	'CRACKED_PIGGY_BANK': 'Cracked Piggy Bank',
     'PIGGY_BANK': 'Piggy Bank',
-    'SPEED_RING': 'Speed Ring',
     'PIGS_FOOT': 'Pig\'s Foot',
     'FROZEN_CHICKEN': 'Frozen Chicken',
     'FISH_AFFINITY_TALISMAN': 'Fish Affinity Talisman',
@@ -96,7 +97,6 @@ talismans = {re.compile(k): v for k, v in {
     'WOLF_RING': 'Wolf Ring',
     'BAT_ARTIFACT': 'Bat Artifact',
     'DEVOUR_RING': 'Devour Ring',
-    'SPEED_ARTIFACT': 'Speed Artifact',
     'ZOMBIE_ARTIFACT': 'Zombie Artifact',
     'SPIDER_ARTIFACT': 'Spider Artifact',
     'ENDER_ARTIFACT': 'Ender Artifact',
@@ -583,7 +583,15 @@ pet_stats = {
         },
         'type': 'combat',
         'icon': '/head/e4b45cbaa19fe3d68c856cd3846c03b5f59de81a480eec921ab4fa3cd81317'
-    }
+    },
+    "BABY_YETI": {
+        'name': 'Baby Yeti',
+        'stats': {
+            'strength': lambda lvl: lvl * 2 // 5
+        },
+        'type': 'fishing',
+        'icon': '/head/ab126814fc3fa846dad934c349628a7a1de5b415021a03ef4211d62514d5'
+     }
 }
 
 fairy_soul_hp_bonus = [
@@ -604,8 +612,10 @@ guild_level_requirements = [100000, 150000, 250000, 500000, 750000, 1000000, 125
 tiered_talismans = {
 	'BAT_RING': ['BAT_ARTIFACT'],
 	'BAT_TALISMAN': ['BAT_RING', 'BAT_ARTIFACT'],
+    'BROKEN_PIGGY_BANK': ['CRACKED_PIGGY_BANK', 'PIGGY_BANK'],
 	'CANDY_RING': ['CANDY_ARTIFACT'],
 	'CANDY_TALISMAN': ['CANDY_RING', 'CANDY_ARTIFACT'],
+    'CRACKED_PIGGY_BANK': ['PIGGY_BANK'],
 	'CROOKED_ARTIFACT': ['SEAL_OF_THE_FAMILY'],
 	'FEATHER_RING': ['FEATHER_ARTIFACT'],
 	'FEATHER_TALISMAN': ['FEATHER_RING', 'FEATHER_ARTIFACT'],
@@ -620,8 +630,6 @@ tiered_talismans = {
 	'SEA_CREATURE_RING': ['SEA_CREATURE_ARTIFACT'],
 	'SEA_CREATURE_TALISMAN': ['SEA_CREATURE_RING', 'SEA_CREATURE_ARTIFACT'],
 	'SHADY_RING': ['CROOKED_ARTIFACT', 'SEAL_OF_THE_FAMILY'],
-    'SPEED_RING': ['SPEED_ARTIFACT'],
-    'SPEED_TALISMAN': ['SPEED_RING', 'SPEED_ARTIFACT'],
 	'SPIDER_RING': ['SPIDER_ARTIFACT'],
 	'SPIDER_TALISMAN': ['SPIDER_RING', 'SPIDER_ARTIFACT'],
 	'WOLF_TALISMAN': ['WOLF_RING'],

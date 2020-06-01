@@ -211,8 +211,8 @@ class Item:
 						results[stat] -= amount * reforge_multiplier
 		return results
 
-def damage(weapon_dmg, strength, crit_dmg, ench_modifier):
-	return (5 + weapon_dmg + strength // 5) * (1 + strength / 100) * (1 + crit_dmg / 100) * (1 + ench_modifier / 100)
+def damage(weapon_dmg, strength, crit_dmg, ench_modifier, multiplier):
+	return (5 + weapon_dmg + strength // 5) * (1 + strength / 100) * (1 + crit_dmg / 100) * (1 + ench_modifier / 100) * multiplier
 
 #class Stats:
 #	def __init__(self, dict):

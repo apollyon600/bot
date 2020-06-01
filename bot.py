@@ -358,7 +358,8 @@ PET_EMOJIS = {
 	'HOUND': '🐶',
 	'GHOUL': '🧟‍♀️',
 	'TARANTULA': '🕸️',
-	'GOLEM': '🗿'
+	'GOLEM': '🗿',
+	'BABY_YETI': '❄️'
 }
 
 
@@ -1744,12 +1745,13 @@ xp: {current:,}
 		channel = message.channel
 		user = message.author
 
-		stats = {'strength': 0, 'crit damage': 0, 'weapon damage': 0, 'combat level': 0}
+		stats = {'strength': 0, 'crit damage': 0, 'weapon damage': 0, 'combat level': 0, 'multiplier': 0}
 		questions = {
 			'strength': f'{user.mention} how much **strength** do you want to have?',
 			'crit damage': f'{user.mention} how much **crit damage** do you want to have?',
 			'weapon damage': f'{user.mention} how much **damage** does your weapon have on the tooltip?',
-			'combat level': f'{user.mention} what is your **combat level**?'
+			'combat level': f'{user.mention} what is your **combat level**?',
+			'multiplier': f'{user.mention} What multiplier would you like to add? (temporary)'
 		}
 
 		for stat in stats.keys():
@@ -1759,7 +1761,7 @@ xp: {current:,}
 			if resp.content[0] == '+':
 				resp.content = resp.content[1:]
 
-			if resp.content.isdigit() is False or len(resp.content) > 20:
+			if resp.content.isnumeric() is False or len(resp.content) > 20:
 				await channel.send(f'{user.mention} Invalid input!')
 				return
 			stats[stat] = int(resp.content)
@@ -1801,14 +1803,16 @@ xp: {current:,}
 			stats['weapon damage'],
 			stats['strength'],
 			stats['crit damage'],
-			modifier
+			modifier,
+			multiplier
 		))
 
 		no_crit = round(skypy.damage(
 			stats['weapon damage'],
 			stats['strength'],
 			0,
-			modifier
+			modifier,
+			multiplier
 		))
 
 		await Embed(
