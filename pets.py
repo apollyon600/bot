@@ -37,7 +37,7 @@ def lion(player, stats, pet):
     # Adds (Pet lvl * 0.03) damage to your weapons. (Common) (0.05 on Uncommon) (0.1 on Rare) (0.15 on Epic) (0.2 on Legendary)
     # Increases damage dealt by (Pet lvl * 0.3%) on your first hit on a mob. (Rare) (0.4% on Epic) (0.5% on Legendary)
     # Deal (Pet lvl * 0.3%) weapon damage against mobs below level 80. (Legendary)
-    pass
+    stats['weapon damage'] += pet.level * {'common': 0.03, 'uncommon': 0.05, 'rare': 0.1, 'epic': 0.15, 'legendary': 0.2}[pet.rarity]
 
 
 def wolf(player, stats, pet):
@@ -108,8 +108,10 @@ def zombie(player, stats, pet):
 def skeleton(player, stats, pet):
     # Increase arrow damage by (Pet lvl * 0.1%), which is tripled while in dungeons. (Common, Uncommon, Rare) (0.2% on Epic, Legendary)
     # Gain a combo stack for every bow hit granting +3 Strength. Max (Pet lvl * 0.1) stacks, stacks disappear after 8 seconds. (Rare) (0.2 on Epic, Legendary)
-    pass
+    if player.weapon.type == 'bow' and (pet.rarity == 'legendary' or pet.rarity == 'epic'):
+        stats['multiplier']
 
+        
 
 def spider(player, stats, pet):
     # Gain (Pet lvl * 0.1) strength for every nearby spider (Max 10). (All)

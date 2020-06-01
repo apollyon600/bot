@@ -156,7 +156,7 @@ relavant_enchants = {
 		'smite',
 		'bane_of_arthropods',
 		'execute'
-	]
+	],
 	'zealots': [
 		'giant_killer',
 		'sharpness',

@@ -54,7 +54,7 @@ skill_rewards = {
 	'combat': {
 		0: {
 			'crit chance': 1,
-			'ench modifer': 4
+			'ench modifier': 4
 		}
 	}
 }
@@ -64,7 +64,7 @@ talismans = {re.compile(k): v for k, v in {
 	'VACCINE_TALISMAN': 'Vaccine Talisman',
 	'SPEED_TALISMAN': 'Speed Talisman',
 	'SPEED_RING': 'Speed Ring',
-	'SPEED_ARTIFACT': 'Speed Artifact'
+	'SPEED_ARTIFACT': 'Speed Artifact',
 	'WOOD_TALISMAN': 'Wood Affinity Talisman',
 	'SKELETON_TALISMAN': 'Skeleton Talisman',
 	'COIN_TALISMAN': 'Talisman of Coins',
@@ -253,7 +253,7 @@ pet_xp = {
 	]
 }
 
-def none(*):
+def none():
 	pass
 
 def pigman(player, stats, pet):
@@ -270,7 +270,7 @@ def sheep(player, stats, pet):
 
 
 def witherskeleton(player, stats, pet):
-    # Deal (Pet lvl * 0.5%) more damage against wither mobs. (All)
+    # Deal (Pet lvl * 0.5%) more damage against wither mobs. (All) - tbd
     # Upon hitting an enemy inflict the wither effect for (Pet lvl * 2%) damage over 3 seconds (No stack). (Legendary)
     pass
 
@@ -362,6 +362,9 @@ def yeti(player, stats, pet):
 	if pet.rarity == 'legendary' and player.weapon == 'YETI_SWORD':
 		player.weapon.stats['damage'] += pet.level
 		player.weapon.stats['intelligence'] += pet.level
+
+def flyingfish(player, stats, pet):
+    pass
 
 pets = {
 	'SKELETON_HORSE': {
