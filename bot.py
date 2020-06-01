@@ -15,10 +15,6 @@ import discord
 import os
 import skypy
 from constants import skills, cosmetic_skills
-skypy.enable_advanced_mode()
-
-
-TIME_FORMAT = '%m/%d %I:%M %p UTC'
 
 if os.environ.get('API_KEY') is None:
 	import dotenv
@@ -34,25 +30,7 @@ class EndSession(Exception):
 	def __str__(self):
 		return self.message
 
-
-def time_until(goal):
-	now = datetime.now(timezone.utc)
-	then = datetime.fromtimestamp(goal, timezone.utc)
-	delta = then - now
-
-	d, h, m, s = delta.days, delta // timedelta(
-		hours=1), delta // timedelta(minutes=1), delta.seconds
-
-	if d:
-		return f'{d} days, {h} hours'
-
-	if h:
-		return f'{h} hours'
-
-	return f'0:{m:02}:{s:02}'
-
-
-DAMAGING_POTIONS = {
+potions = {
 	'critical': {
 		'stats': {
 			'crit chance': [0, 10, 15, 20, 25],
@@ -75,7 +53,7 @@ DAMAGING_POTIONS = {
 	}
 }
 
-ORBS = {
+orbs = {
 	'weird tuba': {
 		'internal': 'WEIRD_TUBA',
 		'stats': {'strength': 30}
@@ -90,63 +68,7 @@ ORBS = {
 	}
 }
 
-LEADERBOARDS = {
-	'skill average': ('📈', lambda player: player.skill_average, None),
-	'minion slots': ('⛓', lambda player: player.unique_minions, lambda player: player.minion_slots),
-	'farming': ('🌾', lambda player: player.skill_xp['farming'], lambda player: player.skills['farming']),
-	'mining': ('⛏', lambda player: player.skill_xp['mining'], lambda player: player.skills['mining']),
-	'combat': ('⚔', lambda player: player.skill_xp['combat'], lambda player: player.skills['combat']),
-	'foraging': ('🪓', lambda player: player.skill_xp['foraging'], lambda player: player.skills['foraging']),
-	'enchanting': ('📖', lambda player: player.skill_xp['enchanting'], lambda player: player.skills['enchanting']),
-	'alchemy': ('⚗', lambda player: player.skill_xp['alchemy'], lambda player: player.skills['alchemy']),
-	'fishing': ('🎣', lambda player: player.skill_xp['fishing'], lambda player: player.skills['fishing']),
-	'taming': ('🐣', lambda player: player.skill_xp['taming'], lambda player: player.skills['taming']),
-	'carpentry': ('🪑', lambda player: player.skill_xp['carpentry'], lambda player: player.skills['carpentry']),
-	'runecrafting': ('⚜️', lambda player: player.skill_xp['runecrafting'], lambda player: player.skills['runecrafting']),
-	'zombie': ('🧟', lambda player: player.slayer_xp['zombie'], lambda player: player.slayers['zombie']),
-	'spider': ('🕸️', lambda player: player.slayer_xp['spider'], lambda player: player.slayers['spider']),
-	'wolf': ('🐺', lambda player: player.slayer_xp['wolf'], lambda player: player.slayers['wolf']),
-	'total slayer': ('☠️', lambda player: player.total_slayer_xp, None)
-}
-
-LEVELS = {name: LEADERBOARDS[name] for name in skypy.skills + skypy.slayers}
-
-RANKS = [
-	['CAROLINA REAPER', 'GHOST PEPPER', 'HABAÑERO',
-		'JALAPEÑO', 'SWEET BANANA', 'BELL PEPPER'],
-	['WIZARD', 'KING', 'QUEEN', 'LORD', 'JESTER', 'PEASANT'],
-	['PRESIDENT', 'GENERAL', 'MAJOR', 'SERGEANT', 'CORPORAL', 'PRIVATE'],
-	['S', 'A', 'B', 'C', 'D', 'F'],
-	['MVP++', 'MVP+', 'MVP', 'VIP+', 'VIP', 'NON'],
-	['DRAGON', 'DINOSAUR', 'GILA', 'TURTLE', 'SNAKE', 'GECKO'],
-	['LEGENDARY', 'EPIC', 'RARE', 'UNCOMMON', 'COMMON', '" " " "SPECIAL" " " "'],
-	['GOD', 'PRO', 'ADVANCED', 'VIABLE', 'AVERAGE', 'NOOB'],
-	['PC', 'NINTENDO', 'PLAY STATION', 'XBOX', 'VR', 'MOBILE']
-]
-
-# List of players that bug abused skills or severely macroed for stats
-'''
-EXPLOITERS = {
-	'6c80f48d85544035bb31e6cb9f40b948': ('farming', 'enchanting'),
-	'04e0ad3f4b7f4815bb39c3888249115c': ('farming'),
-	'6ac668e787e74561b86bae8c496d0f97': ('farming'),
-	'02bd483c511b4e1fbd0f0c071e2d0411': ('farming'),
-	'e91e2680d7da4bc4adbb30c04366f6fa': ('farming'),
-	'd14403fd77664905929ee1a6e365e623': ('enchanting'),
-	'8f0d1d399aee48f59d5af5f0f69e4eee': ('enchanting'),
-	'720d2a83efe446969bc29fbc8c98b31e': ('enchanting'),
-	'f33f51a796914076abdaf66e3d047a71': ('enchanting'),
-	'73464a378313409d8232076f44074bcf': ('enchanting'),
-	'7b488582998f405a84c19ad7a4e9b2e7': ('enchanting'),
-	'6170dede383a42a99db6166ca46a8469': ('combat'),
-	'6c5b615c2c47428aad137249d37c6fcc': ('farming'),
-	'44d03c6e2cba41799ad5c9d2f837d03d': ('farming'),
-	'446dea472dd0494b89260421b9981d15': ('combat')
-}
-'''
-EXPLOITERS = {}
-
-PROFILE_EMOJIS = {
+profile_emojis = {
 	'Apple': '🍎',
 	'Banana': '🍌',
 	'Blueberry': '🔵',
@@ -171,7 +93,7 @@ PROFILE_EMOJIS = {
 }
 
 # list of all enchantment powers per level. can be a function or a number
-ENCHANTMENT_VALUES = {
+enchantment_effects = {
 	# sword always
 	'sharpness': 5,
 	'giant_killer': lambda level: 25 if level > 0 else 0,
@@ -192,10 +114,10 @@ ENCHANTMENT_VALUES = {
 	'spiked_hook': 5
 }
 
-MAX_BOOK_LEVELS = {
+max_book_levels = {
 	'sharpness': 6,
 	'giant_killer': 6,
-	'smite': 6,
+	'smite': 7,
 	'bane_of_arthropods': 6,
 	'first_strike': 4,
 	'ender_slayer': 6,
@@ -208,7 +130,7 @@ MAX_BOOK_LEVELS = {
 	'spiked_hook': 6
 }
 
-CHEAP_MAX_BOOK_LEVELS = {
+max_book_levels_cheap = {
 	'sharpness': 5,
 	'giant_killer': 5,
 	'smite': 5,
@@ -225,7 +147,7 @@ CHEAP_MAX_BOOK_LEVELS = {
 }
 
 # list of relevant enchants for common mobs
-ACTIVITIES = {
+relavant_enchants = {
 	'slayer bosses': [
 		'giant_killer',
 		'sharpness',
@@ -234,65 +156,13 @@ ACTIVITIES = {
 		'smite',
 		'bane_of_arthropods',
 		'execute'
-	],
-	'dragons': [
-		'giant_killer',
-		'sharpness',
-		'power',
-		'spiked_hook',
-		'ender_slayer',
-		'execute',
-		'dragon_hunter',
-		'snipe'
-	],
+	]
 	'zealots': [
 		'giant_killer',
 		'sharpness',
 		'power',
 		'spiked_hook',
 		'ender_slayer',
-		'first_strike'
-	],
-	'sea creatures': [
-		'giant_killer',
-		'sharpness',
-		'power',
-		'spiked_hook',
-		'first_strike',
-		'impaling'
-	],
-	'players': [
-		'giant_killer',
-		'sharpness',
-		'power',
-		'spiked_hook',
-		'execute',
-		'snipe'
-	],
-	'magma boss': [
-		'giant_killer',
-		'sharpness',
-		'power',
-		'spiked_hook',
-		'cubism',
-		'execute',
-		'snipe'
-	],
-	'horseman': [
-		'giant_killer',
-		'sharpness',
-		'power',
-		'spiked_hook',
-		'execute',
-		'snipe'
-	],
-	'other': [
-		'giant_killer',
-		'sharpness',
-		'power',
-		'spiked_hook',
-		'smite',
-		'bane_of_arthropods',
 		'first_strike'
 	]
 }
@@ -304,14 +174,6 @@ RELEVANT_REFORGES = {
 	'godly': ((1, 1, 1), (2, 2, 2), (4, 2, 3), (7, 3, 6), (10, 5, 8))
 }
 reforges_list = list(RELEVANT_REFORGES.values())
-
-'''
-RELEVANT_REFORGES = {
-	'forceful': ((2, 0), (4, 0), (7, 0), None, None),
-	'itchy': ((1, 3), (2, 5), (2, 8), (3, 12), (5, 15)),
-	'strong': (None, None, (4, 4), (7, 7), (10, 10))
-}
-'''
 
 CLOSE_MESSAGE = '\n> _use **exit** to close the session_'
 
@@ -358,10 +220,30 @@ PET_EMOJIS = {
 	'HOUND': '🐶',
 	'GHOUL': '🧟‍♀️',
 	'TARANTULA': '🕸️',
-	'GOLEM': '🗿',
-	'BABY_YETI': '❄️'
+	'GOLEM': '🗿'
 }
 
+damage_reforges = {
+	'sword': {
+		'legendary': ['common', 'uncommon', 'rare', 'epic', 'legendary', 'mythic'],
+		'spicy': ['common', 'uncommon', 'rare', 'epic', 'legendary', 'mythic'],
+		'epic': ['common', 'uncommon', 'rare', 'epic', 'legendary', 'mythic'],
+		'odd': ['rare', 'epic', 'legendary', 'mythic'],
+		'gentle': ['common', 'uncommon', 'rare', 'epic', 'legendary', 'mythic'],
+		'fast': ['common', 'uncommon', 'rare', 'epic', 'legendary', 'mythic'],
+		'fabled': ['common', 'uncommon', 'rare', 'epic', 'legendary', 'mythic']
+	},
+	'bows': {
+		'awkward': ['epic', 'legendary', 'mythic'],
+		'fine': ['mythic'],
+		'neat': ['uncommon', 'rare', 'epic', 'legendary', 'mythic'],
+		'hasty': ['common', 'uncommon', 'rare', 'epic', 'legendary', 'mythic'],
+		'grand': ['common', 'uncommon', 'rare', 'epic', 'legendary', 'mythic'],
+		'rapid': ['common', 'uncommon', 'rare', 'epic', 'legendary', 'mythic'],
+		'deadly': ['uncommon', 'rare', 'epic', 'legendary', 'mythic'],
+		'unreal': ['common', 'uncommon', 'rare', 'epic', 'legendary', 'mythic']
+	}
+}
 
 class Embed(discord.Embed):
 	nbst = '\u200b'
@@ -409,10 +291,7 @@ BLUE = ('md', '#')
 YELLOW = ('fix', '')
 ORANGE = ('glsl', '#')
 RED = ('diff', '-')
-RARITY_COLORS = {'common': GREY, 'uncommon': GREEN,
-	'rare': BLUE, 'epic': ORANGE, 'legendary': YELLOW}
-RARITY_SCORES = {'common': 1, 'uncommon': 2,
-	'rare': 3, 'epic': 4, 'legendary': 5}
+RARITY_COLORS = {'common': GREY, 'uncommon': GREEN, 'rare': BLUE, 'epic': ORANGE, 'legendary': YELLOW}
 
 
 def colorize(s, color):
@@ -423,52 +302,6 @@ def colorize(s, color):
 		return f'```{language}\n{point}' + s.replace('\n', f'\n{point}') + '\n```'
 	else:
 		return ''
-
-
-formatting_codes = {
-	'0': GREY,
-	'1': BLUE,
-	'2': GREEN,
-	'3': BLUE,
-	'4': RED,
-	'5': '%s',
-	'6': YELLOW,
-	'7': GREY,
-	'8': GREY,
-	'9': BLUE,
-	'a': PUKE,
-	'b': BLUE,
-	'c': ORANGE,
-	'd': '%s',
-	'e': YELLOW,
-	'f': WHITE,
-	'k': lambda s: '*' * len(s),
-	'l': '**%s**',
-	'm': '~%s~',
-	'n': '__%s__',
-	'o': '*%s*',
-	'r': '%s'
-}
-
-# §
-
-
-def minecraft_to_discord(minecraft):
-	minecraft = '§r' + minecraft
-
-	def f(match):
-		code = match.group(1)
-		text = match.group(2)
-		format = formatting_codes[code]
-
-		if isinstance(format, str):
-			return format % text
-		elif isinstance(format, tuple):
-			return colorize(text, format)
-		elif callable(format):
-			return format(text)
-
-	return re.sub('§(.)(.*)?', f, minecraft)
 
 
 def optimizer(opt_goal, player, weapon_damage, base_str, base_cc, base_cd):
@@ -535,9 +368,7 @@ def optimizer(opt_goal, player, weapon_damage, base_str, base_cc, base_cd):
 				if crit_chance >= 100:
 					strength = str_mod(base_str + c.strength + u.strength +
 									   r.strength + e.strength + l.strength)
-					crit_damage = cd_mod(
-						base_cd + c.crit_damage + u.crit_damage +
-							r.crit_damage + e.crit_damage + l.crit_damage,
+					crit_damage = cd_mod(base_cd + c.crit_damage + u.crit_damage + r.crit_damage + e.crit_damage + l.crit_damage,
 						strength)
 
 					d = (5 + weapon_damage + strength // 5) * \
@@ -562,8 +393,7 @@ class Route:
 		]
 		self.counts = talismans
 		self.rarity = rarity
-		self.rarity_str = ["common", "uncommon",
-			"rare", "epic", "legendary"][self.rarity]
+		self.rarity_str = ['common', 'uncommon', 'rare', 'epic', 'legendary'][self.rarity]
 
 	def __str__(self):
 		return ' ߸ '.join(f'{c} '
@@ -603,31 +433,7 @@ def chunks(lst, n):
 	lst = list(lst)
 	for i in range(0, len(lst), n):
 		yield lst[i:i + n]
-
-
-'''
-'skill events': {
-	'emoji': '😎',
-	'desc': 'Useful for guilds. Records the amount of skill experience gained by each player in a week. Raise your averages!',
-	'commands': {
-		'start event': {
-			'security': 1,
-			'function': self.start_event,
-			'desc': 'Starts a skyblock event',
-			'session': True
-		},
-		'view leaderboard': {
-			'function': self.view_lb,
-			'desc': 'Displays the leaderboard for the current event'
-		},
-		'end event': {
-			'security': 1,
-			'function': self.end_event,
-			'desc': 'Ends the current event and displays the winners'
-		}
-	}
-},
-'''
+		
 class Bot(discord.AutoShardedClient):
 	def __init__(self, *args, **kwargs):
 		self.callables = {}
@@ -647,24 +453,6 @@ class Bot(discord.AutoShardedClient):
 					'support': {
 						'function': self.support_server,
 						'desc': 'Have an question about the bot? Use this command'
-					},
-					'invite': {
-						'function': self.invite,
-						'desc': 'Use this command to invite the bot to your server!'
-					}
-				}
-			},
-			'internet': {
-				'emoji': '🌐',
-				'desc': 'Surf the world wide web! Check the forums, manage guild applications, view the skyblock wiki, and more',
-				'commands': {
-					'news': {
-						'function': self.view_trending,
-						'desc': f'Displays the top three Skyblock threads from the past {trending_timeout} hours'
-					},
-					'wiki': {
-						'function': self.view_fandom_wiki,
-						'desc': f'Displays [Skyblock Fandom Wiki](https://hypixel-skyblock.fandom.com) Article'
 					}
 				}
 			},
@@ -681,62 +469,6 @@ class Bot(discord.AutoShardedClient):
 						'args': '[username] (profile)',
 						'function': self.view_missing_talismans,
 						'desc': 'Displays a list of your missing talismans. Also displays inactive/unnecessary talismans if you have them'
-					},
-					'damage': {
-						'function': self.calculate_damage,
-						'desc': 'Calcuates damage based on hypothetical stat values. This is not the talisman optimizer',
-						'session': True
-					}
-				}
-			},
-			'spy': {
-				'emoji': '🕵️‍♂️',
-				'desc': 'View stats and leaderboards for both guilds and players. Most functions work without API settings enabled',
-				'commands': {
-					'player': {
-						'args': '[username] (profile)',
-						'function': self.player,
-						'desc': 'Displays a player\'s guild, skills, and slayer levels'
-					},
-					'guild': {
-						'args': '[name]',
-						'function': self.guild,
-						'desc': 'Displays skill averages for a guild, aswell as leaderboards for all their players'
-					},
-					'royalty': {
-						'function': self.royalty,
-						'desc': 'Shows the top 30 guilds and players for every skill and slayer'
-					},
-					'pets': {
-						'args': '[username] (profile)',
-						'function': self.pets,
-						'desc': 'Shows all of a player\'s pets and their pet levels'
-					}
-				}
-			},
-			'auctions': {
-				'emoji': '💸',
-				'desc': 'View average prices for items aswell as past auctions for any player. Powered by https://hypixel-skyblock.com',
-				'commands': {
-					'price': {
-						'args': '[itemname] (stacksize)',
-						'function': self.price,
-						'desc': 'Displays the average price for any item'
-					},
-					'buys': {
-						'args': '[username]',
-						'function': self.buys,
-						'desc': 'Displays all past purchases for any player'
-					},
-					'sells': {
-						'args': '[username]',
-						'function': self.sells,
-						'desc': 'Displays all past purchases for any player'
-					},
-					'current': {
-						'args': '[username]',
-						'function': self.current_auctions,
-						'desc': 'Displays all current auctions'
 					}
 				}
 			}
@@ -746,9 +478,6 @@ class Bot(discord.AutoShardedClient):
 		self.args_message = '`[] signifies a required argument, while () signifies an optional argument`'
 
 		super().__init__(*args, **kwargs)
-
-		self.loop.run_in_executor(None, update_trending)
-
 
 	async def log(self, *args):
 		print(*args, sep='')
@@ -764,7 +493,7 @@ class Bot(discord.AutoShardedClient):
 		for data in self.commands.values():
 			self.callables.update(data['commands'])
 
-		await self.change_presence(activity=discord.Game('| 🍤 sbs help'))
+		await self.change_presence(activity=discord.Game(f'| 🍤 {prefix} help'))
 
 		self.ready = True
 
@@ -806,20 +535,6 @@ class Bot(discord.AutoShardedClient):
 
 		if name not in self.callables:
 			return
-
-		# whitelisted_servers = [int(server)
-		#							 for server in os.getenv('SERVERS').split()]
-		# if not dm and not channel.guild.id in whitelisted_servers and len(channel.guild.members) > 50:
-		#	  await Embed(
-		#		  channel,
-		#		  user=user,
-		#		  title='Donate 20$ to my PayPal to use Skyblock Simplified on this server',
-		#		  description='https://www.paypal.com/pools/c/8mstSPhQNO'
-		#	  ).set_footer(
-		#		  text='Free for servers under 50 members'
-		#	  ).send()
-		#	  await self.log('Paywal enforced in server {guild.name}')
-		#	  return
 
 		data = self.callables[name]
 		security = data['security'] if 'security' in data else 0
@@ -937,505 +652,6 @@ class Bot(discord.AutoShardedClient):
 			description=f'Correct usage is `{usage}`\n{self.args_message}'
 		).send()
 
-	async def current_auctions(self, message, *args):
-		user = message.author
-		channel = message.channel
-
-		if not args:
-			await self.no_args('current', user, channel)
-			return
-
-		player = await self.args_to_player(user, channel, *args)
-
-		auctions = await player.auctions()
-
-		if not auctions:
-			await Embed(channel, user=user, title='no auctions found').send()
-
-		async def pages(page_num):
-			target = auctions[page_num]
-			item = target['item']
-
-			embed = Embed(
-				channel,
-				user=user,
-				title=item.name
-			).add_field(
-				name=None,
-				value=minecraft_to_discord(item.description)
-			)
-
-			return embed, page_num == len(auctions) - 1
-
-		await self.book(user, channel, pages)
-
-	async def royalty(self, message, *args):
-		global db
-		lb = db.leaderboards
-
-		user = message.author
-		channel = message.channel
-
-		menu = {emoji: name for name, (emoji, _, _) in LEADERBOARDS.items()}
-
-		current = 'Skill Average'
-		while True:
-			emoji, function, optional_function = LEADERBOARDS[current.casefold()]
-
-			embed = Embed(
-				channel,
-				user=user,
-				title=f'{current} Leaderboard',
-				description=None
-			)
-
-			players = []
-
-			cursor = lb.find().sort(current, -1).limit(30)
-
-			i = 0
-			if optional_function:
-				for d in await cursor.to_list(length=None):
-					players.append(f'#{str(i + 1).ljust(2)} {d["name"]} [{round(d[current + "_"], 3)}] [{round(d[current], 3)}]')
-					i += 1
-			else:
-				for d in await cursor.to_list(length=None):
-					players.append(f'#{str(i + 1).ljust(2)} {d["name"]} [{round(d[current], 3)}]')
-					i += 1
-
-			portion = len(players) / 30
-			sections = [0, 1, 4, 9, 15, 22, 30]
-			peppers = random.choice(RANKS)
-			meal = {}
-			for i, pepper in enumerate(peppers):
-				meal[pepper] = players[round(sections[i] * portion): round(sections[i + 1] * portion)]
-
-			for pepper, players in meal.items():
-				embed.add_field(
-					name=pepper,
-					value=('```css\n' + '\n'.join(players) + '```') if players else r'```¯\_(ツ)_/¯```',
-					inline=False
-				)
-
-			msg = await embed.send()
-			current = await self.reaction_menu(msg, user, menu)
-			current = current.title()
-			await msg.delete()
-
-	async def price(self, message, *args):
-		user = message.author
-		channel = message.channel
-
-		if not args:
-			await self.no_args('price', user, channel)
-			return
-
-		if len(args) > 1 and args[-1].isdigit():
-			if len(args[-1]) > 20:
-				await channel.send(f'In what world would you need {args[-1]} of that???')
-				return
-			stacksize = int(args[-1])
-			itemname = ' '.join(args[:-1]).title()
-		else:
-			stacksize = None
-			itemname = ' '.join(args).title()
-
-		query = 'query ItemsList($page: Int, $items: Int, $name: String) { itemList(page: $page, items: $items, name: $name) { page item { name }}}'
-		r = await craftlink(user, channel, query, operation='ItemsList', name=itemname, items=1, page=1)
-		if r is None:
-			return
-		r = r['itemList']['item']
-
-		if not r:
-			await channel.send(f'{user.mention} invalid itemname')
-			return
-
-		itemname = r[0]['name']
-
-		query = 'query Item($name: String) { item(name: $name) { sales { end price } recent { id seller itemData { quantity lore } bids { bidder timestamp amount } highestBidAmount end } }}'
-		r = await craftlink(user, channel, query, operation='Item', name=itemname)
-		if r is None:
-			return
-		r = r['item']
-		sales = r['sales']
-
-		if stacksize is None:
-			if r['recent']:
-				stacksize = 64 if max([int(auction['itemData']['quantity']) for auction in r['recent']]) > 32 else 1
-			else:
-				stacksize = 1
-
-		auctions = [float(item['price']) * stacksize for item in sales]
-
-		size = len(auctions)
-		if size == 0:
-			await channel.send(f'{user.mention} there haven\'t been any `{itemname}` sold recently')
-			return
-
-		small, big = min(auctions), max(auctions)
-		mid = median(auctions)
-		lower, upper = mid / 10, mid * 10
-
-		steals = [a for a in auctions if lower >= a]
-		auctions = [a for a in auctions if lower < a < upper]
-
-		mid = median(auctions)
-		avg = mean(auctions)
-		common = mode(auctions)
-		std = pstdev(auctions, mu=avg)
-
-		await Embed(
-			channel,
-			user=user,
-			title=f'{itemname} (x{stacksize})',
-			description='Powered by https://hypixel-skyblock.com'
-		).add_field(
-			name=None,
-			value=f'```Average: {avg:,.0f}\nMedian: {mid:,.0f}\nMode: {common:,.0f}\nStandard Deviation: {std:,.0f}\nMin: {math.ceil(small):,}\nMax: {math.ceil(big):,}```'
-				  f'```There were {len(steals)} steals and {size} total sales```'
-		).set_footer(
-			text='Statistics are from the last 1500 items sold if possible\nPrices ignored if they are 10 times larger or smaller than the average'
-		).send()
-
-	async def sells(self, message, *args):
-		page_size = 12
-
-		user = message.author
-		channel = message.channel
-
-		if not args:
-			await self.no_args('sells', user, channel)
-			return
-
-		name = args[0]
-		_, uuid = await skypy.fetch_uuid_uname(name)
-
-		async def pages(page_num):
-			query = 'query UserHistory($id: String, $type: String, $limit: Int, $skip: Int) { userHistory(id: $id, type: $type, limit: $limit, skip: $skip) { auctions { id seller itemData { texture id name tag quantity lore __typename } bids { bidder timestamp amount __typename } highestBidAmount end __typename } __typename } }'
-			r = await craftlink(user, channel, query, operation='UserHistory', id=uuid, limit=page_size, skip=page_num * page_size, type='auctions')
-			if r is None:
-				return
-			r = r['userHistory']['auctions']
-
-			if len(r) < page_size:
-				last_page = True
-			else:
-				last_page = False
-
-			embed = Embed(
-				channel,
-				user=user,
-				title=f'Past Auctions From {name}',
-				description=f'Page {page_num + 1} | Powered by https://hypixel-skyblock.com'
-			)
-
-			if r:
-				for auction in r:
-					try:
-						buyer, _ = await skypy.fetch_uuid_uname(auction['bids'][0]['bidder'])
-					except skypy.ExternalAPIError:
-						buyer = '[error fetching name]'
-
-					item = auction['itemData']
-					embed.add_field(
-						name=f'{item["quantity"]}x {item["name"].upper()}',
-						value=f'```diff\n! {int(auction["highestBidAmount"]):,} coins\n'
-							  f'-sold to {buyer}\n'
-							  f'{datetime.fromtimestamp(int(auction["end"]) // 1000).strftime(TIME_FORMAT)}```'
-					)
-			else:
-				embed.add_field(name=None, value=r'```¯\_(ツ)_/¯```')
-
-			return embed, last_page
-
-		await self.book(user, channel, pages)
-
-	async def buys(self, message, *args):
-		page_size = 12
-
-		user = message.author
-		channel = message.channel
-
-		if not args:
-			await self.no_args('buys', user, channel)
-			return
-
-		name = args[0]
-		_, uuid = await skypy.fetch_uuid_uname(name)
-
-		async def pages(page_num):
-			query = 'query UserHistory($id: String, $type: String, $limit: Int, $skip: Int) {userHistory(id: $id, type: $type, limit: $limit, skip: $skip) {auctions {id seller itemData {texture id name tag quantity lore __typename} bids {bidder timestamp amount __typename} highestBidAmount end __typename} __typename}}'
-			r = await craftlink(user, channel, query, operation='UserHistory', id=uuid, limit=page_size, skip=page_num * page_size, type='purchases')
-			if r is None:
-				return
-			r = r['userHistory']['auctions']
-
-			if len(r) == page_size:
-				last_page = True
-			else:
-				last_page = False
-
-			embed = Embed(
-				channel,
-				user=user,
-				title=f'Past Purchases From {name}',
-				description=f'Page {page_num + 1} | Powered by https://hypixel-skyblock.com'
-			)
-
-			if r:
-				for auction in r:
-					item = auction['itemData']
-
-					try:
-						seller, _ = await skypy.fetch_uuid_uname(auction['seller'])
-					except skypy.ExternalAPIError:
-						seller = '[error fetching name]'
-
-					embed.add_field(
-						name=f'{item["quantity"]}x {item["name"].upper()}',
-						value=f'```diff\n! {int(auction["highestBidAmount"]):,} coins\n'
-							  f'-by {seller}\n'
-							  f'{datetime.fromtimestamp(int(auction["end"]) // 1000).strftime(TIME_FORMAT)}```'
-					)
-			else:
-				embed.add_field(name=None, value=r'```¯\_(ツ)_/¯```')
-
-			return embed, last_page
-
-		await self.book(user, channel, pages)
-
-	async def player(self, message, *args):
-		user = message.author
-		channel = message.channel
-
-		if not args:
-			await self.no_args('player', user, channel)
-			return
-
-		player = await self.args_to_player(user, channel, *args)
-
-		player.load_all(False)
-
-		api_header = ' '.join(f'{k.capitalize()} {"✅" if v else "❌"}' for k, v in player.enabled_api.items())
-		pet = player.pet
-		pet_line = f'\nPet > {format_pet(pet)}' if pet else ''
-
-		total_level = 0
-		total_xp = 0
-		for name, (emoji, function, optional_function) in LEVELS.items():
-			if name in skills and not name in cosmetic_skills:
-				total_level += optional_function(player)
-				total_xp += function(player)
-
-		embed = Embed(
-			channel,
-			user=user,
-			title=f'{player.uname} | {player.profile_name}',
-			description=f'```{api_header}```\n'
-						f'```Deaths > {player.deaths}\n'
-						f'Guild > {player.guild}\n'
-						f'Money > {player.bank_balance + player.purse:,.0f}{pet_line}```'
-		).add_field(
-			name=f'🔰 \t Skills',
-			value=f'''```diff
-Avg > {player.skill_average:.2f}{"*" if player.uuid in EXPLOITERS else ""}
-xp: {total_xp:,.0f}
-{(total_level / (len(skills) - len(cosmetic_skills)) / 50 * 100):.1f}% Maxed```'''
-		).add_field(
-			name=f'🛠️ \t Minions',
-			value=f'''```diff
-Slots > {player.minion_slots}
-Uniques: {player.unique_minions}
-{(player.unique_minions / 572 * 100):.1f}% Maxed```'''
-		).set_thumbnail(
-			url=player.avatar()
-		)
-
-		def percent_to_max(current, activity):
-			if activity == 'runecrafting':
-				return 100 * min(1, current / skypy.runecrafting_xp_requirements[-1])
-
-			if activity in skypy.slayers:
-				return 100 * min(1, current / skypy.slayer_level_requirements[activity][-1])
-
-			return 100 * min(1, current / skypy.skill_xp_requirements[-1])
-
-		for name, (emoji, function, optional_function) in LEVELS.items():
-			current = function(player)
-			percent = percent_to_max(current, name.casefold())
-			percent_line = '+ Maxed' if percent == 100 else f'{percent:.1f}% maxed'
-
-			embed.add_field(
-				name=f'{emoji}\t{name.capitalize()}',
-				value=f'''```diff
-Level > {optional_function(player)}
-xp: {current:,}
-{percent_line}```'''
-			)
-
-		if player.uuid in EXPLOITERS:
-			embed.add_field(name='Cheater', value=f'***Player has bug abused or excessively macroed skill(s)**', inline=False)
-
-		await embed.send()
-
-	async def pets(self, message, *args):
-		user = message.author
-		channel = message.channel
-
-		if not args:
-			await self.no_args('pets', user, channel)
-			return
-
-		player = await self.args_to_player(user, channel, *args)
-
-		player.load_pets()
-
-		pets = '\n'.join(p.name for p in player.pets)
-
-		if player.pets:
-			best_pets = {}
-			pet_score = 0
-			bonus_mf = 0
-			chunk_num = 0
-			for chunk in chunks(sorted(player.pets, key=lambda pet: (pet.active, pet.xp), reverse=True), 18):
-				chunk_num += 1
-				embed = Embed(
-					channel,
-					user=user,
-					title=f'{player.uname} | {player.profile_name}'
-				).set_thumbnail(
-					url=player.avatar()
-				)
-				for pet in chunk:
-					if best_pets.get(pet.internal_name, False):
-						if RARITY_SCORES[pet.rarity] > best_pets[pet.internal_name]:
-							best_pets[pet.internal_name] = RARITY_SCORES[pet.rarity]
-					else:
-						best_pets[pet.internal_name] = RARITY_SCORES[pet.rarity]
-					progress = 100 * pet.xp / (pet.xp + pet.xp_remaining)
-					progress = f'\n{progress:.2f}% to 100' if progress < 100 else ''
-
-					value = colorize(
-						f'Level > {pet.level}\nxp: {pet.xp:,.0f}{progress}',
-						YELLOW if pet.active else WHITE
-					)
-
-					pin = '\t📌' if pet.active else ''
-					embed.add_field(
-						name=f'{PET_EMOJIS[pet.internal_name]}\t{pet.name}{pin}',
-						value=value + colorize(pet.rarity.upper(), RARITY_COLORS[pet.rarity])
-					)
-				if chunk_num - 1 == len(player.pets) // 18:
-					for x in best_pets:
-						pet_score += best_pets[x]
-					for x in [10,25,50,85,125]:
-						bonus_mf += 1 if pet_score >= x else 0
-					embed.add_field(
-						name=f'Pet Score',
-						value=f'You gain {pet_score} points from {len(best_pets)} types. (+{bonus_mf} Magic Find)',
-						inline=False
-					)
-				await embed.send()
-		else:
-			embed.add_field(name=None, value='```❌ no pets found```')
-			await embed.send()
-
-	async def guild(self, message, *args):
-		user = message.author
-		channel = message.channel
-
-		if not args:
-			await self.no_args('guild', user, channel)
-			return
-
-		args = ' '.join(args).casefold()
-
-		guild = await skypy.Guild(keys, gname=args)
-		guild.load_all(False)
-		await asyncio.gather(*[update_top_players(player) for player in guild])
-
-		embed = Embed(
-			channel,
-			user=user,
-			title=f'{guild.gname} | {guild.tag}' if guild.tag else guild.gname,
-			description=f'```Skill Average > {guild.skill_average:.3f}\n'
-						f'Players > {len(guild)}\n'
-						f'Level > {guild.level}\n'
-						f'Deaths > {guild.deaths:,}\n'
-						f'Average Money > {(guild.bank_balance + guild.purse) / len(guild):,.0f}\n'
-						f'Slots > {guild.minion_slots:.3f} ({guild.unique_minions:.0f} crafts)```'
-		)
-
-		for name, (emoji, function, optional_function) in LEVELS.items():
-			embed.add_field(
-				name=f'{emoji}\t{name.title()}',
-				value=f'```Level > {optional_function(guild):.3f}\nxp: {function(guild):,.0f}```'
-			)
-
-		menu = {}
-		prompt = {}
-		for name, (emoji, function, optional_function) in LEADERBOARDS.items():
-			lb = Embed(
-				channel,
-				user=user,
-				title=f'{guild.gname} {name.title()} Leaderboard'
-			)
-
-			if optional_function:
-				players = [(player, function(player), optional_function(player)) for player in guild]
-			else:
-				players = [(player, function(player)) for player in guild]
-
-			players.sort(key=lambda tuple: tuple[1], reverse=True)
-
-			if optional_function:
-				players = [f'#{str(index + 1).ljust(2)} {player.uname} [{round(optional_stat, 2)}] [{round(stat, 2):,}]'
-						   for index, (player, stat, optional_stat) in enumerate(players)]
-			else:
-				players = [f'#{str(index + 1).ljust(2)} {player.uname} [{round(stat, 2):,}]'
-						   for index, (player, stat) in enumerate(players)]
-
-			portion = len(players) / 30
-			sections = [0, 1, 4, 9, 15, 22, 30]
-			peppers = random.choice(RANKS)
-			meal = {}
-			for i, pepper in enumerate(peppers):
-				meal[pepper] = players[round(sections[i] * portion): round(sections[i + 1] * portion)]
-
-			for pepper, players in meal.items():
-				lb.add_field(
-					name=pepper,
-					value=('```css\n' + "\n".join(players)[:1000] + '```') if players else r'```¯\_(ツ)_/¯```',
-					inline=False
-				)
-
-			prompt[emoji] = name
-			menu[emoji] = lb
-
-		reaction_prompt = '**React to this message for guild leaderboards**```'
-		for group in chunks(prompt.items(), 4):
-			reaction_prompt += f'{" | ".join([" ".join(g) for g in group])}\n'
-		reaction_prompt += '```'
-
-		embed.add_field(
-			name=None,
-			value=reaction_prompt,
-			inline=False
-		)
-
-		while True:
-			msg = await embed.send()
-			lb = await self.reaction_menu(msg, user, menu)
-			if lb:
-				await msg.delete()
-				msg = await lb.send()
-				if await self.back(msg, user):
-					await msg.delete()
-				else:
-					break
-			else:
-				break
-
 	@staticmethod
 	async def unimplemented(message):
 		await message.channel.send(f'{message.author.mention} this command is unimplemented')
@@ -1484,8 +700,6 @@ xp: {current:,}
 
 			result = await self.reaction_menu(await embed.send(), user, {PROFILE_EMOJIS[profile]: profile for profile in player.profiles.keys()})
 			await player.set_profile(player.profiles[result])
-
-		player.load_inventories().load_skills_slayers().load_misc().load_pets()
 
 		if player.enabled_api['skills'] is False or player.enabled_api['inventory'] is False:
 			await self.api_disabled(f'{user.name}, your API is disabled!', channel, user)
@@ -1741,89 +955,6 @@ xp: {current:,}
 
 		await embed.send()
 
-	async def calculate_damage(self, message, *args):
-		channel = message.channel
-		user = message.author
-
-		stats = {'strength': 0, 'crit damage': 0, 'weapon damage': 0, 'combat level': 0, 'multiplier': 0}
-		questions = {
-			'strength': f'{user.mention} how much **strength** do you want to have?',
-			'crit damage': f'{user.mention} how much **crit damage** do you want to have?',
-			'weapon damage': f'{user.mention} how much **damage** does your weapon have on the tooltip?',
-			'combat level': f'{user.mention} what is your **combat level**?',
-			'multiplier': f'{user.mention} What multiplier would you like to add? (temporary)'
-		}
-
-		for stat in stats.keys():
-			await channel.send(questions[stat])
-			resp = await self.respond(user, channel)
-
-			if resp.content[0] == '+':
-				resp.content = resp.content[1:]
-
-			if resp.content.isnumeric() is False or len(resp.content) > 20:
-				await channel.send(f'{user.mention} Invalid input!')
-				return
-			stats[stat] = int(resp.content)
-
-		mobs = '\n'.join([k.capitalize() for k in ACTIVITIES.keys()])
-
-		embed = Embed(
-			channel,
-			user=user,
-			title='Which mob will you be targeting with this setup?'
-		).add_field(
-			name=None,
-			value=f'```{mobs}```',
-		)
-
-		while True:
-			await embed.send()
-
-			resp = (await self.respond(user, channel)).content.casefold()
-
-			if resp in ACTIVITIES:
-				break
-			else:
-				await channel.send(f'{user.mention} choose one of the listed enemies{CLOSE_MESSAGE}')
-
-		msg = await channel.send(
-			f'{user.mention} do you want to use **level 5** or **level 6** enchantments? **[react to this message]**')
-		enchant_levels = await self.reaction_menu(msg, user, {'5️⃣': CHEAP_MAX_BOOK_LEVELS, '6️⃣': MAX_BOOK_LEVELS})
-
-		modifier = stats['combat level'] * 4
-		for enchantment in ACTIVITIES[resp]:
-			perk = ENCHANTMENT_VALUES[enchantment]
-			if callable(perk):
-				modifier += perk(enchant_levels[enchantment])
-			else:
-				modifier += perk * enchant_levels[enchantment]
-
-		damage = round(skypy.damage(
-			stats['weapon damage'],
-			stats['strength'],
-			stats['crit damage'],
-			modifier,
-			multiplier
-		))
-
-		no_crit = round(skypy.damage(
-			stats['weapon damage'],
-			stats['strength'],
-			0,
-			modifier,
-			multiplier
-		))
-
-		await Embed(
-			channel,
-			user=user,
-			title=f'{user.name}, you should be doing {damage} damage with those stats'
-		).add_field(
-			name=f'**{no_crit}** without a crit',
-			value='```lua\n(5 + damage + floor(str ÷ 5)) ⋅\n(1 + str ÷ 100) ⋅\n(1 + cd ÷ 100) ⋅\n(1 + enchants ÷ 100)```'
-		).send()
-
 	async def view_missing_talismans(self, message, *args):
 		user = message.author
 		channel = message.channel
@@ -1833,8 +964,6 @@ xp: {current:,}
 			return
 
 		player = await self.args_to_player(user, channel, *args)
-
-		player.load_inventories()
 
 		if player.enabled_api['inventory'] is False:
 			await self.api_disabled(f'{player.uname}, your inventory API is disabled on {player.profile_name.title()}!', channel, user)
@@ -1957,26 +1086,15 @@ xp: {current:,}
 		for x in range(self.shard_count):
 			_embed.add_field(
 				name=f'Shard {x + 1}',
-				value=f'''{shards[x][0]} servers
-{shards[x][1]} channels
-{shards[x][2]} members''',
+				value=f'{shards[x][0]} servers\n{shards[x][1]} channels\n{shards[x][2]} members',
 				inline=True
-				)
+			)
 		_embed.add_field(
 			name='Heartbeat',
 			value=f'This message was delivered in {self.latency * 1000:.0f} milliseconds',
 			inline=False
 		)
 		await _embed.send()
-
-	async def start_event(self, message, *args):
-		await self.unimplemented(message)
-
-	async def view_lb(self, message, *args):
-		await self.unimplemented(message)
-
-	async def end_event(self, message, *args):
-		await self.unimplemented(message)
 
 	async def respond(self, user, channel):
 		msg = None
@@ -2062,106 +1180,6 @@ xp: {current:,}
 				await msg.delete()
 				page_num += result
 
-	async def view_trending(self, message, *args):
-		channel = message.channel
-		user = message.author
-
-		embed = Embed(
-			channel,
-			user=user,
-			title='Trending Threads',
-			description=f'It\'s the talk of the town! Here\'s six popular threads from the past {trending_timeout} hours'
-		).set_footer(
-			text=f'Last updated {last_forums_update.strftime(TIME_FORMAT)}'
-		)
-
-		if trending_threads:
-			for thread in trending_threads:
-				embed.add_field(
-					name=f'**{thread["name"]}\n_{thread["views"]} views_ | _{thread["likes"]} likes_**',
-					value=f'[{thread["link"]}]'
-				)
-		else:
-			embed.add_field(
-				name=None,
-				value='Hypixel currently has their anti DDOS protection enabled. I can\'t get in!'
-			)
-
-		await embed.send()
-
-	async def view_fandom_wiki(self, message, *args):
-		channel = message.channel
-		user = message.author
-			
-		url = 'https://hypixel-skyblock.fandom.com/wiki/' + ('_'.join(args) or 'Hypixel_SkyBlock_Wiki')
-		
-		async with (await skypy.session()).get(url, headers={'User-Agent': 'Mozilla/5.0'}) as code:
-			code = await code.read()
-			soup = BeautifulSoup(code.decode('utf-8'), 'lxml')
-		title = None
-		
-		for x in soup.select('h1'):
-			if 'page-header__title' in x.get('class', []):
-				title = x.text
-				
-		image = None
-		for x in soup.select('img'):
-			if 'pi-image-thumbnail' in x.get('class', []):
-				image = x.get('src')
-				break
-				
-		for x in soup.select('aside'):
-			if 'portable-infobox' in x.get('class', []):
-				x.decompose()
-				
-		description = None
-		for x in soup.select('p'):
-			description = x.text
-			if 'not found. What do you want to do?' in description:
-				for x in soup.select('span'):
-					if 'alternative-suggestion' in x.get('class', []):
-						article = fandom_wiki(x.text)
-						title = article.title
-						description = article.description
-						image = article.image
-						return
-						
-			elif 'What do you want to do?' in description:
-				description = f'Not found'
-				break
-				
-			elif 'caption' in x.get('class', []):
-				description = None
-				
-			elif 'category-page__total-number' in x.get('class', []):
-				try:
-					description = f'This category has no information, but {x.text.split("(")[1].split(")")[0]} articles are in the category.'
-				except IndexError:
-					description = 'This category has no information.'
-				break
-				
-			else:
-				break
-				
-		if description is None:
-			if name.split(":")[0] == title:
-				description = f'Not found'
-			else:
-				description = f'could not find the {name.split(":")[0]} named {title}.'
-
-		embed = Embed(
-			channel,
-			user=user,
-			title=title,
-			description=description
-		).set_footer(
-			text=f'CC BY-SA-NC 3.0 https://hypixel-skyblock.fandom.com'
-		)
-		if image:
-			embed.set_image(image)
-
-		await embed.send()
-
 	async def api_disabled(self, title, channel, user):
 		await Embed(
 			channel,
@@ -2189,135 +1207,5 @@ xp: {current:,}
 			title='Here\'s an invite link',
 			description='[Click me to invite the bot](https://discord.com/oauth2/authorize?client_id=671040150251372569&permissions=8&scope=bot)'
 		).send()
-
-async def craftlink(user, channel, query, *, operation, **kwargs):
-	url = 'https://craftlink.xyz/graphql'
-
-	json = {
-		'operationName': operation,
-		'variables': dict(kwargs),
-		'query': query
-	}
-
-	try:
-		async with (await skypy.session()).post(url, json=json) as r:
-			return (await r.json(content_type=None))['data']
-	except asyncio.exceptions.TimeoutError:
-		await channel.send(f'{user.mention} {url} did not respond after 30 seconds')
-		return None
-	except (ClientError, ValueError):
-		await channel.send(f'{user.mention} {url} did not respond')
-		return None
-
-client = motor.motor_asyncio.AsyncIOMotorClient(os.getenv('DATABASE_URI'))
-db = client.sbs
-
-async def update_top_players(player):
-	global db
-	lb = db.leaderboards
-
-	player.load_skills_slayers(False).load_collections(False)
-
-	try:
-		if player.uuid in EXPLOITERS:
-			for offence in EXPLOITERS[player.uuid]:
-				player.skills[offence] *= -1
-			player.skill_average = sum(list(player.skills.values())[0:7]) / 7
-
-		document = {
-			'name': player.uname,
-			'uuid': player.uuid
-		}
-
-		for name, (emoji, function, optional_function) in LEADERBOARDS.items():
-			document[name.title()] = function(player)
-			if optional_function:
-				document[f'{name.title()}_'] = optional_function(player)
-	except AttributeError:
-		await Bot.log(f'Failed to add {player.uname} to leaderboards')
-		return
-
-	await lb.replace_one({'uuid': player.uuid}, document, upsert=True)
-	await Bot.log(f'Leaderboard updated for {player.uname}')
-
-# Forums parsing ---
-trending_threads = []
-last_forums_update = datetime.now()
-num_trending = 6
-trending_timeout = int(os.getenv('TRENDING_TIMEOUT', 30))
-
-def trending_algorithm(thread):
-	return (thread['views'] + thread['likes'] * 200) / math.sqrt(thread['date'] / 1000 + 1)
-
-def update_trending():
-	global trending_threads, last_forums_update
-	loop = asyncio.new_event_loop()
-
-	class Timeout(Exception):
-		pass
-
-	class Nothing(Exception):
-		pass
-
-	while True:
-		pagenumber = 1
-		now = None
-		backup = trending_threads.copy()
-		trending_threads.clear()
-		s = cloudscraper.create_scraper()
-
-		try:
-			while True:
-				loop.run_until_complete(Bot.log(f'Attempting to parse forums page {pagenumber}'))
-
-				soup = BeautifulSoup(
-					s.get(f'https://hypixel.net/forums/skyblock.157/page-{pagenumber}?order=post_date').content,
-					'html.parser',
-					multi_valued_attributes=None
-				)
-				posts = soup.find_all(class_='discussionListItem visible  ')
-				if not posts:
-					raise Nothing
-
-				for post in posts:
-					thread = {}
-
-					header = post.find('h3').a
-					thread['link'] = f'https://hypixel.net/{header["href"]}'
-					thread['name'] = header.string
-
-					info = post.find(class_='listBlock stats pairsJustified')
-					thread['likes'] = int(info['title'].replace('Members who liked the first message: ', ''))
-					thread['views'] = int(info.find(class_='minor').dd.string.replace(',', ''))
-					thread['replies'] = int(info.find(class_='major').dd.string.replace(',', ''))
-					thread['date'] = int(post.find(class_='posterDate muted').find('abbr')['data-time'])
-
-					if now is None:
-						now = thread['date']
-
-					thread['date'] = now - thread['date']
-					if thread['date'] >= trending_timeout * 3600:
-						raise Timeout
-
-					if discord.utils.find(lambda t: thread['link'] == t['link'], trending_threads) is None:
-						trending_threads.append(thread)
-						trending_threads.sort(key=trending_algorithm, reverse=True)
-						del trending_threads[num_trending:]
-				pagenumber += 1
-
-		except Timeout:
-			now = datetime.now(timezone.utc)
-			last_forums_update = now
-			loop.run_until_complete(Bot.log(
-				f'Trending threads updated at {now.strftime(TIME_FORMAT)}. {pagenumber} pages parsed\n',
-				'\n'.join([thread['link'] for thread in trending_threads])
-			))
-
-		except (Nothing, RuntimeError):
-			now = datetime.now(timezone.utc)
-			loop.run_until_complete(Bot.log(f'Failed to parse forums at {now.strftime(TIME_FORMAT)}'))
-			trending_threads = backup
-
-		loop.run_until_complete(asyncio.sleep(3600 * 2))
 
 discord.Embed = None  # Disable default discord Embed
