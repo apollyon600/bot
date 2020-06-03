@@ -747,12 +747,16 @@ class Bot(discord.AutoShardedClient):
 			user=user,
 			title='Is this the correct equipment?'
 		).add_field(
-			name=f'⚔️\tWeapon',
+			name='⚔️\tWeapon',
 			value=f'```{weapon.name}```',
 			inline=False
 		).add_field(
 			name=f'{PET_EMOJIS[pet.internal_name] if pet else "🐣"}\tPet',
 			value=f'```{format_pet(pet) if pet else None}```',
+			inline=False
+		).add_field(
+			name='💎\tPet Item',
+			value=f'```{pet.item.name if pet.item else None}```',
 			inline=False
 		)
 

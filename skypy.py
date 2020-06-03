@@ -264,17 +264,22 @@ async def fetch_uuid_uname(uname_or_uuid, _depth=0):
 
 class Pet:
 	@staticmethod
-	def from_API(data):
+	def from_API(_nbt):
 		cls = Pet()
 
-		cls.xp = data.get('exp', 0)
-		cls.active = data.get('active', False)
-		cls.rarity = data.get('tier', 'COMMON').lower()
-		cls.internal_name = data.get('type', 'BEE')
+		cls._nbt = _nbt
+		cls.xp = _nbt.get('exp', 0)
+		cls.active = _nbt.get('active', False)
+		cls.rarity = _nbt.get('tier', 'COMMON').lower()
+		cls.internal_name = _nbt.get('type', 'BEE')
 		cls.level = level_from_xp_table(cls.xp, pet_xp[cls.rarity])
-		cls.name = pet_stats[cls.internal_name]['name']
+		cls.name = pets[cls.internal_name]['name']
 		cls.title = f'[Lvl {cls.level}] {cls.name}'
 		cls.xp_remaining = pet_xp[cls.rarity][-1] - cls.xp
+		cls.candy_used = _nbt.get('candyUsed', 0)
+		cls.item = _nbt.get('heldItem', None)
+		if cls.item:
+			cls.item = PetItem(cls.item)
 
 		return cls
 
@@ -286,8 +291,38 @@ class Pet:
 
 	def stats(self):
 		"""Returns a dictionary of this pet's stats"""
-		return {stat: function(self.level) for stat, function in pet_stats[self.internal_name]['stats'].items()}
-
+		return {stat: function(self.level) for stat, function in pets[self.internal_name]['stats'].items()}
+		
+class PetItem:
+	def __init__(self, internal_name):
+		self.internal_name = internal_name
+		self.name = ' '.join([
+			s.capitalize() for s in
+			re.sub('_COMMON|_UNCOMMON|_RARE|_EPIC|_LEGENDARY', '', internal_name[9:]).split('_')
+		])
+			
+	def __str__(self):
+		return self.name
+		
+	def __repr__(self):
+		return self.name
+		
+	def apply(self, pet):
+		name = self.name
+		if name == 'Textbook':
+			pet.stats['intelligence'] *= 2
+		elif name == 'Hardened Scales':
+			pet.stats['defense'] += 25
+		elif name == 'Iron Claws':
+			pet.stats['crit chance'] = int(pet.stats['crit chance'] * 1.4)
+			pet.stats['crit damage'] = int(pet.stats['crit damage'] * 1.4)
+		elif name == 'Sharpened Claws':
+			pet.stats['crit damage'] += 15
+		elif name == 'Big Teeth':
+			pet.stats['crit chance'] += 5
+		elif name == 'Lucky Clover':
+			pet.stats['magic find'] += 7
+			
 class ApiInterface:
 	def __next_key__(self):
 		self.__key_id__ += 1
