@@ -126,10 +126,10 @@ def enderdragon(player, stats, pet):
     # Buffs the Aspect of the Dragon sword by (Pet lvl * 0.5) damage and (Pet lvl * 0.3) strength. (All)
     # Increases all stats by (Pet lvl * 0.1%). (Legendary)
     if player.weapon == 'ASPECT_OF_THE_DRAGONS':
-        stats['weapon damage'] += pet.level // 2
-        stats['weapon strength'] += int(pet.level * 0.3)
+        stats['weapon damage'] += pet.level * 0.5
+        stats['weapon strength'] += pet.level * 0.3
     if pet.rarity == 'legendary':
-        boost = int(1 + (pet.level * 0.001))
+        boost = 1 + (pet.level * 0.001)
         stats = {name: stat * boost for name, stat in stats.items()}
 
 
@@ -156,13 +156,15 @@ def bee(player, stats, pet):
 
 def squid(player, stats, pet):
     # Buffs the Ink Wand by (Pet lvl * 0.3) damage and (Pet lvl * 0.1) strength. (Rare) (0.4 DMG and 0.2 STR on Epic, Legendary)
-    pass
+    if player.weapon == 'INK_WAND':
+        stats['weapon damage'] += pet.level * {epic: 0.3, legendary: 0.4}[pet.rarity]
+        stats['']
 
 
 def parrot(player, stats, pet):
     # Gives (5 + (Pet lvl * 0.25)) strength to players within 20 Blocks (No stack). (Legendary)
     if pet.rarity == 'legendary':
-        stats['strength'] += int((5 + (pet.level * 0.25)))
+        stats['strength'] += 5 + (pet.level * 0.25)
 
 
 def tiger(player, stats, pet):
