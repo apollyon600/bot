@@ -1858,7 +1858,7 @@ xp: {current:,}
 				inline=False
 			)
 
-		inactive = [talisman for talisman in player.talismans if talisman.active is False]
+		inactive = [talisman for talisman in player.talismans if talisman.active is False and talisman.internal_name != 'PERSONAL_COMPACTOR_(4|5|6)?000']
 
 		if inactive:
 			embed.add_field(
