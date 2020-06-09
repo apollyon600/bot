@@ -386,7 +386,7 @@ def damage_optimizer(player, talisman_rarity_counts, armor_rarity_counts, *, per
 		m.eqn.add(m.cd == max(0, m.m * (quicksum(damage_reforges[i][k][j].get('crit damage', 0) * m.reforge_counts[i, j, k] for i, j, k in m.reforge_set) + player.stats['crit damage'] + tarantula) / 2))
 	else:
 		m.eqn.add(m.cd == max(0, m.m * (quicksum(damage_reforges[i][k][j].get('crit damage', 0) * m.reforge_counts[i, j, k] for i, j, k in m.reforge_set) + player.stats['crit damage'] + tarantula)))
-	
+		
 	m.eqn.add(m.s == max(0, m.m * (quicksum(damage_reforges[i][k][j].get('strength', 0) * m.reforge_counts[i, j, k] for i, j, k in m.reforge_set) + player.stats['strength'])))
 	if perfect_crit_chance:
 		m.cc = Var(domain=Reals, initialize=0)

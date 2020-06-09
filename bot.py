@@ -13,7 +13,7 @@ import math
 import asyncio
 import discord
 import os
-import skypy
+import skypy.skypy
 from constants import skills, cosmetic_skills
 
 if os.environ.get('API_KEY') is None:
@@ -304,130 +304,6 @@ def colorize(s, color):
 		return ''
 
 
-def optimizer(opt_goal, player, weapon_damage, base_str, base_cc, base_cd):
-	best = 0
-	best_route = []
-	best_str = 0
-	best_cc = 0
-	best_cd = 0
-
-	stat_modifiers = player.stat_modifiers()
-	str_mod = stat_modifiers.get('strength', lambda x: x)
-	cc_mod = stat_modifiers.get('crit chance', lambda x: x)
-	cd_mod = stat_modifiers.get('crit damage', lambda x, y: x)
-
-	counts = player.talisman_counts()
-
-	if opt_goal == 1 or cc_mod(base_cc) > 100:
-		for c, u, r, e, l in itertools.product(
-				*[Route.routes(counts[key], 4, rarity_num) for rarity_num, key in enumerate(counts.keys())]):
-			strength = str_mod(base_str + c.strength + u.strength +
-							   r.strength + e.strength + l.strength)
-			crit_damage = cd_mod(
-				base_cd + c.crit_damage + u.crit_damage + r.crit_damage + e.crit_damage + l.crit_damage, strength)
-
-			d = (5 + weapon_damage + strength // 5) * \
-				 (1 + strength / 100) * (1 + crit_damage / 100)
-
-			if d > best:
-				best = d
-				best_route = [c, u, r, e, l]
-				best_str = strength
-				best_cc = cc_mod(
-					base_cc + c.crit_chance + u.crit_chance + r.crit_chance + e.crit_chance + l.crit_chance)
-				best_cd = crit_damage
-	else:
-		cc_mod = stat_modifiers.get('crit chance', None)
-		if cc_mod:
-			for c, u, r, e, l in itertools.product(
-					*[Route.routes(counts[key], 4, rarity_num) for rarity_num, key in enumerate(counts.keys())]):
-				crit_chance = cc_mod(
-					base_cc + c.crit_chance + u.crit_chance + r.crit_chance + e.crit_chance + l.crit_chance) // 1
-				if crit_chance >= 100:
-					strength = str_mod(base_str + c.strength + u.strength +
-									   r.strength + e.strength + l.strength)
-					crit_damage = cd_mod(
-						base_cd + c.crit_damage + u.crit_damage +
-							r.crit_damage + e.crit_damage + l.crit_damage,
-						strength)
-
-					d = (5 + weapon_damage + strength // 5) * \
-						 (1 + strength / 100) * (1 + crit_damage / 100)
-
-					if d > best:
-						best = d
-						best_route = [c, u, r, e, l]
-						best_str = strength
-						best_cc = crit_chance
-						best_cd = crit_damage
-		else:
-			for c, u, r, e, l in itertools.product(
-					*[Route.routes(counts[key], 4, rarity_num) for rarity_num, key in enumerate(counts.keys())]):
-				crit_chance = base_cc + c.crit_chance + u.crit_chance + \
-					r.crit_chance + e.crit_chance + l.crit_chance
-				if crit_chance >= 100:
-					strength = str_mod(base_str + c.strength + u.strength +
-									   r.strength + e.strength + l.strength)
-					crit_damage = cd_mod(base_cd + c.crit_damage + u.crit_damage + r.crit_damage + e.crit_damage + l.crit_damage,
-						strength)
-
-					d = (5 + weapon_damage + strength // 5) * \
-						 (1 + strength / 100) * (1 + crit_damage / 100)
-
-					if d > best:
-						best = d
-						best_route = [c, u, r, e, l]
-						best_str = strength
-						best_cc = crit_chance
-						best_cd = crit_damage
-
-	return best, best_route, best_str, best_cc, best_cd
-
-
-class Route:
-	def __init__(self, talismans, rarity):
-		self.strength, self.crit_chance, self.crit_damage = [
-			sum(reforges_list[y][rarity][x] * talismans[y]
-				for y in range(len(reforges_list)) if reforges_list[y][rarity])
-			for x in range(3)
-		]
-		self.counts = talismans
-		self.rarity = rarity
-		self.rarity_str = ['common', 'uncommon', 'rare', 'epic', 'legendary'][self.rarity]
-
-	def __str__(self):
-		return ' ߸ '.join(f'{c} '
-						  f'{"godly/zealous" if self.rarity < 2 and name == "godly" else name} '
-						  f'{Route.rarity_grammar(self.rarity_str, c)}'
-						  for name, c in zip(RELEVANT_REFORGES.keys(), self.counts) if c != 0)
-
-	@staticmethod
-	def routes(count, size, rarity):
-		def helper(count, idx, current):
-			if count == 0:
-				yield Route(current, rarity)
-			elif idx == size - 1:
-				new = current.copy()
-				new[idx] += count
-				yield Route(new, rarity)
-			else:
-				if reforges_list[idx][rarity]:
-					new = current.copy()
-					new[idx] += 1
-					for x in helper(count - 1, idx, new):
-						yield x
-				for x in helper(count, idx + 1, current):
-					yield x
-
-		return helper(count, 0, [0] * size)
-
-	@staticmethod
-	def rarity_grammar(rarity, count=0):
-		if count == 1:
-			return rarity
-		return f'{rarity[:-1]}ies' if rarity[-1] == 'y' else f'{rarity}s'
-
-
 def chunks(lst, n):
 	"""Yield successive n-sized chunks from lst."""
 	lst = list(lst)
@@ -484,7 +360,7 @@ class Bot(discord.AutoShardedClient):
 
 	async def on_error(self, *args, **kwargs):
 		error = traceback.format_exc().replace('```', '"""')
-		await self.get_user(270352691924959243).send(f'```{error[-1900:]}```')
+		await self.get_user(270352691924959243).send(f'```{error[-1950:]}```')
 		print(error)
 
 	async def on_ready(self):
@@ -675,9 +551,7 @@ class Bot(discord.AutoShardedClient):
 					title=f'{user.name}, the Hypixel API has returned invalid information'
 				).add_field(
 					name=None,
-					value='You can usually solve this issue by simply retrying in a few minutes, contact melon if otherwise'
-				).set_footer(
-					text='This error is rare, about the same chance as getting an overflux! Congratulations!'
+					value='This is because of a bug with hypixel api, just retry in a minute or so'
 				).send()
 				return
 
