@@ -13,8 +13,7 @@ import math
 import asyncio
 import discord
 import os
-import skypy.skypy
-from constants import skills, cosmetic_skills
+import skypy.skypy as skypy
 
 if os.environ.get('API_KEY') is None:
 	import dotenv
@@ -799,9 +798,9 @@ class Bot(discord.AutoShardedClient):
 		zealot_mod = emod('zealots') + base_mod
 		slayer_mod = emod('slayer bosses') + base_mod
 
-		if weapon.internal_name == 'REAPER_SWORD':
+		if weapon == 'REAPER_SWORD':
 			slayer_mult = 3
-		elif weapon.internal_name == 'SCORPION_FOIL':
+		elif weapon == 'SCORPION_FOIL':
 			slayer_mult = 2.5
 		else:
 			slayer_mult = 1
@@ -868,7 +867,7 @@ class Bot(discord.AutoShardedClient):
 				inline=False
 			)
 
-		inactive = [talisman for talisman in player.talismans if talisman.active is False]
+		inactive = [talisman for talisman in player.talismans if talisman.active is False and talisman.internal_name != 'PERSONAL_COMPACTOR_6000']
 
 		if inactive:
 			embed.add_field(
@@ -1083,7 +1082,7 @@ class Bot(discord.AutoShardedClient):
 			message.channel,
 			user=message.author,
 			title='Here\'s an invite link',
-			description='[Click me to invite the bot](https://discord.com/oauth2/authorize?client_id=671040150251372569&permissions=8&scope=bot)'
+			description='[Click me to invite the bot](https://tinyurl.com/add-sbs)'
 		).send()
 
 discord.Embed = None  # Disable default discord Embed
