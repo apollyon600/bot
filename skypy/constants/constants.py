@@ -58,8 +58,6 @@ skill_rewards = {
 talismans = {re.compile(k): v for k, v in {
 	'FARMING_TALISMAN': 'Farming Talisman',
 	'VACCINE_TALISMAN': 'Vaccine Talisman',
-	'SPEED_TALISMAN': 'Speed Talisman',
-	'SPEED_RING': 'Speed Ring',
 	'SPEED_ARTIFACT': 'Speed Artifact',
 	'WOOD_TALISMAN': 'Wood Affinity Talisman',
 	'SKELETON_TALISMAN': 'Skeleton Talisman',
@@ -73,9 +71,6 @@ talismans = {re.compile(k): v for k, v in {
 	'SCAVENGER_TALISMAN': 'Scavenger Talisman',
 	'WOLF_PAW': 'Wolf Paw',
 	'FIRE_TALISMAN': 'Fire Talisman',
-	'BROKEN_PIGGY_BANK': 'Broken Piggy Bank',
-	'CRACKED_PIGGY_BANK': 'Cracked Piggy Bank',
-	'PIGGY_BANK': 'Piggy Bank',
 	'PIGS_FOOT': 'Pig\'s Foot',
 	'FROZEN_CHICKEN': 'Frozen Chicken',
 	'FISH_AFFINITY_TALISMAN': 'Fish Affinity Talisman',
@@ -106,6 +101,7 @@ talismans = {re.compile(k): v for k, v in {
 	'BAIT_RING': 'Bait Ring',
 	'SEAL_OF_THE_FAMILY': 'Seal of the Family',
 	'HUNTER_RING': 'Hunter Ring',
+	'(BROKEN_|CRACKED_)?PIGGY_BANK': 'Piggy Bank',
 	'CAMPFIRE_TALISMAN_(21|22|23|24|25|26|27|28|29)': 'Campfire God Badge',
 	'PERSONAL_COMPACTOR_6000': 'Personal Compactor 6000',
 }.items()}
@@ -149,12 +145,7 @@ profile_names = [
 	'Zucchini'
 ]
 
-fairy_soul_hp_bonus = [
-	3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8,
-	8, 9, 9, 10, 10, 11, 11, 12, 12,
-	13, 13, 14, 14, 15, 15, 16, 16,
-	17, 17, 18, 18, 19, 19, 20, 20, 21, 21
-]
+fairy_soul_hp_bonus = [0, 3, 6, 10, 14, 19, 24, 30, 36, 43, 50, 58, 66, 75, 84, 94, 104, 115, 126, 138, 150, 163, 176, 190, 204, 219, 234, 250, 266, 283, 300, 318, 336, 355, 374, 394, 414, 435, 456]
 
 skill_xp_requirements = [50, 175, 375, 675, 1175, 1925, 2925, 4425, 6425, 9925, 14925, 22425, 32425, 47425, 67425, 97425, 147425, 222425, 322425, 522425, 822425, 1222425, 1722425, 2322425, 3022425, 3822425, 4722425, 5722425, 6822425, 8022425, 9322425, 10722425, 12222425, 13822425, 15522425, 17322425, 19222425, 21222425, 23322425, 25522425, 27822425, 30222425, 32722425, 35322425, 38022425, 40822425, 43922425, 47322425, 51022425, 55022425]
 

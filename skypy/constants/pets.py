@@ -95,7 +95,7 @@ pet_xp = {
 # region Pet ability functions
 
 
-def pigman(player, stats, pet):
+def pigman(player):
     # Buffs the Pigman sword by (Pet lvl * 0.4) damage and (Pet lvl * 0.25) strength. (All)
     # Deal (Pet lvl * 0.2%) extra damage to monsters level 100 and up. (Legendary)
     if player.weapon == 'PIGMAN_SWORD':
@@ -103,35 +103,35 @@ def pigman(player, stats, pet):
         stats['strength'] += int(pet.level * 0.25)
 
 
-def sheep(player, stats, pet):
+def sheep(player):
     # Increases your total  Mana by (Pet lvl * 0.25%) while in dungeons. (Legendary)
     pass
 
 
-def witherskeleton(player, stats, pet):
+def witherskeleton(player):
     # Deal (Pet lvl * 0.5%) more damage against wither mobs. (All)
     # Upon hitting an enemy inflict the wither effect for (Pet lvl * 2%) damage over 3 seconds (No stack). (Legendary)
     pass
 
 
-def horse(player, stats, pet):
+def horse(player):
     # While riding your horse, gain (Pet lvl * 0.25%) bow damage. (Legendary)
     pass
 
 
-def lion(player, stats, pet):
+def lion(player):
     # Adds (Pet lvl * 0.03) damage to your weapons. (Common) (0.05 on Uncommon) (0.1 on Rare) (0.15 on Epic) (0.2 on Legendary)
     # Increases damage dealt by (Pet lvl * 0.3%) on your first hit on a mob. (Rare) (0.4% on Epic) (0.5% on Legendary)
     # Deal (Pet lvl * 0.3%) weapon damage against mobs below level 80. (Legendary)
     stats['weapon damage'] += pet.level * {'common': 0.03, 'uncommon': 0.05, 'rare': 0.1, 'epic': 0.15, 'legendary': 0.2}[pet.rarity]
 
 
-def wolf(player, stats, pet):
+def wolf(player):
     # Gain (Pet lvl * 0.1%) crit damage for every nearby wolf (max 10). (Rare) (0.15% for Epic, Legendary)
     pass
 
 
-def enderdragon(player, stats, pet):
+def enderdragon(player):
     # Deal (Pet lvl * 0.25%) more damage to end mobs. (All)
     # Buffs the Aspect of the Dragon sword by (Pet lvl * 0.5) damage and (Pet lvl * 0.3) strength. (All)
     # Increases all stats by (Pet lvl * 0.1%). (Legendary)
@@ -143,20 +143,20 @@ def enderdragon(player, stats, pet):
         stats = {name: stat * boost for name, stat in stats.items()}
 
 
-def giraffe(player, stats, pet):
+def giraffe(player):
     # Grants (Pet lvl * 0.4) strength and (20 + (Pet lvl * 0.1)) crit damage when mid air. (Rare)
     # ((Pet lvl * 0.5) strength and (20 + (Pet lvl * 0.25)) crit damage on Epic)
     # ((Pet lvl * 0.5) strength and (20 + (Pet lvl * 0.4)) crit damage on Legendary)
     pass
 
 
-def phoenix(player, stats, pet):
+def phoenix(player):
     # Before death, become immune and gain (10 + (Pet lvl * 0.1)) strength on (2 + (Pet lvl * 0.02)) seconds (3 minutes cooldown). (Epic) ((10 + (Pet lvl * 0.2) STR on (2 + (Pet lvl * 0.02)) seconds on Legendary)
     # On 4th melee strike, ignite mobs, dealing (1 + (Pet lvl * 0.14)) your crit damage each second for (2 + (Pet lvl/25)) seconds. (Epic, Legendary)
     pass
 
 
-def bee(player, stats, pet):
+def bee(player):
     # Gain (1 + (Pet lvl * 0.02)) Intelligence and (1 + (Pet lvl * 0.02)) Strength for each nearby bee. (Max 15) (Common)
     # (1+ (Pet lvl * 0.09) INT and (1 + (Pet lvl * 0.07)) STR on Rare)
     # (1+ (Pet lvl * 0.14) INT and (1 + (Pet lvl * 0.11)) STR on Epic)
@@ -164,80 +164,48 @@ def bee(player, stats, pet):
     pass
 
 
-def squid(player, stats, pet):
+def squid(player):
     # Buffs the Ink Wand by (Pet lvl * 0.3) damage and (Pet lvl * 0.1) strength. (Rare) (0.4 DMG and 0.2 STR on Epic, Legendary)
-    if player.weapon == 'INK_WAND':
-        stats['weapon damage'] += pet.level * {epic: 0.3, legendary: 0.4}[pet.rarity]
-        stats['']
+    if player.pet.rarity not in ('common', 'uncommon') and player.weapon == 'INK_WAND':
+        player.weapon.stats['damage'] += player.pet.level * {'rare': 0.3, 'epic': 0.4, 'legendary': 0.4}[pet.rarity]
+        player.weapon.stats['strength'] += player.pet.level * {'rare': 0.1, 'epic': 0.2, 'legendary': 0.2}[pet.rarity]
 
 
-def parrot(player, stats, pet):
+def parrot(player):
     # Gives (5 + (Pet lvl * 0.25)) strength to players within 20 Blocks (No stack). (Legendary)
-    if pet.rarity == 'legendary':
-        stats['strength'] += 5 + (pet.level * 0.25)
+    if player.pet.rarity == 'legendary':
+        player.stats['strength'] += 5 + (pet.level * 0.25)
 
-
-def tiger(player, stats, pet):
-    # Attacks have a (Pet lvl * 0.05%) chance to strike twice. (Common) (0.1% on Uncommon, Rare) (0.2% on Epic, Legendary)
-    # Deal (Pet lvl * 0.2%) more damage against targets with no other mobs within 15 blocks. (Legendary)
-    pass
-
-def blaze(player, stats, pet):
+def blaze(player):
     # Upgrades Blaze Armor stats and ability by (Pet lvl * 0.4%). (All)
     # Double effects of Hot Potato Books. (Legendary)
-    pass
+	if player.armor == {'helmet': 'BLAZE_HELMET', 'chestplate': 'BLAZE_CHESTPLATE', 'leggings': 'BLAZE_LEGGINGS', 'boots': 'BLAZE_BOOTS'} or player.armor == {'helmet': 'FROZEN_BLAZE_HELMET', 'chestplate': 'FROZEN_BLAZE_CHESTPLATE', 'leggings': 'FROZEN_BLAZE_LEGGINGS', 'boots': 'FROZEN_BLAZE_BOOTS'}:
+		for piece in player.armor.values():
+			if piece:
+				piece.stats.multiplier += player.pet.level * 0.4
+	if player.pet.rarity == 'legendary':
+		for piece in player.armor.values():
+			if item:
+				item.stats['health'] += item.hot_potatos * 4
+				item.stats['defense'] += item.hot_potatos * 2
+		if player.weapon:
+			player.weapon.stats['damage'] += player.weapon.hot_potatos * 2
+			player.weapon.stats['strength'] += player.weapon.hot_potatos * 2
 
-
-def zombie(player, stats, pet):
-    # Deal (Pet lvl * 0.2%) more damage to zombies. (Epic, Legendary)
-    pass
-
-
-def skeleton(player, stats, pet):
-    # Increase arrow damage by (Pet lvl * 0.1%), which is tripled while in dungeons. (Common, Uncommon, Rare) (0.2% on Epic, Legendary)
-    # Gain a combo stack for every bow hit granting +3 Strength. Max (Pet lvl * 0.1) stacks, stacks disappear after 8 seconds. (Rare) (0.2 on Epic, Legendary)
-    if player.weapon.type == 'bow':
-        stats['multiplier'] += pet.level * {'common': 0.1, 'uncommon': 0.1, 'rare': 0.1, 'epic': 0.2, 'legendary': 0.2}[pet.rarity] # dungeons support
-    
-        
-
-def spider(player, stats, pet):
-    # Gain (Pet lvl * 0.1) strength for every nearby spider (Max 10). (All)
-    pass
-
-
-def rock(player, stats, pet):
-    # While sitting on your rock, gain (Pet lvl * 0.3%) more damage. (Legendary)
-    pass
-
-
-def golem(player, stats, pet):
-    # While less than 15% HP, deal (Pet lvl * 0.3%) more damage. (All)
-    pass
-
-
-def flyingfish(player, stats, pet):
+def flyingfish(player):
     # Gives (Pet lvl * 0.4) strength when near water. (Rare) (0.5 on Epic, Legendary)
     # Increases the stats of Diver's Armor by (Pet lvl * 0.3%). (Legendary)
-    pass
+    if player.armor == {'helmet': 'BLAZE_HELMET', 'chestplate': 'BLAZE_CHESTPLATE', 'leggings': 'BLAZE_LEGGINGS', 'boots': 'BLAZE_BOOTS'}:
+		pass
 
-
-def magmacube(player, stats, pet):
+def magmacube(player):
     # Deal (Pet lvl * 0.25%) more damage to slimes. (Rare, Epic, Legendary)
     # Buffs the stats of Ember Armor by (Pet lvl * 1%). (Legendary)
     pass
 
-def jerry(player, stats, pet):
-    if pet.rarity == 'legendary' and player.weapon == 'ASPECT_OF_THE_JERRY':
-        stats['weapon damage'] += int(pet.level * 0.1)
-
-
-
-# endregion
-
-
-# region Pet dictionaries
-
+def jerry(player):
+    if player.pet.rarity == 'legendary' and player.weapon == 'ASPECT_OF_THE_JERRY':
+        player.weapon.stats['damage'] += player.pet.level * 0.1
 
 pets = {
     'SKELETON_HORSE': {
@@ -513,7 +481,7 @@ pets = {
         },
         # Attacks have a (Pet lvl * 0.05%) chance to strike twice. (Common) (0.1% on Uncommon, Rare) (0.2% on Epic, Legendary)
         # Deal (Pet lvl * 0.2%) more damage against targets with no other mobs within 15 blocks. (Legendary)
-        'ability': tiger,
+        'ability': None,
         'type': 'combat',
         'icon': '/head/fc42638744922b5fcf62cd9bf27eeab91b2e72d6c70e86cc5aa3883993e9d84'
     },
@@ -553,7 +521,7 @@ pets = {
             'health': lambda lvl: lvl
         },
         # Deal (Pet lvl * 0.2%) more damage to zombies. (Epic, Legendary)
-        'ability': zombie,
+        'ability': None,
         'type': 'combat',
         'icon': '/head/822d8e751c8f2fd4c8942c44bdb2f5ca4d8ae8e575ed3eb34c18a86e93b'
     },
@@ -600,7 +568,7 @@ pets = {
         },
         # Increase arrow damage by (Pet lvl * 0.1%), which is tripled while in dungeons. (Common, Uncommon, Rare) (0.2% on Epic, Legendary)
         # Gain a combo stack for every bow hit granting +3 Strength. Max (Pet lvl * 0.1) stacks, stacks disappear after 8 seconds. (Rare) (0.2 on Epic, Legendary)
-        'ability': skeleton,
+        'ability': None,
         'type': 'combat',
         'icon': '/head/301268e9c492da1f0d88271cb492a4b302395f515a7bbf77f4a20b95fc02eb2'
     },
@@ -611,7 +579,7 @@ pets = {
             'crit chance': lambda lvl: lvl // 10
         },
         # Gain (Pet lvl * 0.1) strength for every nearby spider (Max 10). (All)
-        'ability': spider,
+        'ability': None,
         'type': 'combat',
         'icon': '/head/cd541541daaff50896cd258bdbdd4cf80c3ba816735726078bfe393927e57f1'
     },
@@ -676,7 +644,7 @@ pets = {
             'health': lambda lvl: lvl * 1.5
         },
         # While less than 15% HP, deal (Pet lvl * 0.3%) more damage. (All)
-        'ability': golem,
+        'ability': None,
         'type': 'combat',
         'icon': '/head/89091d79ea0f59ef7ef94d7bba6e5f17f2f7d4572c44f90f76c4819a714'
     },
