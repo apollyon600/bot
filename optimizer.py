@@ -347,13 +347,6 @@ def create_model(equipment_types, reforge_set, only_blacksmith_reforges):
 	m.eqn = ConstraintList()
 	return m
 
-def check_armor(player, goal):
-	for type, internal_name in goal.items():
-		if player.armor[type] is None or player.armor[type] != internal_name:
-			return False
-	return True
-	mastiff = player.armor['helmet'].internal_name == 'MASITFF_CROWN' and player.armor['chestplate'].internal_name == 'MASITFF_CHESTPLATE' and player.armor['leggings'].internal_name == 'MASITFF_LEGGINGS' and player.armor['boots'].internal_name == 'MASITFF_BOOTS'
-
 rarities = ['common', 'uncommon', 'rare', 'epic', 'legendary', 'mythic']
 
 def damage_optimizer(player, talisman_rarity_counts, armor_rarity_counts, *, perfect_crit_chance, include_attack_speed, only_blacksmith_reforges):
@@ -381,8 +374,8 @@ def damage_optimizer(player, talisman_rarity_counts, armor_rarity_counts, *, per
 
 	m.cd = Var(domain=Reals, initialize=500)
 	m.s = Var(domain=Reals, initialize=300)
-	tarantula = m.s / 10 if check_armor(player, {'helmet': 'TARANTULA_HELMET'}) else 0
-	if check_armor(player, {'helmet': 'MASITFF_CROWN', 'chestplate': 'MASITFF_CHESTPLATE', 'leggings': 'MASITFF_LEGGINGS', 'boots': 'MASITFF_BOOTS'}):
+	tarantula = m.s / 10 if player.armor['helmet'] == 'TARANTULA_HELMET' else 0
+	if player.armor == {'helmet': 'MASITFF_CROWN', 'chestplate': 'MASITFF_CHESTPLATE', 'leggings': 'MASITFF_LEGGINGS', 'boots': 'MASITFF_BOOTS'}:
 		m.eqn.add(m.cd == max(0, m.m * (quicksum(damage_reforges[i][k][j].get('crit damage', 0) * m.reforge_counts[i, j, k] for i, j, k in m.reforge_set) + player.stats['crit damage'] + tarantula) / 2))
 	else:
 		m.eqn.add(m.cd == max(0, m.m * (quicksum(damage_reforges[i][k][j].get('crit damage', 0) * m.reforge_counts[i, j, k] for i, j, k in m.reforge_set) + player.stats['crit damage'] + tarantula)))
@@ -393,7 +386,7 @@ def damage_optimizer(player, talisman_rarity_counts, armor_rarity_counts, *, per
 		m.eqn.add(m.cc == max(0, (m.m * (quicksum(damage_reforges[i][k][j].get('crit chance', 0) * m.reforge_counts[i, j, k] for i, j, k in m.reforge_set) + player.stats['crit chance'])) - 100))
 
 	#I cheated here. If I wanted 100% accuracy I should technically add all the health reforges aswell, but since each hp is only 1/50 of a damage I think it's ok to skip
-	if player.weapon.internal_name == 'POOCH_SWORD':
+	if player.weapon == 'POOCH_SWORD':
 		weapon_damage = player.weapon.stats['damage'] + player.stats['health'] / 50
 	else:
 		weapon_damage = player.weapon.stats['damage']
