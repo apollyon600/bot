@@ -1,4 +1,4 @@
-from constants import reforges
+from skypy.constants.constants import reforges
 result2 = {}
 for n, d in reforges.items():
 	result = {}

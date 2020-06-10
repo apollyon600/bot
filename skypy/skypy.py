@@ -315,62 +315,64 @@ class PetItem:
 			pet.stats['magic find'] += 7
 
 class Stats:
-	def __init__(self, dict={}):
-		self._dict = dict
-		self.multiplier = 1
-		
-	def __add__(self, other):
-		self = Stats(self._dict.copy())
-		if isinstance(other, Stats):
-			for k, v in other:
-				self[k] += v
-		else:
-			raise NotImplementedError
-		return self
-			
-	def __sub__(self, other):
-		self = Stats(self._dict.copy())
-		if isinstance(other, Stats):
-			for k, v in other:
-				self[k] -= v
-		else:
-			raise NotImplementedError
-		return self
-		
-	def __iadd__(self, other):
-		if isinstance(other, Stats):
-			for k, v in other._dict:
-				self[k] += k
-		else:
-			raise NotImplementedError
-			
-	def __isub__(self, other):
-		if isinstance(other, Stats):
-			for k, v in other._dict:
-				self[k] -= v
-		else:
-			raise NotImplementedError
-			
-	def __getitem__(self, key):
-		if isinstance(key, str):
-			return self._dict.get(key, 0) * self.multiplier
-		else:
-			raise TypeError
-			
-	def __setitem__(self, key, value):
-		if isinstance(value, (int, float)):
-			self._dict[key] = value
-		else:
-			raise ValueError
-		
-	def __str__(self):
-		return str(self._dict)
-		
-	def __repr__(self):
-		return str(self._dict)
-		
-	def __iter__(self):
-		return ((k, v * self.multiplier) for k, v in self._dict.items())
+    def __init__(self, dict={}):
+        self._dict = dict
+        self.multiplier = 1
+        
+    def __add__(self, other):
+        self = Stats(self._dict.copy())
+        if isinstance(other, Stats):
+            for k, v in other:
+                self[k] += v
+        else:
+            raise NotImplementedError
+        return self
+            
+    def __sub__(self, other):
+        self = Stats(self._dict.copy())
+        if isinstance(other, Stats):
+            for k, v in other:
+                self[k] -= v
+        else:
+            raise NotImplementedError
+        return self
+        
+    def __iadd__(self, other):
+        if isinstance(other, Stats):
+            for k, v in other:
+                self[k] += v
+        else:
+            raise NotImplementedError
+        return self
+            
+    def __isub__(self, other):
+        if isinstance(other, Stats):
+            for k, v in other:
+                self[k] -= v
+        else:
+            raise NotImplementedError
+        return self
+            
+    def __getitem__(self, key):
+        if isinstance(key, str):
+            return self._dict.get(key, 0) * self.multiplier
+        else:
+            raise TypeError
+            
+    def __setitem__(self, key, value):
+        if isinstance(value, (int, float)):
+            self._dict[key] = value
+        else:
+            raise ValueError
+        
+    def __str__(self):
+        return str(self._dict)
+        
+    def __repr__(self):
+        return str(self._dict)
+        
+    def __iter__(self):
+        return ((k, v * self.multiplier) for k, v in self._dict.items())
 
 class ApiInterface:
 	def __next_key__(self):

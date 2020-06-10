@@ -568,10 +568,10 @@ class Bot(discord.AutoShardedClient):
 				description='**[Sorted by date created]**'
 			).add_field(
 				name=None,
-				value='\n\n'.join(f'> {PROFILE_EMOJIS[profile]}\n`{profile}`' for profile in player.profiles.keys())
+				value='\n\n'.join(f'> {profile_emojis[profile]}\n`{profile}`' for profile in player.profiles.keys())
 			)
 
-			result = await self.reaction_menu(await embed.send(), user, {PROFILE_EMOJIS[profile]: profile for profile in player.profiles.keys()})
+			result = await self.reaction_menu(await embed.send(), user, {profile_emojis[profile]: profile for profile in player.profiles.keys()})
 			await player.set_profile(player.profiles[result])
 
 		if player.enabled_api['skills'] is False or player.enabled_api['inventory'] is False:
@@ -631,14 +631,23 @@ class Bot(discord.AutoShardedClient):
 			name='💎\tPet Item',
 			value=f'```{pet.item.name if pet.item else None}```',
 			inline=False
+		).add_field(
+			name='⛑️\tHelmet',
+			value=f'```{player.armor["helmet"]}```',
+			inline=False
+		).add_field(
+			name='👚\tChestplate',
+			value=f'```{player.armor["chestplate"]}```',
+			inline=False
+		).add_field(
+			name='👖\tLeggings',
+			value=f'```{player.armor["leggings"]}```',
+			inline=False
+		).add_field(
+			name='👞\tBoots',
+			value=f'```{player.armor["boots"]}```',
+			inline=False
 		)
-
-		for piece, emoji in [('helmet', '⛑️'), ('chestplate', '👚'), ('leggings', '👖'), ('boots', '👞')]:
-			embed.add_field(
-				name=f'{emoji}\t{piece.capitalize()}',
-				value='```' + str(next((a.name for a in player.armor if a.type == piece), None)) + '```',
-				inline=False
-			)
 
 		embed.add_field(
 			name='🏺\tTalismans',
