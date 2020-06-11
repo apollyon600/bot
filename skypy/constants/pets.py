@@ -136,8 +136,8 @@ def enderdragon(player):
 	# Buffs the Aspect of the Dragon sword by (Pet lvl * 0.5) damage and (Pet lvl * 0.3) strength. (All)
 	# Increases all stats by (Pet lvl * 0.1%). (Legendary)
 	if player.weapon == 'ASPECT_OF_THE_DRAGONS':
-		player.weapon.stats['damage'] += pet.level * 0.5
-		player.weapon.stats['strength'] += pet.level * 0.3
+		stats['weapon damage'] += pet.level * 0.5
+		stats['weapon strength'] += pet.level * 0.3
 	if pet.rarity == 'legendary':
 		boost = 1 + (pet.level * 0.001)
 		stats = {name: stat * boost for name, stat in stats.items()}
@@ -161,7 +161,7 @@ def bee(player):
 	# (1+ (Pet lvl * 0.09) INT and (1 + (Pet lvl * 0.07)) STR on Rare)
 	# (1+ (Pet lvl * 0.14) INT and (1 + (Pet lvl * 0.11)) STR on Epic)
 	# (1+ (Pet lvl * 0.19) INT and (1 + (Pet lvl * 0.14)) STR on Legendary)
-	player.stats["strength"] += {'common': 0.02, 'rare': 0.07, 'epic': 0.11, 'legendary': 0.14} * player.pet.level + 1
+	pass
 
 
 def squid(player):
@@ -174,7 +174,7 @@ def squid(player):
 def parrot(player):
 	# Gives (5 + (Pet lvl * 0.25)) strength to players within 20 Blocks (No stack). (Legendary)
 	if player.pet.rarity == 'legendary':
-		player.stats['strength'] += 5 + (player.pet.level * 0.25)
+		player.stats['strength'] += 5 + (pet.level * 0.25)
 
 def blaze(player):
 	# Upgrades Blaze Armor stats and ability by (Pet lvl * 0.4%). (All)
@@ -195,18 +195,13 @@ def blaze(player):
 def flyingfish(player):
 	# Gives (Pet lvl * 0.4) strength when near water. (Rare) (0.5 on Epic, Legendary)
 	# Increases the stats of Diver's Armor by (Pet lvl * 0.3%). (Legendary)
-	if player.armor == {'helmet': 'BLAZE_HELMET', 'chestplate': 'BLAZE_CHESTPLATE', 'leggings': 'BLAZE_LEGGINGS', 'boots': 'BLAZE_BOOTS'} and player.pet.rarity == 'legendary':
-		for piece in player.armor.values():
-			if piece:
-				piece.stats.multiplier += player.pet.level * 0.3
+	if player.armor == {'helmet': 'BLAZE_HELMET', 'chestplate': 'BLAZE_CHESTPLATE', 'leggings': 'BLAZE_LEGGINGS', 'boots': 'BLAZE_BOOTS'}:
+		pass
 
 def magmacube(player):
 	# Deal (Pet lvl * 0.25%) more damage to slimes. (Rare, Epic, Legendary)
 	# Buffs the stats of Ember Armor by (Pet lvl * 1%). (Legendary)
-	if player.armor == {'helmet': 'EMBER_HELMET', 'chestplate': 'EMBER_CHESTPLATE', 'leggings': 'EMBER_LEGGINGS', 'boots': 'EMBER_BOOTS'} and player.pet.rarity == 'legendary':
-		for piece in player.armor.values():
-			if piece:
-				piece.stats.multiplier += player.pet.level
+	pass
 
 def jerry(player):
 	if player.pet.rarity == 'legendary' and player.weapon == 'ASPECT_OF_THE_JERRY':
@@ -611,6 +606,7 @@ pets = {
 			'true defense': lambda lvl: lvl // 10
 		},
 		# While sitting on your rock, gain (Pet lvl * 0.3%) more damage. (Legendary)
+		'ability': None,
 		'type': 'mining',
 		'icon': '/head/ca979f76633f5dda89496511716948e9d7b8592f6e1e480c5de1c83238d3e32'
 	},
