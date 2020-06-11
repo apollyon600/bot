@@ -62,7 +62,6 @@ skill_rewards = {
 talismans = {re.compile(k): v for k, v in {
 	'FARMING_TALISMAN': 'Farming Talisman',
 	'VACCINE_TALISMAN': 'Vaccine Talisman',
-	'SPEED_ARTIFACT': 'Speed Artifact',
 	'WOOD_TALISMAN': 'Wood Affinity Talisman',
 	'SKELETON_TALISMAN': 'Skeleton Talisman',
 	'COIN_TALISMAN': 'Talisman of Coins',
@@ -87,6 +86,7 @@ talismans = {re.compile(k): v for k, v in {
 	'FEATHER_ARTIFACT': 'Feather Artifact',
 	'ARTIFACT_POTION_AFFINITY': 'Potion Affinity Artifact',
 	'HEALING_RING': 'Healing Ring',
+    'PARTY_HAT_CRAB': 'Crab Hat of Celebration',
 	'CANDY_ARTIFACT': 'Candy Artifact',
 	'EXPERIENCE_ARTIFACT': 'Experience Artifact',
 	'MELODY_HAIR': '♪ Melody\'s Hair ♪',
@@ -95,7 +95,9 @@ talismans = {re.compile(k): v for k, v in {
 	'WOLF_RING': 'Wolf Ring',
 	'BAT_ARTIFACT': 'Bat Artifact',
 	'DEVOUR_RING': 'Devour Ring',
+    'SPEED_ARTIFACT': 'Speed Artifact',
 	'ZOMBIE_ARTIFACT': 'Zombie Artifact',
+    'PERSONAL_COMPACTOR_6000': 'Personal Compactor 6000',
 	'SPIDER_ARTIFACT': 'Spider Artifact',
 	'ENDER_ARTIFACT': 'Ender Artifact',
 	'TARANTULA_TALISMAN': 'Tarantula Talisman',
@@ -106,9 +108,7 @@ talismans = {re.compile(k): v for k, v in {
 	'BAIT_RING': 'Bait Ring',
 	'SEAL_OF_THE_FAMILY': 'Seal of the Family',
 	'HUNTER_RING': 'Hunter Ring',
-	'CAMPFIRE_TALISMAN_(21|22|23|24|25|26|27|28|29)': 'Campfire God Badge',
-	'PERSONAL_COMPACTOR_6000': 'Personal Compactor 6000',
-	'PARTY_HAT_CRAB': 'Crab Hat of Celebration'
+	'CAMPFIRE_TALISMAN_(21|22|23|24|25|26|27|28|29)': 'Campfire God Badge'
 }.items()}
 
 skills = ['farming', 'mining', 'combat', 'foraging', 'fishing', 'enchanting', 'alchemy', 'taming', 'carpentry', 'runecrafting']
