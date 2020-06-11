@@ -375,7 +375,7 @@ def damage_optimizer(player, talisman_rarity_counts, armor_rarity_counts, *, per
 	m.cd = Var(domain=Reals, initialize=500)
 	m.s = Var(domain=Reals, initialize=300)
 	tarantula = m.s / 10 if player.armor['helmet'] == 'TARANTULA_HELMET' else 0
-	if player.armor == {'helmet': 'MASITFF_CROWN', 'chestplate': 'MASITFF_CHESTPLATE', 'leggings': 'MASITFF_LEGGINGS', 'boots': 'MASITFF_BOOTS'}:
+	if player.armor == {'boots': 'MASTIFF_BOOTS', 'chestplate': 'MASTIFF_CHESTPLATE', 'helmet': 'MASTIFF_HELMET', 'leggings': 'MASTIFF_LEGGINGS'}:
 		m.eqn.add(m.cd == max(0, m.m * (quicksum(damage_reforges[i][k][j].get('crit damage', 0) * m.reforge_counts[i, j, k] for i, j, k in m.reforge_set) + player.stats['crit damage'] + tarantula) / 2))
 	else:
 		m.eqn.add(m.cd == max(0, m.m * (quicksum(damage_reforges[i][k][j].get('crit damage', 0) * m.reforge_counts[i, j, k] for i, j, k in m.reforge_set) + player.stats['crit damage'] + tarantula)))
@@ -440,29 +440,25 @@ def ehp_optimizer(player, talisman_rarity_counts, armor_rarity_counts, *, only_b
 	
 def mastiff_ehp_optimizer(only_blacksmith_reforges):
 	if only_blacksmith_reforges:
-		return '''You are using mastiff armor for ehp
-Reforge all your armor to fierce
+		return '''Reforge all your armor to fierce
 Reforge all your talismans to hurtful
 Reforge your sword/fishing rod to spicy
 Reforge your bow to rapid'''
 	else:
-		return '''You are using mastiff armor for ehp
-Reforge all your armor to fierce
+		return '''Reforge all your armor to fierce
 Reforge all your talismans to hurtful
 Reforge your sword/fishing rod to spicy or fabled
 Reforge your bow to rapid'''
 
 def intelligence_optimizer(only_blacksmith_reforges):
 	if only_blacksmith_reforges:
-		return '''You are optimizing intelligence
-Reforge all your armor to wise
+		return '''Reforge all your armor to wise
 Reforge all your common talismans to demonic
 Reforge all your other talismans to bizzare
 Reforge your sword/fishing rod to heroic
 Reforge your bow to deadly'''
 	else:
-		return '''You are optimizing intelligence
-Reforge all your armor to necrotic
+		return '''Reforge all your armor to necrotic
 Reforge all your common talismans to demonic
 Reforge all your other talismans to bizzare
 Reforge your sword/fishing rod to heroic
@@ -470,15 +466,13 @@ Reforge your bow to deadly'''
 
 def speed_optimizer(only_blacksmith_reforges):
 	if only_blacksmith_reforges:
-		return '''You are optimizing speed
-Reforge your common talismans to simple
+		return '''Reforge your common talismans to simple
 Reforge your other talismans to vivid
 Reforge your common and uncommon armor to mythic
 Reforge your other armor to light
 Sword/bow/fishing rod reforges don't matter'''
 	else:
-		return '''You are optimizing speed
-Reforge your common talismans to simple
+		return '''Reforge your common talismans to simple
 Reforge your other talismans to vivid
 Reforge your common and uncommon armor to renowned or spiked
 Reforge your other armor to light
