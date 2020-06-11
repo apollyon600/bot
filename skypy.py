@@ -684,7 +684,7 @@ class Player(ApiInterface):
 		if self.inventory or self.echest or self.talisman_bag:
 			self.enabled_api['inventory'] = True
 
-		self.talismans = [talisman for talisman in self.inventory + self.talisman_bag if talisman.type == 'accessory']
+		self.talismans = [talisman for talisman in self.inventory + self.talisman_bag if talisman.type in ('accessory', 'hatccessory')]
 
 		for talisman in self.talismans:
 			talisman.active = True
