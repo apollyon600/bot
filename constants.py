@@ -108,6 +108,7 @@ talismans = {re.compile(k): v for k, v in {
 	'HUNTER_RING': 'Hunter Ring',
 	'CAMPFIRE_TALISMAN_(21|22|23|24|25|26|27|28|29)': 'Campfire God Badge',
 	'PERSONAL_COMPACTOR_6000': 'Personal Compactor 6000',
+	'PARTY_HAT_CRAB': 'Crab Hat of Celebration'
 }.items()}
 
 skills = ['farming', 'mining', 'combat', 'foraging', 'fishing', 'enchanting', 'alchemy', 'taming', 'carpentry', 'runecrafting']
