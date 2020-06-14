@@ -113,13 +113,14 @@ cosmetic_skills = ['carpentry', 'runecrafting']
 base_stats = {
 	'damage': 0,
 	'strength': 0,
-	'crit chance': 20,
+	'crit chance': 30,
 	'crit damage': 50,
 	'attack speed': 100,
 	'health': 100,
 	'defense': 0,
 	'speed': 100,
-	'intelligence': 0
+	'intelligence': 0,
+	'speed cap': 400
 }
 
 profile_names = [
