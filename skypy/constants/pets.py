@@ -14,7 +14,7 @@ def xp_slice(start):
 
 pet_xp = {'common': xp_slice(1), 'uncommon': xp_slice(7), 'rare': xp_slice(12), 'epic': xp_slice(17), 'legendary': xp_slice(21)}
 '''
-pet.
+
 pet_xp = {
 	'common': [
 		0, 100, 210, 330, 460, 605, 765, 940, 1130, 1340, 1570, 1820, 2095,
@@ -90,11 +90,6 @@ pet_xp = {
 	]
 }
 
-
-
-# region Pet ability functions
-
-
 def _pigman(player):
 	# Buffs the Pigman sword by (Pet lvl * 0.4) damage and (Pet lvl * 0.25) strength. (All)
 	# Deal (Pet lvl * 0.2%) extra damage to monsters level 100 and up. (Legendary)
@@ -136,8 +131,8 @@ def _bee(player):
 	# (1+ (Pet lvl * 0.09) INT and (1 + (Pet lvl * 0.07)) STR on Rare)
 	# (1+ (Pet lvl * 0.14) INT and (1 + (Pet lvl * 0.11)) STR on Epic)
 	# (1+ (Pet lvl * 0.19) INT and (1 + (Pet lvl * 0.14)) STR on Legendary)
-	player.stats['intelligence'] += 1 + player.pet.level * {'common': 0.02, 'uncommon': 0.02, 'rare': 0.09, 'epic': 0.14, 'legendary': 1.19}[player.pet.rarity]
-	player.stats['strength'] += 1 + player.pet.level * {'common': 0.02, 'uncommon': 0.02, 'rare': 0.07, 'epic': 0.11, 'legendary': 1.14}[player.pet.rarity]
+	player.stats['intelligence'] += 1 + player.pet.level * {'common': 0.02, 'uncommon': 0.02, 'rare': 0.09, 'epic': 0.14, 'legendary': 0.19}[player.pet.rarity]
+	player.stats['strength'] += 1 + player.pet.level * {'common': 0.02, 'uncommon': 0.02, 'rare': 0.07, 'epic': 0.11, 'legendary': 0.14}[player.pet.rarity]
 
 
 def _squid(player):
@@ -586,6 +581,7 @@ pets = {
 			'speed': lambda lvl: lvl / 5,
 			'intelligence': lambda lvl: lvl / 2
 		},
+		'ability': None,
 		'type': 'foraging',
 		'icon': '/head/57ba53654c79265623b0aac6d2c611fe861b7fa22b392ef43674c11d8c8214c'
 	},
@@ -699,7 +695,7 @@ pets = {
             'strength': lambda lvl: lvl * 2 / 5
         },
         'type': 'fishing',
-		'ability': _yeti
+		'ability': _yeti,
         'icon': '/head/ab126814fc3fa846dad934c349628a7a1de5b415021a03ef4211d62514d5'
      }
 }
