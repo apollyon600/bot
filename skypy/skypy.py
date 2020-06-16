@@ -18,15 +18,17 @@ async def session():
 		_session = aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=3), raise_for_status=True)
 	return _session
 
+import re
+from collections import defaultdict
+
 # Inventory parsing
 from base64 import b64decode as one
 from gzip import decompress as two
 from io import BytesIO as three
 from struct import unpack
-import re
 # -----------------
 
-def decode_inventory_data(raw, backpack=False):
+def decode_inventory_data(raw, player=None, backpack=False):
 	"""Takes a raw string representing inventory data.
 	Returns a json object with the inventory's contents"""
 
@@ -86,7 +88,7 @@ def decode_inventory_data(raw, backpack=False):
 	raw.read(3)	 # Remove file header (we ingore footer)
 	root = {}
 	parse_next_tag(root)
-	return [Item(x, i) for i, x in enumerate(root['i']) if x]
+	return [Item(x, i, player) for i, x in enumerate(root['i']) if x]
 
 def level_from_xp_table(xp, table):
 	"""Takes a list of xp requirements and a xp value.
@@ -143,7 +145,7 @@ class Item:
 		if self == 'NEW_YEAR_CAKE_BAG' or name.endswith('_BACKBACK'):
 			for k, v in extras.items():
 				if k == 'new_year_cake_bag_data' or k.endswith('_backpack_data'):
-					self.contents = decode_inventory_data(v, backpack=True)
+					self.contents = decode_inventory_data(v, player, backpack=True)
 					break
 		
 		#Stats
@@ -167,23 +169,11 @@ class Item:
 		elif name == 'NIGHT_CRYSTAL' or name == 'DAY_CRYSTAL':
 			self.stats['strength'] += 2.5
 			self.stats['defense'] += 2.5
-		elif name == 'NEW_YEAR_CAKE_BAG' and self.contents:
-			self.stats['health'] += len(self.contents)
+		elif name == 'NEW_YEAR_CAKE_BAG':
+			self.stats['health'] += len(self.contents or [])
 		elif name == 'GRAVITY_TALISMAN':
 			self.stats['strength'] += 10
 			self.stats['defense'] += 10
-		elif name in ('MUSHROOM_HELMET', 'MUSHROOM_CHESTPLATE', 'MUSHROOM_LEGGINGS', 'MUSHROOM_BOOTS'):
-			if self.player and self.player.armor == {'helmet': 'MUSHROOM_HELMET', 'chestplate': 'MUSHROOM_CHESTPLATE', 'leggings': 'MUSHROOM_LEGGINGS', 'boots': 'MUSHROOM_BOOTS'}:
-				self.stats.multiplier *= 3
-		elif name in ('END_HELMET', 'END_CHESTPLATE', 'END_LEGGINGS', 'END_BOOTS'):
-			if self.player and self.player.armor == {'helmet': 'END_HELMET', 'chestplate': 'END_CHESTPLATE', 'leggings': 'END_LEGGINGS', 'boots': 'END_BOOTS'}:
-				self.stats.multiplier *= 2
-		elif name in ('BAT_PERSON_HELMET', 'BAT_PERSON_CHESTPLATE', 'BAT_PERSON_LEGGINGS', 'BAT_PERSON_BOOTS'):
-			if self.player and self.player.armor == {'helmet': 'BAT_PERSON_HELMET', 'chestplate': 'BAT_PERSON_CHESTPLATE', 'leggings': 'BAT_PERSON_LEGGINGS', 'boots': 'BAT_PERSON_BOOTS'}:
-				self.stats.multiplier *= 3
-		elif name in ('SNOW_SUIT_HELMET', 'SNOW_SUIT_CHESTPLATE', 'SNOW_SUIT_LEGGINGS', 'SNOW_SUIT_BOOTS'):
-			if self.player and self.player.armor == {'helmet': 'SNOW_SUIT_HELMET', 'chestplate': 'SNOW_SUIT_CHESTPLATE', 'leggings': 'SNOW_SUIT_LEGGINGS', 'boots': 'SNOW_SUIT_BOOTS'}:
-				self.stats.multiplier *= 2
 		elif name == 'SPEED_TALISMAN':
 			self.stats['speed'] += 1
 		elif name == 'SPEED_RING':
@@ -192,6 +182,20 @@ class Item:
 			self.stats['speed'] += 5
 		elif name == 'PIGMAN_SWORD':
 			self.stats['defense'] += 50
+		elif self.player:
+			if name == 'POOCH_SWORD' and self.player.weapon == 'POOCH_SWORD':
+				self.stats.modifiers['damage'].insert(0, lambda stat: stat + player.stats['health'] // 50)
+			elif re.match('MUSHROOM_(HELMET|CHESTPLATE|LEGGINGS|BOOTS)', name) and self.player.armor == {'helmet': 'MUSHROOM_HELMET', 'chestplate': 'MUSHROOM_CHESTPLATE', 'leggings': 'MUSHROOM_LEGGINGS', 'boots': 'MUSHROOM_BOOTS'}:
+				self.stats.multiplier *= 3
+			elif re.match('END_(HELMET|CHESTPLATE|LEGGINGS|BOOTS)', name) and self.player.armor == {'helmet': 'END_HELMET', 'chestplate': 'END_CHESTPLATE', 'leggings': 'END_LEGGINGS', 'boots': 'END_BOOTS'}:
+				self.stats.multiplier *= 2
+			elif re.match('BAT_PERSON_(HELMET|CHESTPLATE|LEGGINGS|BOOTS)', name) and self.player.armor == {'helmet': 'BAT_PERSON_HELMET', 'chestplate': 'BAT_PERSON_CHESTPLATE', 'leggings': 'BAT_PERSON_LEGGINGS', 'boots': 'BAT_PERSON_BOOTS'}:
+				self.stats.multiplier *= 3
+			elif re.match('SNOW_SUIT_(HELMET|CHESTPLATE|LEGGINGS|BOOTS)', name) and self.player.armor == {'helmet': 'SNOW_SUIT_HELMET', 'chestplate': 'SNOW_SUIT_CHESTPLATE', 'leggings': 'SNOW_SUIT_LEGGINGS', 'boots': 'SNOW_SUIT_BOOTS'}:
+				self.stats.multiplier *= 2
+				
+		if self.reforge == 'renowned' and self.player:
+			self.player.stats.multiplier += 0.01
 
 	def __getitem__(self, name):
 		return self._nbt[name]
@@ -207,7 +211,6 @@ class Item:
 
 def damage(weapon_dmg, strength, crit_dmg, ench_modifier):
 	return (5 + weapon_dmg + strength // 5) * (1 + strength / 100) * (1 + crit_dmg / 100) * (1 + ench_modifier / 100)
-
 
 async def fetch_uuid_uname(uname_or_uuid, _depth=0):
 	s = await session()
@@ -265,89 +268,52 @@ class Pet:
 		self.title = f'[Lvl {self.level}] {self.name}'
 		self.xp_remaining = pet_xp[self.rarity][-1] - self.xp
 		self.candy_used = nbt.get('candyUsed', 0)
-		self.item = nbt.get('heldItem', None)
-		if self.item:
-			self.item = PetItem(self.item)
-		self.stats = {stat: function(self.level) for stat, function in pets[self.internal_name]['stats'].items()}
-
-	def __str__(self):
-		return self.name
-
-	def __repr__(self):
-		return f"'{self.internal_name}'"
-
-class PetItem:
-	def __init__(self, internal_name):
-		self.internal_name = internal_name
-		self.name = ' '.join([
-			s.capitalize() for s in
-			re.sub('_COMMON|_UNCOMMON|_RARE|_EPIC|_LEGENDARY', '', internal_name[9:]).split('_')
-		])
+		self.stats = Stats({stat: function(self.level) for stat, function in pets[self.internal_name]['stats'].items()})
+		self.item_internal_name = nbt.get('heldItem', None)
+		if self.item_internal_name:
+			self.item_name = ' '.join([
+				s.capitalize() for s in
+				re.sub('_COMMON|_UNCOMMON|_RARE|_EPIC|_LEGENDARY', '', self.item_internal_name[9:]).split('_')
+			])
 			
+			if self.item_name == 'Textbook':
+				self.stats.modifiers['intelligence'].append(lambda stat: stat * 2)
+			elif self.item_name == 'Hardened Scales':
+				self.stats['defense'] += 25
+			elif self.item_name == 'Iron Claws':
+				self.stats.modifiers['crit chance'].append(lambda stat: stat * 1.4)
+				self.stats.modifiers['crit damage'].append(lambda stat: stat * 1.4)
+			elif self.item_name == 'Sharpened Claws':
+				self.stats['crit damage'] += 15
+			elif self.item_name == 'Big Teeth':
+				self.stats['crit chance'] += 5
+			elif self.item_name == 'Lucky Clover':
+				self.stats['magic find'] += 7
+		else:
+			self.item_name = None
+
 	def __str__(self):
 		return self.name
-		
+
 	def __repr__(self):
-		return f"'{self.internal_name}'"
-		
-	def apply(self, pet):
-		name = self.name
-		if name == 'Textbook':
-			pet.stats['intelligence'] *= 2
-		elif name == 'Hardened Scales':
-			pet.stats['defense'] += 25
-		elif name == 'Iron Claws':
-			pet.stats['crit chance'] = int(pet.stats['crit chance'] * 1.4)
-			pet.stats['crit damage'] = int(pet.stats['crit damage'] * 1.4)
-		elif name == 'Sharpened Claws':
-			pet.stats['crit damage'] += 15
-		elif name == 'Big Teeth':
-			pet.stats['crit chance'] += 5
-		elif name == 'Lucky Clover':
-			pet.stats['magic find'] += 7
+		return f"'{self.internal_name}'"		
 
 class Stats:
+	# A list of stats that are unaffected by global multipliers
+	statics = ['speed cap', 'enchantment modifier', 'ability damage']
+	
 	def __init__(self, dict={}):
 		self._dict = dict
 		self.multiplier = 1
-		
-	def __add__(self, other):
-		self = Stats(self._dict.copy())
-		if isinstance(other, Stats):
-			for k, v in other:
-				self[k] += v
-		else:
-			raise NotImplementedError
-		return self
-			
-	def __sub__(self, other):
-		self = Stats(self._dict.copy())
-		if isinstance(other, Stats):
-			for k, v in other:
-				self[k] -= v
-		else:
-			raise NotImplementedError
-		return self
-		
-	def __iadd__(self, other):
-		if isinstance(other, Stats):
-			for k, v in other:
-				self[k] += v
-		else:
-			raise NotImplementedError
-		return self
-			
-	def __isub__(self, other):
-		if isinstance(other, Stats):
-			for k, v in other:
-				self[k] -= v
-		else:
-			raise NotImplementedError
-		return self
+		self.modifiers = defaultdict(list)
+		self.children = []
 			
 	def __getitem__(self, key):
 		if isinstance(key, str):
-			return self._dict.get(key, 0) * self.multiplier
+			base = self._dict.get(key, 0) + sum(c[key] for c in self.children)
+			for f in self.modifiers[key]:
+				base = f(base)
+			return base if key in Stats.statics else base * self.multiplier
 		else:
 			raise TypeError
 			
@@ -362,9 +328,14 @@ class Stats:
 		
 	def __repr__(self):
 		return str(self._dict)
-		
+	
+	@staticmethod
+	def _gen(cls):
+		for k, v in cls._dict.keys():
+			yield k, cls[v]
+	
 	def __iter__(self):
-		return ((k, v * self.multiplier) for k, v in self._dict.items())
+		return Stats._gen(self)
 
 class ApiInterface:
 	def __next_key__(self):
@@ -527,16 +498,6 @@ class Player(ApiInterface):
 		await self.set_profile(best)
 
 	@staticmethod
-	def _parse_inventory(v, *path):
-		try:
-			result = v
-			for key in path:
-				result = result[key]
-			return decode_inventory_data(result)
-		except KeyError:
-			return []
-
-	@staticmethod
 	def _parse_collection(v, data):
 		try:
 			tuples = []
@@ -585,21 +546,31 @@ class Player(ApiInterface):
 				if pet.active:
 					self.pet = pet
 					
+		def parse_inventory(v, *path):
+			try:
+				result = v
+				for key in path:
+					result = result[key]
+				return decode_inventory_data(result, self)
+			except KeyError:
+				return []
+					
 		#Loads all of a player's inventories
-		self.inventory = Player._parse_inventory(v, 'inv_contents', 'data')
-		self.echest = Player._parse_inventory(v, 'ender_chest_contents', 'data')
-		self.weapons = [item for item in self.inventory + self.echest if item.type in ('sword', 'bow', 'fishing rod')]
-		self.candy_bag = Player._parse_inventory(v, 'candy_inventory_contents', 'data')
-		self.talisman_bag = Player._parse_inventory(v, 'talisman_bag', 'data')
-		self.potion_bag = Player._parse_inventory(v, 'potion_bag', 'data')
-		self.fish_bag = Player._parse_inventory(v, 'fishing_bag', 'data')
-		self.quiver = Player._parse_inventory(v, 'quiver', 'data')
 		self.armor = {'helmet': None, 'chestplate': None, 'leggings': None, 'boots': None}
-		for armor in Player._parse_inventory(v, 'inv_armor', 'data'):
+		for armor in parse_inventory(v, 'inv_armor', 'data'):
 			if armor.type == 'hatccessory':
 				self.armor['helmet'] = armor
 			else:
 				self.armor[armor.type] = armor
+		self.inventory = parse_inventory(v, 'inv_contents', 'data')
+		self.echest = parse_inventory(v, 'ender_chest_contents', 'data')
+		self.weapons = [item for item in self.inventory + self.echest if item.type in ('sword', 'bow', 'fishing rod')]
+		self.candy_bag = parse_inventory(v, 'candy_inventory_contents', 'data')
+		self.talisman_bag = parse_inventory(v, 'talisman_bag', 'data')
+		self.potion_bag = parse_inventory(v, 'potion_bag', 'data')
+		self.fish_bag = parse_inventory(v, 'fishing_bag', 'data')
+		self.quiver = parse_inventory(v, 'quiver', 'data')
+		self.wardrobe = parse_inventory(v, 'wardrobe_contents', 'data')
 
 		if self.inventory or self.echest or self.talisman_bag:
 			self.enabled_api['inventory'] = True
@@ -724,6 +695,21 @@ class Player(ApiInterface):
 		self.stats['defense'] += self.fairy_souls // 5 + self.fairy_souls // 25
 		self.stats['strength'] += self.fairy_souls // 5 + self.fairy_souls // 25
 		self.stats['speed'] += self.fairy_souls // 50
+		
+		self.stats.children = [[]],[self.pet.stats]][self.pet] + [[]],[self.weapon.stats]][self.weapon] + [p.stats for p in self.armor.values() if p] + [t.stats for t in self.talismans if t.active]
+		
+		#Set Bonuses
+		if self.armor == {'boots': 'SUPERIOR_BOOTS', 'chestplate': 'SUPERIOR_CHESTPLATE', 'helmet': 'SUPERIOR_HELMET', 'leggings': 'SUPERIOR_LEGGINGS'}:
+			self.stats.multiplier += 0.05
+		elif self.armor == {'boots': 'YOUNG_BOOTS', 'chestplate': 'YOUNG_CHESTPLATE', 'helmet': 'YOUNG_HELMET', 'leggings': 'YOUNG_LEGGINGS'}:
+			self.stats['speed cap'] += 100
+		elif self.armor == {'boots': 'MASTIFF_BOOTS', 'chestplate': 'MASTIFF_CHESTPLATE', 'helmet': 'MASTIFF_HELMET', 'leggings': 'MASTIFF_LEGGINGS'}:
+			self.stats.modifiers['crit damage'].append(lambda stat: stat / 2)
+		elif self.armor['helmet'] == 'TARANTULA_HELMET':
+			self.stats.modifiers['crit damage'].insert(0, lambda stat: stat + self.stats['strength'] / 10)
+
+	async def set_weapon(self, weapon):
+		self.weapon = weapon
 
 	async def is_online(self):
 		player_data = (await self.__call_api__('/player', name=self.uname))['player']
