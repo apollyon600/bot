@@ -71,7 +71,7 @@ orbs = {
 profile_emojis = {
 	'Apple': '🍎',
 	'Banana': '🍌',
-	'Blueberry': '🔵',
+	'blueberry': '🔵',
 	'Coconut': '🥥',
 	'Cucumber': '🥒',
 	'Grapes': '🍇',
@@ -79,7 +79,7 @@ profile_emojis = {
 	'Lemon': '🍋',
 	'Lime': '🍏',
 	'Mango': '🥭',
-	'Orange': '🍊',
+	'orange': '🍊',
 	'Papaya': '🍈',
 	'Peach': '🍑',
 	'Pear': '🍐',
@@ -91,6 +91,8 @@ profile_emojis = {
 	'Watermelon': '🍉',
 	'Zucchini': '🥬'
 }
+
+number_emojis = ['0️⃣', '1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟']
 
 # list of all enchantment powers per level. can be a function or a number
 enchantment_effects = {
@@ -132,6 +134,13 @@ relavant_enchants = {
 		'spiked_hook',
 		'ender_slayer',
 		'first_strike'
+	],
+	'base': [
+		'giant_killer',
+		'sharpness',
+		'first_strike',
+		'power',
+		'spiked_hook'
 	]
 }
 
@@ -154,7 +163,7 @@ pet_emojis = {
 	'ENDER_DRAGON': '🐲',
 	'GUARDIAN': '🛡️',
 	'ENDERMAN': '😈',
-	'BLUE_WHALE': '🐳',
+	'blue_WHALE': '🐳',
 	'GIRAFFE': '🦒',
 	'PHOENIX': '🐦',
 	'BEE': '🐝',
@@ -220,16 +229,15 @@ def format_pet(pet):
 	return f'{pet.title} |{pet.rarity.upper()}|' if pet else ''
 
 
-WHITE = ('', '')
-GRAY = ('bf', '')
-GREY = GRAY
-PUKE = ('css', '')
-GREEN = ('yaml', '')
-BLUE = ('md', '#')
-YELLOW = ('fix', '')
-ORANGE = ('glsl', '#')
-RED = ('diff', '-')
-rarity_colors = {'common': GREY, 'uncommon': GREEN, 'rare': BLUE, 'epic': ORANGE, 'legendary': YELLOW}
+white = ('', '')
+gray = ('bf', '')
+puke = ('css', '')
+green = ('yaml', '')
+blue = ('md', '#')
+yellow = ('fix', '')
+orange = ('glsl', '#')
+red = ('diff', '-')
+rarity_colors = {'common': gray, 'uncommon': green, 'rare': blue, 'epic': orange, 'legendary': yellow, 'mythic': red}
 
 
 def colorize(s, color):
@@ -475,9 +483,9 @@ class Bot(discord.AutoShardedClient):
 		channel = message.channel
 
 		optimizers = [
-			{'emoji': '💯', 'name': 'perfect crit chance'},
-			{'emoji': '💥', 'name': 'maximum damage'},
-			{'emoji': '🛡️', 'name': 'effective health'},
+			{'emoji': '💯', 'name': 'perfect crit chance', 'potions': damage_potions},
+			{'emoji': '💥', 'name': 'maximum damage', 'potions': damage_potions},
+			{'emoji': '🛡️', 'name': 'effective health', 'potions': ehp_potions},
 			{'emoji': '🧠', 'name': 'intelligence', 'text': intelligence_optimizer},
 			{'emoji': '💨', 'name': 'speed', 'text': speed_optimizer}
 		]
@@ -563,6 +571,11 @@ class Bot(discord.AutoShardedClient):
 			await self.api_disabled(f'{user.name}, your API is disabled!', channel, user)
 			return
 
+		talisman_counts = {'common': 0, 'uncommon': 0, 'rare': 0, 'epic': 0, 'legendary': 0, 'mythic': 0}
+		for tali in player.talismans:
+			if tali.active:
+				talisman_counts[tali.rarity] += 1
+
 		if optimizer['name'] == 'effective health' and player.armor == {'boots': 'MASTIFF_BOOTS', 'chestplate': 'MASTIFF_CHESTPLATE', 'helmet': 'MASTIFF_HELMET', 'leggings': 'MASTIFF_LEGGINGS'}:
 			split = '``````'.join(mastiff_ehp_optimizer(blacksmith).split('\n'))
 			await Embed(
@@ -626,7 +639,7 @@ class Bot(discord.AutoShardedClient):
 			inline=False
 		).add_field(
 			name='💎\tPet Item',
-			value=f'```{pet.item.name if pet.item else None}```',
+			value=f'```{pet.item_name}```',
 			inline=False
 		).add_field(
 			name='⛑️\tHelmet',
@@ -646,16 +659,11 @@ class Bot(discord.AutoShardedClient):
 			inline=False
 		)
 
-		player.talisman_counts = {'common': 0, 'uncommon': 0, 'rare': 0, 'epic': 0, 'legendary': 0, 'mythic': 0}
-		for tali in self.talismans:
-			if tali.active:
-				player.talisman_counts[tali.rarity] += 1
-
 		embed.add_field(
 			name='🏺\tTalismans',
 			value=''.join(
 				colorize(f'{amount} {name.capitalize()}', rarity_colors[name])
-				for name, amount in player.talisman_counts.items()
+				for name, amount in talisman_counts.items()
 			)
 		)
 
@@ -663,11 +671,7 @@ class Bot(discord.AutoShardedClient):
 			await channel.send(f'{user.mention} session ended')
 			return
 
-		numbers = ['0️⃣', '1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟']
-
-		stats = {'crit damage': 0, 'crit chance': 0, 'strength': 0, 'enchantment modifier': 0, 'damage': 0}
-
-		for name, pot in DAMAGING_POTIONS.items():
+		for name, pot in optimizer['potions'].items():
 			buff = pot['stats']
 			levels = pot['levels']
 
@@ -676,26 +680,52 @@ class Bot(discord.AutoShardedClient):
 
 			msg = await channel.send(f'{user.mention} what level of `{name} potion` do you use?')
 
-			emojis = {numbers[level]: level for level in levels}
+			emojis = {number_emojis[level]: level for level in levels}
 
 			level = await self.reaction_menu(msg, user, emojis)
 
 			for name1, amount in buff.items():
-				stats[name1] += amount[level]
+				player.stats[name1] += amount[level]
 
-		for name, orb in ORBS.items():
-			internal_name = orb['internal']
-			buff = orb['stats']
+		for thing in [player.weapon] + list(player.armor.values()) + [t for t in player.talismans if t.active] + [player.pet] if player.pet else []:
+			player.stats += thing.stats
 
-			if internal_name in player.inventory or internal_name in player.echest:
-				msg = await channel.send(f'{user.mention} will you be using your `{name}`?')
-				yn = await self.yesno(msg, user)
+		if optimizer['name'] in ('perfect crit chance', 'maximum damage'):
+			for name, orb in orbs.items():
+				internal_name = orb['internal']
+				buff = orb['stats']
 
-				if yn is True:
-					for name, amount in buff.items():
-						stats[name] += amount
+				if internal_name in player.inventory or internal_name in player.echest:
+					msg = await channel.send(f'{user.mention} will you be using your `{name}`?')
+					yn = await self.yesno(msg, user)
 
-		potion_cc = stats['crit chance']
+					if yn is True:
+						for name, amount in buff.items():
+							player.stats[name] += amount
+			
+			include_attack_speed = await self.yesno(await Embed(
+				channel,
+				user=user,
+				title='Do you want to include attack speed?'
+			).send(), user)
+
+			for enchantment in relavant_enchants['zealots']:
+				if enchantment in weapon.enchantments:
+					value = enchantment_effects[enchantment]
+					if callable(value):
+						player.stats['enchantment modifier'] += value(weapon.enchantments[enchantment])
+					else:
+						player.stats['enchantment modifier'] += value * weapon.enchantments[enchantment]
+		
+			await channel.send(str(damage_optimizer(
+				player, talisman_counts, armor_counts, only_blacksmith_reforges=blacksmith,
+				perfect_crit_change=optimizer['name'] == 'perfect crit chance',
+				include_attack_speed=include_attack_speed
+			)))
+		else:
+			await channel.send(str(
+				ehp_optimizer(player, talisman_counts, armor_counts, only_blacksmith_reforges=blacksmith)
+			))
 
 	async def view_missing(self, message, *args):
 		user = message.author

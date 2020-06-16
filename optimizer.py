@@ -340,23 +340,29 @@ def format_counts(counts):
 def solve(m):
 	SolverFactory('scip', executable='scip').solve(m)
 
-def create_model(equipment_types, reforge_set, only_blacksmith_reforges):
+def create_model(counts, reforge_set, only_blacksmith_reforges):
 	m = ConcreteModel()
-	m.reforge_set = Set(initialize=[(i, j, k) for i in equipment_types for j in rarities for k, stats in damage_reforges[i].items() if j in stats and (only_blacksmith_reforges is False or stats['blacksmith'] is True)], ordered=True)
+	m.reforge_set = Set(
+		initialize=[
+			(i, j, k) for i, count in counts.items() for j in rarities for k, stats in damage_reforges[i].items()
+			if j in stats and count[j] > 0 and (only_blacksmith_reforges is False or stats['blacksmith'] is True)
+		], ordered=True
+	)
 	m.reforge_counts = Var(m.reforge_set, domain=NonNegativeIntegers, initialize=0)
 	m.eqn = ConstraintList()
 	return m
 
 rarities = ['common', 'uncommon', 'rare', 'epic', 'legendary', 'mythic']
 
-def damage_optimizer(player, talisman_rarity_counts, armor_rarity_counts, *, perfect_crit_chance, include_attack_speed, only_blacksmith_reforges):
-	equipment_types = ['talisman', 'armor', player.weapon.type]
-
-	m = create_model(equipment_types, damage_reforges)
-
-	weapon_rarity_counts = {rarity: 0 for rarity in rarities}
-	weapon_rarity_counts[player.weapon.rarity] = 1
-	counts = {'talisman': talisman_rarity_counts, 'armor': armor_rarity_counts, player.weapon.type: weapon_rarity_counts}
+def damage_optimizer(player, talisman_rarity_counts, *, perfect_crit_chance, include_attack_speed, only_blacksmith_reforges):
+	armor_types = [type for type, piece in player.armor.items() if piece]
+	equipment_types = ['talisman', player.weapon.type] + armor_types
+	counts = {'talisman': talisman_rarity_counts, player.weapon.type: {rarity: int(player.weapon.rarity == rarity) for rarity in rarities}}
+	for name in player.armor.keys():
+		counts[name] = {rarity: int(player.armor[name].rarity == rarity) for rarity in rarities}
+		
+	m = create_model(counts, damage_reforges, only_blacksmith_reforges)
+	
 	for equipment_type in equipment_types:
 		reforges = damage_reforges[equipment_type]
 		sums = {rarity: [] for rarity in rarities}
@@ -366,52 +372,34 @@ def damage_optimizer(player, talisman_rarity_counts, armor_rarity_counts, *, per
 		for rarity in rarities:
 			m.eqn.add(quicksum(sums[rarity]) == counts[equipment_type][rarity])
 
-	if only_blacksmith_reforges:
-		m.m = 1 + player.stats['multiplier'] / 100
-	else:
-		m.m = Var(domain=Reals, initialize=0)
-		m.eqn.add(m.m == 1 + (player.stats['multiplier'] + quicksum(m.reforge_counts['armor', rarity, 'renowned'] for rarity in rarities)) / 100)
+	if only_blacksmith_reforges is False:
+		player.stats.multiplier += quicksum(m.reforge_counts[piece, rarity, 'renowned'] for piece in armor_types for rarity in rarities) / 100
 
-	m.cd = Var(domain=Reals, initialize=500)
-	m.s = Var(domain=Reals, initialize=300)
-	tarantula = m.s / 10 if player.armor['helmet'] == 'TARANTULA_HELMET' else 0
-	if player.armor == {'boots': 'MASTIFF_BOOTS', 'chestplate': 'MASTIFF_CHESTPLATE', 'helmet': 'MASTIFF_HELMET', 'leggings': 'MASTIFF_LEGGINGS'}:
-		m.eqn.add(m.cd == max(0, m.m * (quicksum(damage_reforges[i][k][j].get('crit damage', 0) * m.reforge_counts[i, j, k] for i, j, k in m.reforge_set) + player.stats['crit damage'] + tarantula) / 2))
-	else:
-		m.eqn.add(m.cd == max(0, m.m * (quicksum(damage_reforges[i][k][j].get('crit damage', 0) * m.reforge_counts[i, j, k] for i, j, k in m.reforge_set) + player.stats['crit damage'] + tarantula)))
-		
-	m.eqn.add(m.s == max(0, m.m * (quicksum(damage_reforges[i][k][j].get('strength', 0) * m.reforge_counts[i, j, k] for i, j, k in m.reforge_set) + player.stats['strength'])))
+	for stat in ['strength', 'crit damage'] + ['crit chance'] * perfect_crit_chance + ['attack speed'] * include_attack_speed:
+		player.stats.modifiers[stat].insert(0, 
+			lambda stat: stat + quicksum(damage_reforges[i][k][j].get(stat, 0) * m.reforge_counts[i, j, k] for i, j, k in m.reforge_set)
+		)
+	
 	if perfect_crit_chance:
-		m.cc = Var(domain=Reals, initialize=0)
-		m.eqn.add(m.cc == max(0, (m.m * (quicksum(damage_reforges[i][k][j].get('crit chance', 0) * m.reforge_counts[i, j, k] for i, j, k in m.reforge_set) + player.stats['crit chance'])) - 100))
-
-	#I cheated here. If I wanted 100% accuracy I should technically add all the health reforges aswell, but since each hp is only 1/50 of a damage I think it's ok to skip
-	if player.weapon == 'POOCH_SWORD':
-		weapon_damage = player.weapon.stats['damage'] + player.stats['health'] / 50
-	else:
-		weapon_damage = player.weapon.stats['damage']
+		m.eqn.add(100 <= player.stats['crit damage'])
 
 	m.damage = Var(domain=Reals)
-	ench_modifier = 500
 	m.floored_strength = Var(domain=Integers, initialize=60)
-	m.eqn.add(m.floored_strength >= m.s / 5 - 0.9999)
-	m.eqn.add(m.floored_strength <= m.s / 5)
-	m.eqn.add(m.damage == (5 + weapon_damage + m.floored_strength) * (1 + m.s / 100) * (1 + m.cd / 100))
+	m.eqn.add(m.floored_strength >= player.stats['strength'] / 5 - 0.9999)
+	m.eqn.add(m.floored_strength <= player.stats['strength'] / 5)
+	m.eqn.add(m.damage == (5 + player.stats['damage'] + m.floored_strength) * (1 + m.s / 100) * (1 + m.cd / 100))
 
-	if include_attack_speed:
-		m.a = Var(domain=Reals, initialize=107)
-		m.eqn.add(m.a == max(0, m.m * (quicksum(damage_reforges[i][k][j].get('attack speed', 0) * m.reforge_counts[i, j, k] for i, j, k in m.reforge_set) + player.stats['attack speed'])))
-		m.objective = Objective(expr=(m.damage * (1 + m.a / 100)), sense=maximize)
-	else:
-		m.objective = Objective(expr=m.damage, sense=maximize)
+	m.objective = Objective(expr=m.damage if include_attack_speed else m.damage * player.stats['attack speed'] / 100, sense=maximize)
 	solve(m)
 	
-	result = {'damage': m.damage() * (1 + ench_modifier / 100), 'strength': m.s(), 'crit damage': m.cd(), 'crit chance': m.cc()}
+	result = {'damage': m.damage() * (1 + player.stats['enchantment modifier'] / 100), 'strength': player.stats['strength'](), 'crit damage': player.stats['crit damage']()}
+	if perfect_crit_chance:
+		result['crit chance'] = player.stats['crit chance']()
 	if include_attack_speed:
-		result['attack speed'] = m.a()
+		result['attack speed'] = player.stats['attack speed']()
 	return result, format_counts(m.reforge_counts)
 
-def ehp_optimizer(player, talisman_rarity_counts, armor_rarity_counts, *, only_blacksmith_reforges):
+def ehp_optimizer(player, talisman_rarity_counts, *, only_blacksmith_reforges):
 	equipment_types = ['talisman', 'armor']
 
 	m = create_model(equipment_types, ehp_reforges)
