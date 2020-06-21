@@ -1,5 +1,4 @@
 import re
-import math
 
 sword_enchants = [
     'sharpness',
@@ -60,58 +59,60 @@ skill_rewards = {
 }
 
 talismans = {re.compile(k): v for k, v in {
-	'FARMING_TALISMAN': 'Farming Talisman',
-	'VACCINE_TALISMAN': 'Vaccine Talisman',
-	'WOOD_TALISMAN': 'Wood Affinity Talisman',
-	'SKELETON_TALISMAN': 'Skeleton Talisman',
-	'COIN_TALISMAN': 'Talisman of Coins',
-	'MAGNETIC_TALISMAN': 'Magnetic Talisman',
-	'GRAVITY_TALISMAN': 'Gravity Talisman',
-	'VILLAGE_TALISMAN': 'Village Affinity Talisman',
-	'MINE_TALISMAN': 'Mine Affinity Talisman',
-	'NIGHT_VISION_CHARM': 'Night Vision Charm',
-	'LAVA_TALISMAN': 'Lava Talisman',
-	'SCAVENGER_TALISMAN': 'Scavenger Talisman',
-	'WOLF_PAW': 'Wolf Paw',
-	'FIRE_TALISMAN': 'Fire Talisman',
-	'(BROKEN_|CRACKED_)?PIGGY_BANK': 'Piggy Bank',
-	'PIGS_FOOT': 'Pig\'s Foot',
-	'FROZEN_CHICKEN': 'Frozen Chicken',
-	'FISH_AFFINITY_TALISMAN': 'Fish Affinity Talisman',
-	'FARMER_ORB': 'Farmer Orb',
-	'HASTE_RING': 'Haste Ring',
-	'NEW_YEAR_CAKE_BAG': 'New Year Cake Bag',
-	'NIGHT_CRYSTAL': 'Night Crystal',
-	'DAY_CRYSTAL': 'Day Crystal',
-	'FEATHER_ARTIFACT': 'Feather Artifact',
-	'ARTIFACT_POTION_AFFINITY': 'Potion Affinity Artifact',
-	'HEALING_RING': 'Healing Ring',
+    'FARMING_TALISMAN': 'Farming Talisman',
+    'VACCINE_TALISMAN': 'Vaccine Talisman',
+    'WOOD_TALISMAN': 'Wood Affinity Talisman',
+    'SKELETON_TALISMAN': 'Skeleton Talisman',
+    'COIN_TALISMAN': 'Talisman of Coins',
+    'MAGNETIC_TALISMAN': 'Magnetic Talisman',
+    'GRAVITY_TALISMAN': 'Gravity Talisman',
+    'VILLAGE_TALISMAN': 'Village Affinity Talisman',
+    'MINE_TALISMAN': 'Mine Affinity Talisman',
+    'NIGHT_VISION_CHARM': 'Night Vision Charm',
+    'LAVA_TALISMAN': 'Lava Talisman',
+    'SCAVENGER_TALISMAN': 'Scavenger Talisman',
+    'WOLF_PAW': 'Wolf Paw',
+    'FIRE_TALISMAN': 'Fire Talisman',
+    '(BROKEN_|CRACKED_)?PIGGY_BANK': 'Piggy Bank',
+    'PIGS_FOOT': 'Pig\'s Foot',
+    'FROZEN_CHICKEN': 'Frozen Chicken',
+    'FISH_AFFINITY_TALISMAN': 'Fish Affinity Talisman',
+    'FARMER_ORB': 'Farmer Orb',
+    'HASTE_RING': 'Haste Ring',
+    'NEW_YEAR_CAKE_BAG': 'New Year Cake Bag',
+    'NIGHT_CRYSTAL': 'Night Crystal',
+    'DAY_CRYSTAL': 'Day Crystal',
+    'FEATHER_ARTIFACT': 'Feather Artifact',
+    'ARTIFACT_POTION_AFFINITY': 'Potion Affinity Artifact',
+    'HEALING_RING': 'Healing Ring',
     'PARTY_HAT_CRAB': 'Crab Hat of Celebration',
-	'CANDY_ARTIFACT': 'Candy Artifact',
-	'EXPERIENCE_ARTIFACT': 'Experience Artifact',
-	'MELODY_HAIR': '♪ Melody\'s Hair ♪',
-	'SEA_CREATURE_ARTIFACT': 'Sea Creature Artifact',
-	'INTIMIDATION_ARTIFACT': 'Intimidation Artifact',
-	'WOLF_RING': 'Wolf Ring',
-	'BAT_ARTIFACT': 'Bat Artifact',
-	'DEVOUR_RING': 'Devour Ring',
+    'POTATO_TALISMAN': 'Potato Talisman',
+    'CANDY_ARTIFACT': 'Candy Artifact',
+    'EXPERIENCE_ARTIFACT': 'Experience Artifact',
+    'MELODY_HAIR': '♪ Melody\'s Hair ♪',
+    'SEA_CREATURE_ARTIFACT': 'Sea Creature Artifact',
+    'INTIMIDATION_ARTIFACT': 'Intimidation Artifact',
+    'WOLF_RING': 'Wolf Ring',
+    'BAT_ARTIFACT': 'Bat Artifact',
+    'DEVOUR_RING': 'Devour Ring',
     'SPEED_ARTIFACT': 'Speed Artifact',
-	'ZOMBIE_ARTIFACT': 'Zombie Artifact',
+    'ZOMBIE_ARTIFACT': 'Zombie Artifact',
     'PERSONAL_COMPACTOR_6000': 'Personal Compactor 6000',
-	'SPIDER_ARTIFACT': 'Spider Artifact',
-	'ENDER_ARTIFACT': 'Ender Artifact',
-	'TARANTULA_TALISMAN': 'Tarantula Talisman',
-	'SURVIVOR_CUBE': 'Survivor Cube',
-	'WITHER_ARTIFACT': 'Wither Artifact',
-	'WEDDING_RING_9': 'Legendary Ring of Love',
-	'RED_CLAW_ARTIFACT': 'Red Claw Artifact',
-	'BAIT_RING': 'Bait Ring',
-	'SEAL_OF_THE_FAMILY': 'Seal of the Family',
-	'HUNTER_RING': 'Hunter Ring',
-	'CAMPFIRE_TALISMAN_(21|22|23|24|25|26|27|28|29)': 'Campfire God Badge'
+    'SPIDER_ARTIFACT': 'Spider Artifact',
+    'ENDER_ARTIFACT': 'Ender Artifact',
+    'TARANTULA_TALISMAN': 'Tarantula Talisman',
+    'SURVIVOR_CUBE': 'Survivor Cube',
+    'WITHER_ARTIFACT': 'Wither Artifact',
+    'WEDDING_RING_9': 'Legendary Ring of Love',
+    'RED_CLAW_ARTIFACT': 'Red Claw Artifact',
+    'BAIT_RING': 'Bait Ring',
+    'SEAL_OF_THE_FAMILY': 'Seal of the Family',
+    'HUNTER_RING': 'Hunter Ring',
+    'CAMPFIRE_TALISMAN_(21|22|23|24|25|26|27|28|29)': 'Campfire God Badge'
 }.items()}
 
-skills = ['farming', 'mining', 'combat', 'foraging', 'fishing', 'enchanting', 'alchemy', 'taming', 'carpentry', 'runecrafting']
+skills = ['farming', 'mining', 'combat', 'foraging', 'fishing', 'enchanting', 'alchemy', 'taming', 'carpentry',
+          'runecrafting']
 cosmetic_skills = ['carpentry', 'runecrafting']
 slayers = ['zombie', 'spider', 'wolf']
 
@@ -125,45 +126,45 @@ slayer_rewards = {
 }
 
 slayer_level_requirements = {
-	'zombie': [5, 15, 200, 1000, 5000, 20000, 100000, 400000, 1000000],
-	'spider': [5, 15, 200, 1000, 5000, 20000, 100000, 400000, 1000000],
-	'wolf': [5, 15, 200, 1500, 5000, 20000, 100000, 400000, 1000000]
+    'zombie': [5, 15, 200, 1000, 5000, 20000, 100000, 400000, 1000000],
+    'spider': [5, 15, 200, 1000, 5000, 20000, 100000, 400000, 1000000],
+    'wolf': [5, 15, 200, 1500, 5000, 20000, 100000, 400000, 1000000]
 }
 
 base_stats = {
-	'damage': 0,
-	'strength': 0,
-	'crit chance': 20,
-	'crit damage': 50,
-	'attack speed': 100,
-	'health': 100,
-	'defense': 0,
-	'speed': 100,
-	'intelligence': 0
+    'damage': 0,
+    'strength': 0,
+    'crit chance': 20,
+    'crit damage': 50,
+    'attack speed': 100,
+    'health': 100,
+    'defense': 0,
+    'speed': 100,
+    'intelligence': 0
 }
 
 profile_names = [
-	'Apple',
-	'Banana',
-	'Blueberry',
-	'Coconut',
-	'Cucumber',
-	'Grapes',
-	'Kiwi',
-	'Lemon',
-	'Lime',
-	'Mango',
-	'Orange',
-	'Papaya',
-	'Peach',
-	'Pear',
-	'Pineapple',
-	'Pomegranate',
-	'Raspberry',
-	'Strawberry',
-	'Tomato',
-	'Watermelon',
-	'Zucchini'
+    'Apple',
+    'Banana',
+    'Blueberry',
+    'Coconut',
+    'Cucumber',
+    'Grapes',
+    'Kiwi',
+    'Lemon',
+    'Lime',
+    'Mango',
+    'Orange',
+    'Papaya',
+    'Peach',
+    'Pear',
+    'Pineapple',
+    'Pomegranate',
+    'Raspberry',
+    'Strawberry',
+    'Tomato',
+    'Watermelon',
+    'Zucchini'
 ]
 
 '''
@@ -325,7 +326,8 @@ pet_stats = {
         'name': 'Pigman',
         'stats': {
             'strength': lambda lvl: lvl // 2
-        }, # lvl * 0.4 damage and lvl * 0.2 strength to Pigman Sword (All), Additional Damage lvl * 0.25% to mobs above lvl 100 (Slayers, Legendary)
+        },
+        # lvl * 0.4 damage and lvl * 0.2 strength to Pigman Sword (All), Additional Damage lvl * 0.25% to mobs above lvl 100 (Slayers, Legendary)
         'type': 'combat',
         'icon': '/head/63d9cb6513f2072e5d4e426d70a5557bc398554c880d4e7b7ec8ef4945eb02f2'
     },
@@ -349,7 +351,7 @@ pet_stats = {
         'stats': {
             'damage': lambda lvl: lvl * 0.2,
             'strength': lambda lvl: lvl // 2
-        }, # First Strike lvl * 0.5% (Zealots, All), Additional Damage lvl * 0.3% to mobs below lvl 80 (Zealots, All)
+        },  # First Strike lvl * 0.5% (Zealots, All), Additional Damage lvl * 0.3% to mobs below lvl 80 (Zealots, All)
         'type': 'foraging',
         'icon': '/head/38ff473bd52b4db2c06f1ac87fe1367bce7574fac330ffac7956229f82efba1'
     },
@@ -359,7 +361,7 @@ pet_stats = {
             'strength': lambda lvl: lvl // 2,
             'crit chance': lambda lvl: lvl // 10,
             'crit damage': lambda lvl: lvl // 2
-        }, # lvl * 0.5 damage and lvl * 0.3 strength to AotD (All), lvl * 0.1% stats boosts (Legendary)
+        },  # lvl * 0.5 damage and lvl * 0.3 strength to AotD (All), lvl * 0.1% stats boosts (Legendary)
         'type': 'combat',
         'icon': '/head/aec3ff563290b13ff3bcc36898af7eaa988b6cc18dc254147f58374afe9b21b9'
     },
@@ -412,7 +414,7 @@ pet_stats = {
         'name': 'Magma Cube',
         'stats': {
             'strength': lambda lvl: lvl // 5
-        }, # Additonal Damage lvl * 0.25% to slimes (All), Ember Armor Stats boost lvl * 1% (Legendary)
+        },  # Additonal Damage lvl * 0.25% to slimes (All), Ember Armor Stats boost lvl * 1% (Legendary)
         'type': 'combat',
         'icon': '/head/38957d5023c937c4c41aa2412d43410bda23cf79a9f6ab36b76fef2d7c429'
     },
@@ -420,14 +422,14 @@ pet_stats = {
         'name': 'Flying Fish',
         'stats': {
             'strength': lambda lvl: lvl // 2
-        }, # Diver's Armor Stats boost lvl * 0.3% (Legendary)
+        },  # Diver's Armor Stats boost lvl * 0.3% (Legendary)
         'type': 'fishing',
         'icon': '/head/40cd71fbbbbb66c7baf7881f415c64fa84f6504958a57ccdb8589252647ea'
     },
     'SQUID': {
         'name': 'Squid',
         'stats': {
-        }, # lvl * 0.4 Damage and lvl * 0.2 Strength to Ink Wand (Legendary)
+        },  # lvl * 0.4 Damage and lvl * 0.2 Strength to Ink Wand (Legendary)
         'type': 'fishing',
         'icon': '/head/01433be242366af126da434b8735df1eb5b3cb2cede39145974e9c483607bac'
     },
@@ -435,7 +437,7 @@ pet_stats = {
         'name': 'Parrot',
         'stats': {
             'crit damage': lambda lvl: lvl // 10
-        }, # lvl * 0.25 + 5 strength to nearby players (Legendary)
+        },  # lvl * 0.25 + 5 strength to nearby players (Legendary)
         'type': 'alchemy',
         'icon': '/head/5df4b3401a4d06ad66ac8b5c4d189618ae617f9c143071c8ac39a563cf4e4208'
     },
@@ -459,7 +461,7 @@ pet_stats = {
     'BLAZE': {
         'name': 'Blaze',
         'stats': {
-        }, # Blaze Armor Stats boost lvl * 0.4% (All), 2x Hot Potato Books (Legendary),
+        },  # Blaze Armor Stats boost lvl * 0.4% (All), 2x Hot Potato Books (Legendary),
         'type': 'combat',
         'icon': '/head/b78ef2e4cf2c41a2d14bfde9caff10219f5b1bf5b35a49eb51c6467882cb5f0'
     },
@@ -474,7 +476,7 @@ pet_stats = {
         'name': 'Zombie',
         'stats': {
             'crit damage': lambda lvl: lvl * 3 // 10
-        }, # +0.25% zombie damage per level.
+        },  # +0.25% zombie damage per level.
         'type': 'combat',
         'icon': '/head/822d8e751c8f2fd4c8942c44bdb2f5ca4d8ae8e575ed3eb34c18a86e93b'
     },
@@ -591,55 +593,63 @@ pet_stats = {
         },
         'type': 'fishing',
         'icon': '/head/ab126814fc3fa846dad934c349628a7a1de5b415021a03ef4211d62514d5'
-     }
+    }
 }
 
 fairy_soul_hp_bonus = [
-	3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8,
-	8, 9, 9, 10, 10, 11, 11, 12, 12,
-	13, 13, 14, 14, 15, 15, 16, 16,
-	17, 17, 18, 18, 19, 19, 20, 20, 21, 21
+    3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8,
+    8, 9, 9, 10, 10, 11, 11, 12, 12,
+    13, 13, 14, 14, 15, 15, 16, 16,
+    17, 17, 18, 18, 19, 19, 20, 20, 21, 21
 ]
 
-skill_xp_requirements = [50, 175, 375, 675, 1175, 1925, 2925, 4425, 6425, 9925, 14925, 22425, 32425, 47425, 67425, 97425, 147425, 222425, 322425, 522425, 822425, 1222425, 1722425, 2322425, 3022425, 3822425, 4722425, 5722425, 6822425, 8022425, 9322425, 10722425, 12222425, 13822425, 15522425, 17322425, 19222425, 21222425, 23322425, 25522425, 27822425, 30222425, 32722425, 35322425, 38022425, 40822425, 43922425, 47322425, 51022425, 55022425]
+skill_xp_requirements = [50, 175, 375, 675, 1175, 1925, 2925, 4425, 6425, 9925, 14925, 22425, 32425, 47425, 67425,
+                         97425, 147425, 222425, 322425, 522425, 822425, 1222425, 1722425, 2322425, 3022425, 3822425,
+                         4722425, 5722425, 6822425, 8022425, 9322425, 10722425, 12222425, 13822425, 15522425, 17322425,
+                         19222425, 21222425, 23322425, 25522425, 27822425, 30222425, 32722425, 35322425, 38022425,
+                         40822425, 43922425, 47322425, 51022425, 55022425]
 
-runecrafting_xp_requirements = [50, 150, 275, 435, 635, 885, 1200, 1600, 2100, 2725, 3510, 4510, 5760, 7360, 9360, 11825, 14950, 18950, 23950, 30150, 37950, 47750, 59950, 75250] # Shamelessly stolen from sky.lea.moe
+runecrafting_xp_requirements = [50, 150, 275, 435, 635, 885, 1200, 1600, 2100, 2725, 3510, 4510, 5760, 7360, 9360,
+                                11825, 14950, 18950, 23950, 30150, 37950, 47750, 59950,
+                                75250]  # Shamelessly stolen from sky.lea.moe
 
-minion_slot_requirements = [0, 0, 0, 0, 0, 5, 15, 30, 50, 75, 100, 125, 150, 175, 200, 225, 250, 275, 300, 350, 400, 450, 500, 550]
+minion_slot_requirements = [0, 0, 0, 0, 0, 5, 15, 30, 50, 75, 100, 125, 150, 175, 200, 225, 250, 275, 300, 350, 400,
+                            450, 500, 550]
 
-guild_level_requirements = [100000, 150000, 250000, 500000, 750000, 1000000, 1250000, 1500000, 2000000, 2500000, 3000000] # every level after 2.5 mil needs 3mil
+guild_level_requirements = [100000, 150000, 250000, 500000, 750000, 1000000, 1250000, 1500000, 2000000, 2500000,
+                            3000000]  # every level after 2.5 mil needs 3mil
 
 tiered_talismans = {
-	'BAT_RING': ['BAT_ARTIFACT'],
-	'BAT_TALISMAN': ['BAT_RING', 'BAT_ARTIFACT'],
+    'BAT_RING': ['BAT_ARTIFACT'],
+    'BAT_TALISMAN': ['BAT_RING', 'BAT_ARTIFACT'],
     'BROKEN_PIGGY_BANK': ['CRACKED_PIGGY_BANK', 'PIGGY_BANK'],
-	'CANDY_RING': ['CANDY_ARTIFACT'],
-	'CANDY_TALISMAN': ['CANDY_RING', 'CANDY_ARTIFACT'],
+    'CANDY_RING': ['CANDY_ARTIFACT'],
+    'CANDY_TALISMAN': ['CANDY_RING', 'CANDY_ARTIFACT'],
     'CRACKED_PIGGY_BANK': ['PIGGY_BANK'],
-	'CROOKED_ARTIFACT': ['SEAL_OF_THE_FAMILY'],
-	'FEATHER_RING': ['FEATHER_ARTIFACT'],
-	'FEATHER_TALISMAN': ['FEATHER_RING', 'FEATHER_ARTIFACT'],
-	'HEALING_TALISMAN': ['HEALING_RING'],
-	'HUNTER_TALISMAN': ['HUNTER_RING'],
-	'INTIMIDATION_RING': ['INTIMIDATION_ARTIFACT'],
-	'INTIMIDATION_TALISMAN': ['INTIMIDATION_RING', 'INTIMIDATION_ARTIFACT'],
+    'CROOKED_ARTIFACT': ['SEAL_OF_THE_FAMILY'],
+    'FEATHER_RING': ['FEATHER_ARTIFACT'],
+    'FEATHER_TALISMAN': ['FEATHER_RING', 'FEATHER_ARTIFACT'],
+    'HEALING_TALISMAN': ['HEALING_RING'],
+    'HUNTER_TALISMAN': ['HUNTER_RING'],
+    'INTIMIDATION_RING': ['INTIMIDATION_ARTIFACT'],
+    'INTIMIDATION_TALISMAN': ['INTIMIDATION_RING', 'INTIMIDATION_ARTIFACT'],
     'PERSONAL_COMPACTOR_4000': ['PERSONAL_COMPACTOR_5000', 'PERSONAL_COMPACTOR_6000'],
     'PERSONAL_COMPACTOR_5000': ['PERSONAL_COMPACTOR_6000'],
-	'POTION_AFFINITY_TALISMAN': ['RING_POTION_AFFINITY', 'ARTIFACT_POTION_AFFINITY'],
-	'RED_CLAW_RING': ['RED_CLAW_ARTIFACT'],
-	'RED_CLAW_TALISMAN': ['RED_CLAW_RING', 'RED_CLAW_ARTIFACT'],
-	'RING_POTION_AFFINITY': ['ARTIFACT_POTION_AFFINITY'],
-	'SEA_CREATURE_RING': ['SEA_CREATURE_ARTIFACT'],
-	'SEA_CREATURE_TALISMAN': ['SEA_CREATURE_RING', 'SEA_CREATURE_ARTIFACT'],
-	'SHADY_RING': ['CROOKED_ARTIFACT', 'SEAL_OF_THE_FAMILY'],
+    'POTION_AFFINITY_TALISMAN': ['RING_POTION_AFFINITY', 'ARTIFACT_POTION_AFFINITY'],
+    'RED_CLAW_RING': ['RED_CLAW_ARTIFACT'],
+    'RED_CLAW_TALISMAN': ['RED_CLAW_RING', 'RED_CLAW_ARTIFACT'],
+    'RING_POTION_AFFINITY': ['ARTIFACT_POTION_AFFINITY'],
+    'SEA_CREATURE_RING': ['SEA_CREATURE_ARTIFACT'],
+    'SEA_CREATURE_TALISMAN': ['SEA_CREATURE_RING', 'SEA_CREATURE_ARTIFACT'],
+    'SHADY_RING': ['CROOKED_ARTIFACT', 'SEAL_OF_THE_FAMILY'],
     'SPEED_RING': ['SPEED_ARTIFACT'],
     'SPEED_TALISMAN': ['SPEED_RING', 'SPEED_ARTIFACT'],
-	'SPIDER_RING': ['SPIDER_ARTIFACT'],
-	'SPIDER_TALISMAN': ['SPIDER_RING', 'SPIDER_ARTIFACT'],
-	'WOLF_TALISMAN': ['WOLF_RING'],
-	'ZOMBIE_RING': ['ZOMBIE_ARTIFACT'],
-	'ZOMBIE_TALISMAN': ['ZOMBIE_RING', 'ZOMBIE_ARTIFACT']
- }
+    'SPIDER_RING': ['SPIDER_ARTIFACT'],
+    'SPIDER_TALISMAN': ['SPIDER_RING', 'SPIDER_ARTIFACT'],
+    'WOLF_TALISMAN': ['WOLF_RING'],
+    'ZOMBIE_RING': ['ZOMBIE_ARTIFACT'],
+    'ZOMBIE_TALISMAN': ['ZOMBIE_RING', 'ZOMBIE_ARTIFACT']
+}
 
 reforges = {
     'clean': (
