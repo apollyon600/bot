@@ -622,6 +622,8 @@ class Bot(discord.AutoShardedClient):
 						valid = True
 					except (IndexError, TypeError, ValueError):
 						await channel.send(f'Invalid weapon! Did you make a typo?{close_message}')
+						
+		player.set_weapon(weapon)
 
 		pet = player.pet
 
@@ -687,9 +689,6 @@ class Bot(discord.AutoShardedClient):
 			for name1, amount in buff.items():
 				player.stats[name1] += amount[level]
 
-		for thing in [player.weapon] + list(player.armor.values()) + [t for t in player.talismans if t.active] + [player.pet] if player.pet else []:
-			player.stats += thing.stats
-
 		if optimizer['name'] in ('perfect crit chance', 'maximum damage'):
 			for name, orb in orbs.items():
 				internal_name = orb['internal']
@@ -718,9 +717,10 @@ class Bot(discord.AutoShardedClient):
 						player.stats['enchantment modifier'] += value * weapon.enchantments[enchantment]
 		
 			await channel.send(str(damage_optimizer(
-				player, talisman_counts, armor_counts, only_blacksmith_reforges=blacksmith,
-				perfect_crit_change=optimizer['name'] == 'perfect crit chance',
-				include_attack_speed=include_attack_speed
+				player,
+				perfect_crit_chance=optimizer['name'] == 'perfect crit chance',
+				include_attack_speed=include_attack_speed,
+				only_blacksmith_reforges=blacksmith
 			)))
 		else:
 			await channel.send(str(

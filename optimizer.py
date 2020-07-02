@@ -344,7 +344,7 @@ def create_model(counts, reforge_set, only_blacksmith_reforges):
 	m = ConcreteModel()
 	m.reforge_set = Set(
 		initialize=[
-			(i, j, k) for i, count in counts.items() for j in rarities for k, stats in damage_reforges[i].items()
+			(i, j, k) for i, count in counts.items() for j in rarities for k, stats in damage_reforges['armor' if i in ('helmet', 'chestplate', 'leggings', 'boots') else i].items()
 			if j in stats and count[j] > 0 and (only_blacksmith_reforges is False or stats['blacksmith'] is True)
 		], ordered=True
 	)
@@ -354,10 +354,17 @@ def create_model(counts, reforge_set, only_blacksmith_reforges):
 
 rarities = ['common', 'uncommon', 'rare', 'epic', 'legendary', 'mythic']
 
-def damage_optimizer(player, talisman_rarity_counts, *, perfect_crit_chance, include_attack_speed, only_blacksmith_reforges):
+def damage_optimizer(player, *, perfect_crit_chance, include_attack_speed, only_blacksmith_reforges):
 	armor_types = [type for type, piece in player.armor.items() if piece]
 	equipment_types = ['talisman', player.weapon.type] + armor_types
-	counts = {'talisman': talisman_rarity_counts, player.weapon.type: {rarity: int(player.weapon.rarity == rarity) for rarity in rarities}}
+	counts = {
+		'talisman': {rarity: sum(talisman.rarity == rarity for talisman in player.talismans) for rarity in rarities},
+		player.weapon.type: {rarity: int(player.weapon.rarity == rarity) for rarity in rarities},
+		'helmet': {rarity: int(player.armor['helmet'].rarity == rarity) for rarity in rarities} if player.armor['helmet'] else {rarity: 0 for rarity in rarities},
+		'chestplate': {rarity: int(player.armor['chestplate'].rarity == rarity) for rarity in rarities} if player.armor['chestplate'] else {rarity: 0 for rarity in rarities},
+		'leggings': {rarity: int(player.armor['leggings'].rarity == rarity) for rarity in rarities} if player.armor['leggings'] else {rarity: 0 for rarity in rarities},
+		'boots': {rarity: int(player.armor['boots'].rarity == rarity) for rarity in rarities} if player.armor['boots'] else {rarity: 0 for rarity in rarities},
+	}
 	for name in player.armor.keys():
 		counts[name] = {rarity: int(player.armor[name].rarity == rarity) for rarity in rarities}
 		
@@ -400,6 +407,7 @@ def damage_optimizer(player, talisman_rarity_counts, *, perfect_crit_chance, inc
 	return result, format_counts(m.reforge_counts)
 
 def ehp_optimizer(player, talisman_rarity_counts, *, only_blacksmith_reforges):
+	'''
 	equipment_types = ['talisman', 'armor']
 
 	m = create_model(equipment_types, ehp_reforges)
@@ -425,6 +433,7 @@ def ehp_optimizer(player, talisman_rarity_counts, *, only_blacksmith_reforges):
 	solve(m)
 			
 	return {'ehp': m.objective(), 'health': m.hp(), 'defense': m.d()}, format_counts(m.reforge_counts)
+	'''
 	
 def mastiff_ehp_optimizer(only_blacksmith_reforges):
 	if only_blacksmith_reforges:
