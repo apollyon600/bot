@@ -394,24 +394,36 @@ def damage_optimizer(player, *, perfect_crit_chance, include_attack_speed, only_
 		)
 	
 	if perfect_crit_chance:
-		m.eqn.add(100 <= player.stats['crit chance'])
+		m.cc = Var(domain=Reals, initialize=100)
+		m.eqn.add(m.cc == player.stats['crit chance'])
+		m.eqn.add(100 <= m.cc)
 	if include_attack_speed:
-		m.eqn.add(100 >= player.stats['attack speed'])
+		m.a = Var(domain=Reals, initialize=50)
+		m.eqn.add(m.a == player.stats['attack speed'])
+		m.eqn.add(100 >= m.a)
 
-	m.damage = Var(domain=Reals)
+	m.s = Var(domain=Reals, initialize=400)
+	m.eqn.add(m.s == player.stats['strength'])
+	m.cd = Var(domain=Reals, initialize=400)
+	m.eqn.add(m.s == player.stats['crit damage'])
+
+	m.damage = Var(domain=Reals, initialize=10000)
 	m.floored_strength = Var(domain=Integers, initialize=60)
 	m.eqn.add(m.floored_strength >= player.stats['strength'] / 5 - 0.9999)
 	m.eqn.add(m.floored_strength <= player.stats['strength'] / 5)
-	m.eqn.add(m.damage == (5 + player.stats['damage'] + m.floored_strength) * (1 + player.stats['strength'] / 100) * (1 + player.stats['crit damage'] / 100))
+	m.eqn.add(m.damage == (5 + player.stats['damage'] + m.floored_strength) * (1 + m.s / 100) * (1 + m.cd / 100))
 
-	m.objective = Objective(expr=m.damage if include_attack_speed else m.damage * player.stats['attack speed'] / 100, sense=maximize)
+	m.objective = Objective(expr=m.damage * m.a / 100 if include_attack_speed else m.damage, sense=maximize)
 	solve(m)
 	
-	result = {'damage': m.damage() * (1 + player.stats['enchantment modifier'] / 100), 'strength': player.stats['strength'](), 'crit damage': player.stats['crit damage']()}
+	from pyomo.util.infeasible import log_infeasible_constraints
+	log_infeasible_constraints(m)
+	
+	result = {'damage': m.damage() * (1 + player.stats['enchantment modifier'] / 100), 'strength': m.s(), 'crit damage': m.cd()}
 	if perfect_crit_chance:
-		result['crit chance'] = player.stats['crit chance']()
+		result['crit chance'] = m.cc()
 	if include_attack_speed:
-		result['attack speed'] = player.stats['attack speed']()
+		result['attack speed'] = m.a()
 	return result, format_counts(m.reforge_counts)
 
 def ehp_optimizer(player, talisman_rarity_counts, *, only_blacksmith_reforges):
