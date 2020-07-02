@@ -344,19 +344,18 @@ rarities = ['common', 'uncommon', 'rare', 'epic', 'legendary', 'mythic']
 
 def create_model(counts, reforge_set, only_blacksmith_reforges):
 	m = ConcreteModel()
-	print([
-			(i, j, k) for i, count in counts.items() for j in rarities for k, stats in damage_reforges['armor' if i in ('helmet', 'chestplate', 'leggings', 'boots') else i].items()
-			if j in stats and count[j] > 0 and (only_blacksmith_reforges is False or stats['blacksmith'] is True)
-		])
 	m.reforge_set = Set(
 		initialize=[
-			(i, j, k) for i, count in counts.items() for j in rarities for k, stats in damage_reforges['armor' if i in ('helmet', 'chestplate', 'leggings', 'boots') else i].items()
+			(i, j, k) for i, count in counts.items() for j in rarities for k, stats in damage_reforges[armor_check(i)].items()
 			if j in stats and count[j] > 0 and (only_blacksmith_reforges is False or stats['blacksmith'] is True)
 		], ordered=True
 	)
 	m.reforge_counts = Var(m.reforge_set, domain=NonNegativeIntegers, initialize=0)
 	m.eqn = ConstraintList()
 	return m
+
+def armor_check(armor):
+	return 'armor' if armor in ('helmet', 'chestplate', 'leggings', 'boots') else armor
 
 def damage_optimizer(player, *, perfect_crit_chance, include_attack_speed, only_blacksmith_reforges):
 	armor_types = [type for type, piece in player.armor.items() if piece]
@@ -375,30 +374,35 @@ def damage_optimizer(player, *, perfect_crit_chance, include_attack_speed, only_
 	m = create_model(counts, damage_reforges, only_blacksmith_reforges)
 	
 	for equipment_type in equipment_types:
-		reforges = damage_reforges[equipment_type]
+		reforges = damage_reforges[armor_check(equipment_type)]
 		sums = {rarity: [] for rarity in rarities}
 		for reforge in reforges.keys():
 			for rarity in reforges[reforge].keys():
-				sums[rarity].append(m.reforge_counts[equipment_type, rarity, reforge])
+				if rarity != 'blacksmith' and (only_blacksmith_reforges is False or reforges[reforge]['blacksmith'] is True):
+					if counts[equipment_type][rarity] > 0:
+						sums[rarity].append(m.reforge_counts[equipment_type, rarity, reforge])
 		for rarity in rarities:
-			m.eqn.add(quicksum(sums[rarity]) == counts[equipment_type][rarity])
+			if counts[equipment_type][rarity] > 0:
+				m.eqn.add(quicksum(sums[rarity]) == counts[equipment_type][rarity])
 
 	if only_blacksmith_reforges is False:
 		player.stats.multiplier += quicksum(m.reforge_counts[piece, rarity, 'renowned'] for piece in armor_types for rarity in rarities) / 100
 
 	for stat in ['strength', 'crit damage'] + ['crit chance'] * perfect_crit_chance + ['attack speed'] * include_attack_speed:
 		player.stats.modifiers[stat].insert(0, 
-			lambda stat: stat + quicksum(damage_reforges[i][k][j].get(stat, 0) * m.reforge_counts[i, j, k] for i, j, k in m.reforge_set)
+			lambda stat: stat + quicksum(damage_reforges[armor_check(i)][k][j].get(stat, 0) * m.reforge_counts[i, j, k] for i, j, k in m.reforge_set)
 		)
 	
 	if perfect_crit_chance:
-		m.eqn.add(100 <= player.stats['crit damage'])
+		m.eqn.add(100 <= player.stats['crit chance'])
+	if include_attack_speed:
+		m.eqn.add(100 >= player.stats['attack speed'])
 
 	m.damage = Var(domain=Reals)
 	m.floored_strength = Var(domain=Integers, initialize=60)
 	m.eqn.add(m.floored_strength >= player.stats['strength'] / 5 - 0.9999)
 	m.eqn.add(m.floored_strength <= player.stats['strength'] / 5)
-	m.eqn.add(m.damage == (5 + player.stats['damage'] + m.floored_strength) * (1 + m.s / 100) * (1 + m.cd / 100))
+	m.eqn.add(m.damage == (5 + player.stats['damage'] + m.floored_strength) * (1 + player.stats['strength'] / 100) * (1 + player.stats['crit damage'] / 100))
 
 	m.objective = Objective(expr=m.damage if include_attack_speed else m.damage * player.stats['attack speed'] / 100, sense=maximize)
 	solve(m)
