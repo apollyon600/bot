@@ -88,7 +88,8 @@ def decode_inventory_data(raw, player=None, backpack=False):
 	raw.read(3)	 # Remove file header (we ingore footer)
 	root = {}
 	parse_next_tag(root)
-	return [Item(x, i, player) for i, x in enumerate(root['i']) if x]
+	
+	return [Item(x, i, player) for i, x in enumerate(root['i']) if x and 'tag' in x and 'ExtraAttributes' in x['tag']]
 
 def level_from_xp_table(xp, table):
 	"""Takes a list of xp requirements and a xp value.
@@ -137,7 +138,7 @@ class Item:
 		else:
 			self.rarity = None
 			self.type = None
-
+		
 		self.name = re.sub('§.', '', self['tag']['display']['Name'])
 		
 		#Parse items from cake bag and backpacks
@@ -212,49 +213,25 @@ class Item:
 def damage(weapon_dmg, strength, crit_dmg, ench_modifier):
 	return (5 + weapon_dmg + strength // 5) * (1 + strength / 100) * (1 + crit_dmg / 100) * (1 + ench_modifier / 100)
 
-async def fetch_uuid_uname(uname_or_uuid, _depth=0):
+async def fetch_uuid_uname(uname_or_uuid):
 	s = await session()
 
-	class TryNormal(Exception):
-		#A simple exception that lets us exit mcheads
-		pass
-
 	try:
-		async with s.get(f'https://mc-heads.net/minecraft/profile/{uname_or_uuid}') as r:
-			if r.status == 204:
-				raise BadNameError(uname_or_uuid, 'Malformed uuid or username')
+		async with s.get(f'https://api.mojang.com/users/profiles/minecraft/{uname_or_uuid}') as r:
+
 			json = await r.json(content_type=None)
 			if json is None:
-				raise TryNormal
+
+				async with s.get(f'https://api.mojang.com/user/profiles/{uname_or_uuid}/names') as r:
+					json = await r.json(content_type=None)
+					if json is None:
+						raise BadNameError(uname_or_uuid, 'Malformed uuid or username') from None
+
+					return json[-1]['name'], uname_or_uuid
+
 			return json['name'], json['id']
-
-	except (asyncio.TimeoutError, TryNormal):
-		# if mcheads fails, we try the normal minecraft API
-		try:
-			async with s.get(f'https://api.mojang.com/users/profiles/minecraft/{uname_or_uuid}') as r:
-
-				json = await r.json(content_type=None)
-				if json is None:
-
-					async with s.get(f'https://api.mojang.com/user/profiles/{uname_or_uuid}/names') as r:
-						json = await r.json(content_type=None)
-						if json is None:
-							raise BadNameError(uname_or_uuid, 'Malformed uuid or username') from None
-
-						return json[-1]['name'], uname_or_uuid
-
-				return json['name'], json['id']
-		except asyncio.TimeoutError:
-			raise ExternalAPIError('Could not connect to https://mc-heads.net') from None
-	except aiohttp.client_exceptions.ClientResponseError as e:
-		if e.status == 429:
-			await asyncio.sleep(15)
-			if _depth <= 5:
-				return fetch_uuid_uname(uname_or_uuid, _depth + 1)
-			else:
-				raise ExternalAPIError('You are being ratelimited by https://api.mojang.com') from None
-		else:
-			raise BadNameError(uname_or_uuid, 'Malformed uuid or username') from None
+	except asyncio.TimeoutError:
+		raise ExternalAPIError('Could not connect to https://api.mojang.com') from None
 
 class Pet:
 	def __init__(self, nbt):
@@ -316,7 +293,15 @@ class Stats:
 			return base if key in Stats.statics else base * self.multiplier
 		else:
 			raise TypeError
-			
+	
+	def __iadd__(self, other):
+		if isinstance(other, Stats):
+			for k, v in other:
+				self[k] += v
+		else:
+			raise NotImplementedError
+		return self
+	
 	def __setitem__(self, key, value):
 		if isinstance(value, (int, float)):
 			self._dict[key] = value
@@ -331,8 +316,8 @@ class Stats:
 	
 	@staticmethod
 	def _gen(cls):
-		for k, v in cls._dict.keys():
-			yield k, cls[v]
+		for k in cls._dict.keys():
+			yield k, cls[k]
 	
 	def __iter__(self):
 		return Stats._gen(self)
@@ -696,7 +681,9 @@ class Player(ApiInterface):
 		self.stats['strength'] += self.fairy_souls // 5 + self.fairy_souls // 25
 		self.stats['speed'] += self.fairy_souls // 50
 		
-		self.stats.children = [[]],[self.pet.stats]][self.pet] + [[]],[self.weapon.stats]][self.weapon] + [p.stats for p in self.armor.values() if p] + [t.stats for t in self.talismans if t.active]
+		self.stats.children = [p.stats for p in self.armor.values() if p] + [t.stats for t in self.talismans if t.active]
+		if self.pet:
+			self.stats.children.append(self.pet.stats)
 		
 		#Set Bonuses
 		if self.armor == {'boots': 'SUPERIOR_BOOTS', 'chestplate': 'SUPERIOR_CHESTPLATE', 'helmet': 'SUPERIOR_HELMET', 'leggings': 'SUPERIOR_LEGGINGS'}:
@@ -708,8 +695,9 @@ class Player(ApiInterface):
 		elif self.armor['helmet'] == 'TARANTULA_HELMET':
 			self.stats.modifiers['crit damage'].insert(0, lambda stat: stat + self.stats['strength'] / 10)
 
-	async def set_weapon(self, weapon):
+	def set_weapon(self, weapon):
 		self.weapon = weapon
+		self.stats.children.append(weapon.stats)
 
 	async def is_online(self):
 		player_data = (await self.__call_api__('/player', name=self.uname))['player']
