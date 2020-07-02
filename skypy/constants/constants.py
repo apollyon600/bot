@@ -39,7 +39,6 @@ rod_enchants = [
 	'luck_of_the_sea',
 	'lure',
 	'magnet',
-	'looting'
 ]
 
 skill_rewards = {
@@ -110,7 +109,7 @@ talismans = {re.compile(k): v for k, v in {
 skills = ['farming', 'mining', 'combat', 'foraging', 'fishing', 'enchanting', 'alchemy', 'taming', 'carpentry', 'runecrafting']
 cosmetic_skills = ['carpentry', 'runecrafting']
 
-base_stats = {
+base_player_stats = {
 	'damage': 0,
 	'strength': 0,
 	'crit chance': 30,

@@ -33,10 +33,10 @@ def decode_inventory_data(raw, player=None, backpack=False):
 	Returns a json object with the inventory's contents"""
 
 	if backpack:
-		raw = three(two(raw))		
+		raw = three(two(raw))
 	else:
 		raw = three(two(one(raw)))	# Unzip raw string from the api
-	
+
 	def read(type, length):
 		if type in 'chil':
 			return int.from_bytes(raw.read(length), byteorder='big')
@@ -84,11 +84,11 @@ def decode_inventory_data(raw, player=None, backpack=False):
 			dictionary[name] = payload
 		else:
 			dictionary.append(payload)
-	
+
 	raw.read(3)	 # Remove file header (we ingore footer)
 	root = {}
 	parse_next_tag(root)
-	
+
 	return [Item(x, i, player) for i, x in enumerate(root['i']) if x and 'tag' in x and 'ExtraAttributes' in x['tag']]
 
 def level_from_xp_table(xp, table):
@@ -106,7 +106,7 @@ class Item:
 	def __init__(self, nbt, slot_number=0, player=None):
 		self._nbt = nbt
 		self.player = player
-		
+
 		self.stack_size = self._nbt.get('Count', 1)
 		self.slot_number = slot_number
 
@@ -132,15 +132,15 @@ class Item:
 			if self != 'ENCHANTED_BOOK':
 				for type, list in {'sword': sword_enchants, 'bow': bow_enchants, 'fishing rod': rod_enchants}.items():
 					for e in list:
-						if e != 'looting' and e in self.enchantments:
+						if e in self.enchantments:
 							self.type = type
 							break
 		else:
 			self.rarity = None
 			self.type = None
-		
+
 		self.name = re.sub('§.', '', self['tag']['display']['Name'])
-		
+
 		#Parse items from cake bag and backpacks
 		self.contents = None
 		if self == 'NEW_YEAR_CAKE_BAG' or name.endswith('_BACKBACK'):
@@ -148,17 +148,12 @@ class Item:
 				if k == 'new_year_cake_bag_data' or k.endswith('_backpack_data'):
 					self.contents = decode_inventory_data(v, player, backpack=True)
 					break
-		
+
 		#Stats
-		self.stats = Stats()
-		
-		# §7Attack Speed: §c+2% §8(Itchy +2%)
-		# §7Intelligence: §a+9 §c(Godly +3)
-		r = re.compile('([A-Z][ A-Za-z]+): \+(\d+).*')
-		for line in self.description_clean:
-			match = r.match(line)
-			if match:
-				self.stats[match[1].lower()] = int(match[2])
+		self.stats = Stats({})
+
+		r_r = re.compile('.*\(([\w ]+) \+(\d+)')
+		r = re.compile('([\w ]+): \+(\d+)(.*)')
 
 		if name == 'RECLUSE_FANG':
 			self.stats['strength'] += 370
@@ -194,9 +189,19 @@ class Item:
 				self.stats.multiplier *= 3
 			elif re.match('SNOW_SUIT_(HELMET|CHESTPLATE|LEGGINGS|BOOTS)', name) and self.player.armor == {'helmet': 'SNOW_SUIT_HELMET', 'chestplate': 'SNOW_SUIT_CHESTPLATE', 'leggings': 'SNOW_SUIT_LEGGINGS', 'boots': 'SNOW_SUIT_BOOTS'}:
 				self.stats.multiplier *= 2
-				
+
 		if self.reforge == 'renowned' and self.player:
 			self.player.stats.multiplier += 0.01
+
+		for line in self.description_clean:
+			match = r.match(line)
+			if match:
+				self.stats['attack speed' if match[1].lower() == 'bonus attack speed' else match[1].lower()] = int(match[2])
+				match_r = r_r.match(match.group(3))
+				reforge_stat = int(match_r[2]) if match_r else 0
+				if int(match[2]) - reforge_stat == 0:
+					continue
+				self.stats.base_stats['attack speed' if match[1].lower() == 'bonus attack speed' else match[1].lower()] = int(match[2]) - reforge_stat
 
 	def __getitem__(self, name):
 		return self._nbt[name]
@@ -252,7 +257,7 @@ class Pet:
 				s.capitalize() for s in
 				re.sub('_COMMON|_UNCOMMON|_RARE|_EPIC|_LEGENDARY', '', self.item_internal_name[9:]).split('_')
 			])
-			
+
 			if self.item_name == 'Textbook':
 				self.stats.modifiers['intelligence'].append(lambda stat: stat * 2)
 			elif self.item_name == 'Hardened Scales':
@@ -273,27 +278,29 @@ class Pet:
 		return self.name
 
 	def __repr__(self):
-		return f"'{self.internal_name}'"		
+		return f"'{self.internal_name}'"
 
 class Stats:
 	# A list of stats that are unaffected by global multipliers
 	statics = ['speed cap', 'enchantment modifier', 'ability damage']
-	
-	def __init__(self, dict={}):
-		self._dict = dict
+
+	def __init__(self, args={}):
+		self._dict = args
 		self.multiplier = 1
 		self.modifiers = defaultdict(list)
 		self.children = []
-			
+		self.base_children = []
+		self.base_stats = {}
+
 	def __getitem__(self, key):
 		if isinstance(key, str):
-			base = self._dict.get(key, 0) + sum(c[key] for c in self.children)
+			base = self._dict.get(key, 0) + sum(c[key] for c in self.children if key in c)
 			for f in self.modifiers[key]:
 				base = f(base)
 			return base if key in Stats.statics else base * self.multiplier
 		else:
 			raise TypeError
-	
+
 	def __iadd__(self, other):
 		if isinstance(other, Stats):
 			for k, v in other:
@@ -301,24 +308,34 @@ class Stats:
 		else:
 			raise NotImplementedError
 		return self
-	
+
 	def __setitem__(self, key, value):
 		if isinstance(value, (int, float)):
 			self._dict[key] = value
 		else:
 			raise ValueError
-		
+
 	def __str__(self):
 		return str(self._dict)
-		
+
 	def __repr__(self):
 		return str(self._dict)
-	
+
+	def get_stats_with_base(self, key):
+		if isinstance(key, str):
+			base = self._dict.get(key, 0) \
+				   + sum(c[key] for c in self.base_children if key in c)
+			for f in self.modifiers[key]:
+				base = f(base)
+			return base if key in Stats.statics else base * self.multiplier
+		else:
+			raise TypeError
+
 	@staticmethod
 	def _gen(cls):
 		for k in cls._dict.keys():
 			yield k, cls[k]
-	
+
 	def __iter__(self):
 		return Stats._gen(self)
 
@@ -352,13 +369,13 @@ class ApiInterface:
 		except aiohttp.client_exceptions.ClientResponseError as e:
 			if e.code == 403:
 				raise HypixelError(f'Your request to {url} was not granted')
-				
+
 			elif e.code == 429:
 				raise HypixelError('You are being ratelimited')
 
 			elif e.code == 500:
 				raise HypixelError('Hypixel\'s servers could not complete your request')
-		
+
 			elif e.code == 502:
 				raise HypixelError('Hypixel\'s API is currently not working. Please try again in a few minutes.')
 
@@ -503,7 +520,7 @@ class Player(ApiInterface):
 
 	async def set_profile(self, profile):
 		"""Sets a player's profile based on the provided profile ID"""
-		
+
 		if self._profile_set == True:
 			raise DataError('This player already has their profile set!')
 		self._profile_set = True
@@ -518,9 +535,9 @@ class Player(ApiInterface):
 
 		self._nbt = (await self.__call_api__('/skyblock/profile', profile=self.profile))['profile']
 		self.enabled_api = {'skills': False, 'collection': False, 'inventory': False, 'banking': False}
-		
+
 		v = self._nbt['members'][self.uuid]
-		
+
 		#Loads all of a player's pets
 		self.pets = []
 		self.pet = None
@@ -530,7 +547,7 @@ class Player(ApiInterface):
 				self.pets.append(pet)
 				if pet.active:
 					self.pet = pet
-					
+
 		def parse_inventory(v, *path):
 			try:
 				result = v
@@ -539,7 +556,7 @@ class Player(ApiInterface):
 				return decode_inventory_data(result, self)
 			except KeyError:
 				return []
-					
+
 		#Loads all of a player's inventories
 		self.armor = {'helmet': None, 'chestplate': None, 'leggings': None, 'boots': None}
 		for armor in parse_inventory(v, 'inv_armor', 'data'):
@@ -575,7 +592,7 @@ class Player(ApiInterface):
 					if other in self.talismans:
 						talisman.active = False
 						break
-						
+
 		#Loads a player's minion slots and collections
 		try:
 			self.collections = {name.lower().replace('_', ' '): level for name, level in v['collection'].items()}
@@ -593,7 +610,7 @@ class Player(ApiInterface):
 		)
 
 		self.minion_slots = level_from_xp_table(self.unique_minions, minion_slot_requirements)
-		
+
 		#Loads a player's skill and slayer data
 		if 'experience_skill_farming' in v:
 			self.enabled_api['skills'] = True
@@ -666,30 +683,33 @@ class Player(ApiInterface):
 		#Loads a player's misc stats
 		self.join_date = datetime.fromtimestamp(v.get('first_join', 0) / 1000.0)
 		self.fairy_souls = v.get('fairy_souls', 0)
-		
+
 		#Loads a player's numeric stats
-		self.stats = Stats(base_stats)
-		
+		self.stats = Stats(base_player_stats.copy())
+
 		for slayer, level in self.slayers.items():
 			self.stats += Stats(slayer_rewards[slayer][level])
-			
+
 		for skill, level in self.skills.items():
 			self.stats += Stats(skill_rewards[skill][level])
-			
+
 		self.stats['health'] += fairy_soul_hp_bonus[self.fairy_souls]
 		self.stats['defense'] += self.fairy_souls // 5 + self.fairy_souls // 25
 		self.stats['strength'] += self.fairy_souls // 5 + self.fairy_souls // 25
 		self.stats['speed'] += self.fairy_souls // 50
-		
+
 		self.stats.children = [p.stats for p in self.armor.values() if p] + [t.stats for t in self.talismans if t.active]
+		self.stats.base_children = [p.stats.base_stats for p in self.armor.values() if p and bool(p.stats.base_stats)] + [t.stats.base_stats for t in self.talismans if t.active and bool(t.stats.base_stats)]
 		if self.pet:
 			self.stats.children.append(self.pet.stats)
-		
+			self.stats.base_children.append(self.pet.stats)
+
 		#Set Bonuses
 		if self.armor == {'boots': 'SUPERIOR_BOOTS', 'chestplate': 'SUPERIOR_CHESTPLATE', 'helmet': 'SUPERIOR_HELMET', 'leggings': 'SUPERIOR_LEGGINGS'}:
 			self.stats.multiplier += 0.05
 		elif self.armor == {'boots': 'YOUNG_BOOTS', 'chestplate': 'YOUNG_CHESTPLATE', 'helmet': 'YOUNG_HELMET', 'leggings': 'YOUNG_LEGGINGS'}:
 			self.stats['speed cap'] += 100
+			self.stats.base_stats['speed cap'] += 100
 		elif self.armor == {'boots': 'MASTIFF_BOOTS', 'chestplate': 'MASTIFF_CHESTPLATE', 'helmet': 'MASTIFF_HELMET', 'leggings': 'MASTIFF_LEGGINGS'}:
 			self.stats.modifiers['crit damage'].append(lambda stat: stat / 2)
 		elif self.armor['helmet'] == 'TARANTULA_HELMET':
@@ -698,6 +718,8 @@ class Player(ApiInterface):
 	def set_weapon(self, weapon):
 		self.weapon = weapon
 		self.stats.children.append(weapon.stats)
+		if bool(weapon.stats.base_stats):
+			self.stats.base_children.append(weapon.stats.base_stats)
 
 	async def is_online(self):
 		player_data = (await self.__call_api__('/player', name=self.uname))['player']
