@@ -352,7 +352,7 @@ def format_counts(counts):
 
 
 def solve(m):
-    SolverFactory('scip', executable='scipampl.exe').solve(m)
+    SolverFactory('scip', executable='scip').solve(m)
 
 
 rarities = ['common', 'uncommon', 'rare', 'epic', 'legendary', 'mythic']

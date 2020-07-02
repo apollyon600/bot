@@ -132,7 +132,7 @@ class Item:
 			if self != 'ENCHANTED_BOOK':
 				for type, list in {'sword': sword_enchants, 'bow': bow_enchants, 'fishing rod': rod_enchants}.items():
 					for e in list:
-						if e in self.enchantments:
+						if e != 'looting' and e in self.enchantments:
 							self.type = type
 							break
 		else:

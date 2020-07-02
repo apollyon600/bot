@@ -39,6 +39,7 @@ rod_enchants = [
 	'luck_of_the_sea',
 	'lure',
 	'magnet',
+	'looting'
 ]
 
 skill_rewards = {
