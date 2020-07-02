@@ -1,20 +1,15 @@
 import concurrent.futures
 from aiohttp import ClientError
-import cloudscraper
-from bs4 import BeautifulSoup
-from datetime import datetime, timezone, timedelta
-from statistics import mean, median, mode, pstdev, StatisticsError
 import random
 import re
 import itertools
-import motor.motor_asyncio
 import traceback
 import math
 import asyncio
 import discord
 import os
-import skypy
-from constants import skills, cosmetic_skills
+import skypy.skypy as skypy
+from optimizer import damage_optimizer, ehp_optimizer, mastiff_ehp_optimizer, intelligence_optimizer, speed_optimizer
 
 if os.environ.get('API_KEY') is None:
 	import dotenv
@@ -30,12 +25,9 @@ class EndSession(Exception):
 	def __str__(self):
 		return self.message
 
-potions = {
+damage_potions = {
 	'critical': {
-		'stats': {
-			'crit chance': [0, 10, 15, 20, 25],
-			'crit damage': [0, 10, 20, 30, 40]
-		},
+		'stats': {'crit chance': [0, 10, 15, 20, 25], 'crit damage': [0, 10, 20, 30, 40]},
 		'levels': [0, 3, 4]
 	},
 	'strength': {
@@ -50,6 +42,14 @@ potions = {
 	'archery': {
 		'stats': {'enchantment modifier': [0, 17.5, 30, 55, 80]},
 		'levels': [0, 3, 4]
+	}
+}
+
+ehp_potions = {
+	'strength': {
+		# Assume tea
+		'stats': {'defense': [0, 5.5, 11, 16.5, 22, 33, 44, 55, 66]},
+		'levels': [0, 5, 6, 7, 8]
 	}
 }
 
@@ -71,7 +71,7 @@ orbs = {
 profile_emojis = {
 	'Apple': '🍎',
 	'Banana': '🍌',
-	'Blueberry': '🔵',
+	'blueberry': '🔵',
 	'Coconut': '🥥',
 	'Cucumber': '🥒',
 	'Grapes': '🍇',
@@ -79,7 +79,7 @@ profile_emojis = {
 	'Lemon': '🍋',
 	'Lime': '🍏',
 	'Mango': '🥭',
-	'Orange': '🍊',
+	'orange': '🍊',
 	'Papaya': '🍈',
 	'Peach': '🍑',
 	'Pear': '🍐',
@@ -91,6 +91,8 @@ profile_emojis = {
 	'Watermelon': '🍉',
 	'Zucchini': '🥬'
 }
+
+number_emojis = ['0️⃣', '1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟']
 
 # list of all enchantment powers per level. can be a function or a number
 enchantment_effects = {
@@ -114,38 +116,6 @@ enchantment_effects = {
 	'spiked_hook': 5
 }
 
-max_book_levels = {
-	'sharpness': 6,
-	'giant_killer': 6,
-	'smite': 7,
-	'bane_of_arthropods': 6,
-	'first_strike': 4,
-	'ender_slayer': 6,
-	'cubism': 5,
-	'execute': 5,
-	'impaling': 3,
-	'power': 6,
-	'dragon_hunter': 5,
-	'snipe': 3,
-	'spiked_hook': 6
-}
-
-max_book_levels_cheap = {
-	'sharpness': 5,
-	'giant_killer': 5,
-	'smite': 5,
-	'bane_of_arthropods': 5,
-	'first_strike': 4,
-	'ender_slayer': 5,
-	'cubism': 5,
-	'execute': 5,
-	'impaling': 3,
-	'power': 5,
-	'dragon_hunter': 0,
-	'snipe': 3,
-	'spiked_hook': 5
-}
-
 # list of relevant enchants for common mobs
 relavant_enchants = {
 	'slayer bosses': [
@@ -164,20 +134,19 @@ relavant_enchants = {
 		'spiked_hook',
 		'ender_slayer',
 		'first_strike'
+	],
+	'base': [
+		'giant_killer',
+		'sharpness',
+		'first_strike',
+		'power',
+		'spiked_hook'
 	]
 }
 
-RELEVANT_REFORGES = {
-	'forceful': (None, None, (7, 0, 0), None, None),
-	'itchy': ((1, 0, 3), (2, 0, 5), (2, 0, 8), (3, 0, 12), (5, 0, 15)),
-	'strong': (None, None, (4, 0, 4), (7, 0, 7), (10, 0, 10)),
-	'godly': ((1, 1, 1), (2, 2, 2), (4, 2, 3), (7, 3, 6), (10, 5, 8))
-}
-reforges_list = list(RELEVANT_REFORGES.values())
+close_message = '\n> _use **exit** to close the session_'
 
-CLOSE_MESSAGE = '\n> _use **exit** to close the session_'
-
-PET_EMOJIS = {
+pet_emojis = {
 	'SKELETON_HORSE': '🦓',
 	'SNOWMAN': '⛄',
 	'BAT': '🦇',
@@ -194,7 +163,7 @@ PET_EMOJIS = {
 	'ENDER_DRAGON': '🐲',
 	'GUARDIAN': '🛡️',
 	'ENDERMAN': '😈',
-	'BLUE_WHALE': '🐳',
+	'blue_WHALE': '🐳',
 	'GIRAFFE': '🦒',
 	'PHOENIX': '🐦',
 	'BEE': '🐝',
@@ -221,28 +190,6 @@ PET_EMOJIS = {
 	'GHOUL': '🧟‍♀️',
 	'TARANTULA': '🕸️',
 	'GOLEM': '🗿'
-}
-
-damage_reforges = {
-	'sword': {
-		'legendary': ['common', 'uncommon', 'rare', 'epic', 'legendary', 'mythic'],
-		'spicy': ['common', 'uncommon', 'rare', 'epic', 'legendary', 'mythic'],
-		'epic': ['common', 'uncommon', 'rare', 'epic', 'legendary', 'mythic'],
-		'odd': ['rare', 'epic', 'legendary', 'mythic'],
-		'gentle': ['common', 'uncommon', 'rare', 'epic', 'legendary', 'mythic'],
-		'fast': ['common', 'uncommon', 'rare', 'epic', 'legendary', 'mythic'],
-		'fabled': ['common', 'uncommon', 'rare', 'epic', 'legendary', 'mythic']
-	},
-	'bows': {
-		'awkward': ['epic', 'legendary', 'mythic'],
-		'fine': ['mythic'],
-		'neat': ['uncommon', 'rare', 'epic', 'legendary', 'mythic'],
-		'hasty': ['common', 'uncommon', 'rare', 'epic', 'legendary', 'mythic'],
-		'grand': ['common', 'uncommon', 'rare', 'epic', 'legendary', 'mythic'],
-		'rapid': ['common', 'uncommon', 'rare', 'epic', 'legendary', 'mythic'],
-		'deadly': ['uncommon', 'rare', 'epic', 'legendary', 'mythic'],
-		'unreal': ['common', 'uncommon', 'rare', 'epic', 'legendary', 'mythic']
-	}
 }
 
 class Embed(discord.Embed):
@@ -282,16 +229,15 @@ def format_pet(pet):
 	return f'{pet.title} |{pet.rarity.upper()}|' if pet else ''
 
 
-WHITE = ('', '')
-GRAY = ('bf', '')
-GREY = GRAY
-PUKE = ('css', '')
-GREEN = ('yaml', '')
-BLUE = ('md', '#')
-YELLOW = ('fix', '')
-ORANGE = ('glsl', '#')
-RED = ('diff', '-')
-RARITY_COLORS = {'common': GREY, 'uncommon': GREEN, 'rare': BLUE, 'epic': ORANGE, 'legendary': YELLOW}
+white = ('', '')
+gray = ('bf', '')
+puke = ('css', '')
+green = ('yaml', '')
+blue = ('md', '#')
+yellow = ('fix', '')
+orange = ('glsl', '#')
+red = ('diff', '-')
+rarity_colors = {'common': gray, 'uncommon': green, 'rare': blue, 'epic': orange, 'legendary': yellow, 'mythic': red}
 
 
 def colorize(s, color):
@@ -302,130 +248,6 @@ def colorize(s, color):
 		return f'```{language}\n{point}' + s.replace('\n', f'\n{point}') + '\n```'
 	else:
 		return ''
-
-
-def optimizer(opt_goal, player, weapon_damage, base_str, base_cc, base_cd):
-	best = 0
-	best_route = []
-	best_str = 0
-	best_cc = 0
-	best_cd = 0
-
-	stat_modifiers = player.stat_modifiers()
-	str_mod = stat_modifiers.get('strength', lambda x: x)
-	cc_mod = stat_modifiers.get('crit chance', lambda x: x)
-	cd_mod = stat_modifiers.get('crit damage', lambda x, y: x)
-
-	counts = player.talisman_counts()
-
-	if opt_goal == 1 or cc_mod(base_cc) > 100:
-		for c, u, r, e, l in itertools.product(
-				*[Route.routes(counts[key], 4, rarity_num) for rarity_num, key in enumerate(counts.keys())]):
-			strength = str_mod(base_str + c.strength + u.strength +
-							   r.strength + e.strength + l.strength)
-			crit_damage = cd_mod(
-				base_cd + c.crit_damage + u.crit_damage + r.crit_damage + e.crit_damage + l.crit_damage, strength)
-
-			d = (5 + weapon_damage + strength // 5) * \
-				 (1 + strength / 100) * (1 + crit_damage / 100)
-
-			if d > best:
-				best = d
-				best_route = [c, u, r, e, l]
-				best_str = strength
-				best_cc = cc_mod(
-					base_cc + c.crit_chance + u.crit_chance + r.crit_chance + e.crit_chance + l.crit_chance)
-				best_cd = crit_damage
-	else:
-		cc_mod = stat_modifiers.get('crit chance', None)
-		if cc_mod:
-			for c, u, r, e, l in itertools.product(
-					*[Route.routes(counts[key], 4, rarity_num) for rarity_num, key in enumerate(counts.keys())]):
-				crit_chance = cc_mod(
-					base_cc + c.crit_chance + u.crit_chance + r.crit_chance + e.crit_chance + l.crit_chance) // 1
-				if crit_chance >= 100:
-					strength = str_mod(base_str + c.strength + u.strength +
-									   r.strength + e.strength + l.strength)
-					crit_damage = cd_mod(
-						base_cd + c.crit_damage + u.crit_damage +
-							r.crit_damage + e.crit_damage + l.crit_damage,
-						strength)
-
-					d = (5 + weapon_damage + strength // 5) * \
-						 (1 + strength / 100) * (1 + crit_damage / 100)
-
-					if d > best:
-						best = d
-						best_route = [c, u, r, e, l]
-						best_str = strength
-						best_cc = crit_chance
-						best_cd = crit_damage
-		else:
-			for c, u, r, e, l in itertools.product(
-					*[Route.routes(counts[key], 4, rarity_num) for rarity_num, key in enumerate(counts.keys())]):
-				crit_chance = base_cc + c.crit_chance + u.crit_chance + \
-					r.crit_chance + e.crit_chance + l.crit_chance
-				if crit_chance >= 100:
-					strength = str_mod(base_str + c.strength + u.strength +
-									   r.strength + e.strength + l.strength)
-					crit_damage = cd_mod(base_cd + c.crit_damage + u.crit_damage + r.crit_damage + e.crit_damage + l.crit_damage,
-						strength)
-
-					d = (5 + weapon_damage + strength // 5) * \
-						 (1 + strength / 100) * (1 + crit_damage / 100)
-
-					if d > best:
-						best = d
-						best_route = [c, u, r, e, l]
-						best_str = strength
-						best_cc = crit_chance
-						best_cd = crit_damage
-
-	return best, best_route, best_str, best_cc, best_cd
-
-
-class Route:
-	def __init__(self, talismans, rarity):
-		self.strength, self.crit_chance, self.crit_damage = [
-			sum(reforges_list[y][rarity][x] * talismans[y]
-				for y in range(len(reforges_list)) if reforges_list[y][rarity])
-			for x in range(3)
-		]
-		self.counts = talismans
-		self.rarity = rarity
-		self.rarity_str = ['common', 'uncommon', 'rare', 'epic', 'legendary'][self.rarity]
-
-	def __str__(self):
-		return ' ߸ '.join(f'{c} '
-						  f'{"godly/zealous" if self.rarity < 2 and name == "godly" else name} '
-						  f'{Route.rarity_grammar(self.rarity_str, c)}'
-						  for name, c in zip(RELEVANT_REFORGES.keys(), self.counts) if c != 0)
-
-	@staticmethod
-	def routes(count, size, rarity):
-		def helper(count, idx, current):
-			if count == 0:
-				yield Route(current, rarity)
-			elif idx == size - 1:
-				new = current.copy()
-				new[idx] += count
-				yield Route(new, rarity)
-			else:
-				if reforges_list[idx][rarity]:
-					new = current.copy()
-					new[idx] += 1
-					for x in helper(count - 1, idx, new):
-						yield x
-				for x in helper(count, idx + 1, current):
-					yield x
-
-		return helper(count, 0, [0] * size)
-
-	@staticmethod
-	def rarity_grammar(rarity, count=0):
-		if count == 1:
-			return rarity
-		return f'{rarity[:-1]}ies' if rarity[-1] == 'y' else f'{rarity}s'
 
 
 def chunks(lst, n):
@@ -461,13 +283,13 @@ class Bot(discord.AutoShardedClient):
 				'desc': 'A collection of tools designed to optimize your damage and talismans',
 				'commands': {
 					'optimizer': {
-						'function': self.optimize_talismans,
+						'function': self.optimize_reforges,
 						'desc': 'Optimizes your talismans to their best reforges',
 						'session': True
 					},
 					'missing': {
 						'args': '[username] (profile)',
-						'function': self.view_missing_talismans,
+						'function': self.view_missing,
 						'desc': 'Displays a list of your missing talismans. Also displays inactive/unnecessary talismans if you have them'
 					}
 				}
@@ -484,7 +306,7 @@ class Bot(discord.AutoShardedClient):
 
 	async def on_error(self, *args, **kwargs):
 		error = traceback.format_exc().replace('```', '"""')
-		await self.get_user(270352691924959243).send(f'```{error[-1900:]}```')
+		await self.get_user(270352691924959243).send(f'```{error[-1950:]}```')
 		print(error)
 
 	async def on_ready(self):
@@ -519,7 +341,7 @@ class Bot(discord.AutoShardedClient):
 			return
 
 		command = re.split('\s+', command)
-		command[0] = command[0].casefold()
+		command[0] = command[0].lower()
 		if command[0] == f'<@!{self.user.id}>' or command[0] == f'<@{self.user.id}>':
 			command = command[1:]
 		elif command[0] == prefix:
@@ -530,7 +352,7 @@ class Bot(discord.AutoShardedClient):
 		if not command:
 			return
 
-		name = command[0].casefold()
+		name = command[0].lower()
 		args = command[1:]
 
 		if name not in self.callables:
@@ -656,16 +478,62 @@ class Bot(discord.AutoShardedClient):
 	async def unimplemented(message):
 		await message.channel.send(f'{message.author.mention} this command is unimplemented')
 
-	async def optimize_talismans(self, message, *args):
+	async def optimize_reforges(self, message, *args):
 		user = message.author
 		channel = message.channel
 
+		optimizers = [
+			{'emoji': '💯', 'name': 'perfect crit chance', 'potions': damage_potions},
+			{'emoji': '💥', 'name': 'maximum damage', 'potions': damage_potions},
+			{'emoji': '🛡️', 'name': 'effective health', 'potions': ehp_potions},
+			{'emoji': '🧠', 'name': 'intelligence', 'text': intelligence_optimizer},
+			{'emoji': '💨', 'name': 'speed', 'text': speed_optimizer}
+		]
+
+		embed = Embed(
+			channel,
+			user=user,
+			title='What would you like to optimize for?'
+		).add_field(
+			name=None,
+			value='\n\n'.join(f'> {o["emoji"]}\n`{o["name"]}`' for o in optimizers)
+		).set_footer(
+			text='Effective health is a way to measure your\ntotal survivablity by combining health and defense'
+		)
+
+		optimizer = await self.reaction_menu(await embed.send(), user, {o['emoji']: o for o in optimizers})
+
+		blacksmith = await self.reaction_menu(await Embed(
+			channel,
+			user=user,
+			title='Select Reforge Prices'
+		).add_field(
+			name=None,
+			value='> 🔨\n`only optimize with reforges`\n`from the blacksmith`\n\n> 🌈\n`include all reforges`'
+		).send(), user, {'🔨': True, '🌈': False})
+
+		if 'text' in optimizer:
+			split = '``````'.join(optimizer['text'](blacksmith).split('\n'))
+			await Embed(
+				channel,
+				user=user,
+				title=f'Best {optimizer["name"].capitalize()} Reforges'
+			).add_field(
+				name=None,
+				value=f'```{split}```'
+			).send()
+			return
+
 		valid = False
 		while valid is False:
-			await channel.send(f'{user.mention} what is your Minecraft username?')
+			await Embed(
+				channel,
+				user=user,
+				title=f'What is your Minecraft Username?'
+			).send()
 			msg = await self.respond(user, channel)
 
-			msg = msg.content.casefold()
+			msg = msg.content.lower()
 
 			player = await skypy.Player(keys, uname=msg)
 			if len(player.profiles) == 0:
@@ -675,9 +543,7 @@ class Bot(discord.AutoShardedClient):
 					title=f'{user.name}, the Hypixel API has returned invalid information'
 				).add_field(
 					name=None,
-					value='You can usually solve this issue by simply retrying in a few minutes, contact melon if otherwise'
-				).set_footer(
-					text='This error is rare, about the same chance as getting an overflux! Congratulations!'
+					value='This is a bug with Hypixel API. Retry after 30 seconds'
 				).send()
 				return
 
@@ -695,18 +561,35 @@ class Bot(discord.AutoShardedClient):
 				description='**[Sorted by date created]**'
 			).add_field(
 				name=None,
-				value='\n\n'.join(f'> {PROFILE_EMOJIS[profile]}\n`{profile}`' for profile in player.profiles.keys())
+				value='\n\n'.join(f'> {profile_emojis[profile]}\n`{profile}`' for profile in player.profiles.keys())
 			)
 
-			result = await self.reaction_menu(await embed.send(), user, {PROFILE_EMOJIS[profile]: profile for profile in player.profiles.keys()})
+			result = await self.reaction_menu(await embed.send(), user, {profile_emojis[profile]: profile for profile in player.profiles.keys()})
 			await player.set_profile(player.profiles[result])
 
 		if player.enabled_api['skills'] is False or player.enabled_api['inventory'] is False:
 			await self.api_disabled(f'{user.name}, your API is disabled!', channel, user)
 			return
 
+		talisman_counts = {'common': 0, 'uncommon': 0, 'rare': 0, 'epic': 0, 'legendary': 0, 'mythic': 0}
+		for tali in player.talismans:
+			if tali.active:
+				talisman_counts[tali.rarity] += 1
+
+		if optimizer['name'] == 'effective health' and player.armor == {'boots': 'MASTIFF_BOOTS', 'chestplate': 'MASTIFF_CHESTPLATE', 'helmet': 'MASTIFF_HELMET', 'leggings': 'MASTIFF_LEGGINGS'}:
+			split = '``````'.join(mastiff_ehp_optimizer(blacksmith).split('\n'))
+			await Embed(
+				channel,
+				user=user,
+				title=f'Best Effective Health Reforges with Mastiff'
+			).add_field(
+				name=None,
+				value=f'```{split}```'
+			).send()
+			return
+
 		if len(player.weapons) == 0:
-			await channel.send(f'{user.mention}, you have `no weapons` in your inventory. If you have any items in your inventory or backpacks with no rarity, this will stop sbs from finding your weapons. If you do not have any, DM uwu your profile.')
+			await channel.send(f'{user.mention}, you have `no weapons` in your inventory')
 			return
 
 		if len(player.weapons) == 1:
@@ -726,9 +609,9 @@ class Bot(discord.AutoShardedClient):
 					value=''.join([f'```{i + 1} > ' + weapon.name + '```' for i, weapon in enumerate(player.weapons)])
 				).send()
 
-				msg = (await self.respond(user, channel)).content.casefold()
+				msg = (await self.respond(user, channel)).content.lower()
 
-				names = [weapon.name.casefold() for weapon in player.weapons]
+				names = [weapon.name.lower() for weapon in player.weapons]
 
 				if msg in names:
 					weapon = player.weapons[names.index(msg)]
@@ -738,7 +621,9 @@ class Bot(discord.AutoShardedClient):
 						weapon = player.weapons[int(msg) - 1]
 						valid = True
 					except (IndexError, TypeError, ValueError):
-						await channel.send(f'Invalid weapon! Did you make a typo?{CLOSE_MESSAGE}')
+						await channel.send(f'Invalid weapon! Did you make a typo?{close_message}')
+						
+		player.set_weapon(weapon)
 
 		pet = player.pet
 
@@ -751,41 +636,44 @@ class Bot(discord.AutoShardedClient):
 			value=f'```{weapon.name}```',
 			inline=False
 		).add_field(
-			name=f'{PET_EMOJIS[pet.internal_name] if pet else "🐣"}\tPet',
+			name=f'{pet_emojis[pet.internal_name] if pet else "🐣"}\tPet',
 			value=f'```{format_pet(pet) if pet else None}```',
 			inline=False
 		).add_field(
 			name='💎\tPet Item',
-			value=f'```{pet.item.name if pet.item else None}```',
+			value=f'```{pet.item_name}```',
+			inline=False
+		).add_field(
+			name='⛑️\tHelmet',
+			value=f'```{player.armor["helmet"]}```',
+			inline=False
+		).add_field(
+			name='👚\tChestplate',
+			value=f'```{player.armor["chestplate"]}```',
+			inline=False
+		).add_field(
+			name='👖\tLeggings',
+			value=f'```{player.armor["leggings"]}```',
+			inline=False
+		).add_field(
+			name='👞\tBoots',
+			value=f'```{player.armor["boots"]}```',
 			inline=False
 		)
-
-		for piece, emoji in [('helmet', '⛑️'), ('chestplate', '👚'), ('leggings', '👖'), ('boots', '👞')]:
-			embed.add_field(
-				name=f'{emoji}\t{piece.capitalize()}',
-				value='```' + str(next((a.name for a in player.armor if a.type == piece), None)) + '```',
-				inline=False
-			)
 
 		embed.add_field(
 			name='🏺\tTalismans',
 			value=''.join(
-				colorize(
-					f'{amount} {Route.rarity_grammar(name).capitalize()}',
-					RARITY_COLORS[name]
-				)
-				for name, amount in player.talisman_counts().items())
+				colorize(f'{amount} {name.capitalize()}', rarity_colors[name])
+				for name, amount in talisman_counts.items()
+			)
 		)
 
 		if not await self.yesno(await embed.send(), user):
 			await channel.send(f'{user.mention} session ended')
 			return
 
-		numbers = ['0️⃣', '1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟']
-
-		stats = {'crit damage': 0, 'crit chance': 0, 'strength': 0, 'enchantment modifier': 0, 'damage': 0}
-
-		for name, pot in DAMAGING_POTIONS.items():
+		for name, pot in optimizer['potions'].items():
 			buff = pot['stats']
 			levels = pot['levels']
 
@@ -794,172 +682,52 @@ class Bot(discord.AutoShardedClient):
 
 			msg = await channel.send(f'{user.mention} what level of `{name} potion` do you use?')
 
-			emojis = {numbers[level]: level for level in levels}
+			emojis = {number_emojis[level]: level for level in levels}
 
 			level = await self.reaction_menu(msg, user, emojis)
 
 			for name1, amount in buff.items():
-				stats[name1] += amount[level]
+				player.stats[name1] += amount[level]
 
-		for name, orb in ORBS.items():
-			internal_name = orb['internal']
-			buff = orb['stats']
+		if optimizer['name'] in ('perfect crit chance', 'maximum damage'):
+			for name, orb in orbs.items():
+				internal_name = orb['internal']
+				buff = orb['stats']
 
-			if internal_name in player.inventory or internal_name in player.echest:
-				msg = await channel.send(f'{user.mention} will you be using your `{name}`?')
-				yn = await self.yesno(msg, user)
+				if internal_name in player.inventory or internal_name in player.echest:
+					msg = await channel.send(f'{user.mention} will you be using your `{name}`?')
+					yn = await self.yesno(msg, user)
 
-				if yn is True:
-					for name, amount in buff.items():
-						stats[name] += amount
-
-		potion_cc = stats['crit chance']
-
-		optimizers = [
-			('💯', 'perfect crit chance'),
-			('⚔️', 'maximum damage')
-		]
-
-		embed = Embed(
-			channel,
-			user=user,
-			title='You are almost done!'
-		).add_field(
-			name='What would you like to optimize for?',
-			value='\n\n'.join(f'> {emoji}\n`{value}`' for emoji, value in optimizers)
-		)
-
-		optimizers = {emoji: index for index, (emoji, _) in enumerate(optimizers)}
-		opt_goal = await self.reaction_menu(await embed.send(), user, optimizers)
-
-		def apply_stats(additional, reverse=False):
-			for key, value in additional.items():
-				if key in stats:
-					if reverse:
-						stats[key] -= value
-					else:
-						stats[key] += value
-
-		apply_stats(player.base_stats())
-		apply_stats(player.fairy_soul_stats())
-		apply_stats(player.armor_stats())
-		apply_stats(player.slayer_stats())
-		apply_stats(player.skill_stats())
-		apply_stats(weapon.stats())
-		if pet:
-			apply_stats(pet.stats())
-		weapon_damage = stats['damage']
-
-		apply_stats(player.talisman_stats(include_reforges=True))
-		cur_str = stats['strength']
-		cur_cc = stats['crit chance']
-		cur_cd = stats['crit damage']
-		apply_stats(player.talisman_stats(include_reforges=True), reverse=True)
-		apply_stats(player.talisman_stats(include_reforges=False))
-
-		stat_modifiers = player.stat_modifiers()
-		str_mod = stat_modifiers.get('strength', lambda x: x)
-		cc_mod = stat_modifiers.get('crit chance', lambda x: x)
-		cd_mod = stat_modifiers.get('crit damage', lambda x, y: x)
-
-		cur_str = str_mod(cur_str)
-		cur_cc = cc_mod(cur_cc)
-		cur_cd = cd_mod(cur_cd, cur_str)
-
-		base_str = stats['strength']
-		base_cc = stats['crit chance']
-		base_cd = stats['crit damage']
-
-		# print(*(f"({n} {v})" for n, v in locals().items()))
-
-		best, best_route, best_str, best_cc, best_cd = await self.loop.run_in_executor(None,
-			optimizer,
-			opt_goal,
-			player,
-			weapon_damage,
-			base_str,
-			base_cc,
-			base_cd
-		)
-
-		if not best_route:
-			await Embed(
+					if yn is True:
+						for name, amount in buff.items():
+							player.stats[name] += amount
+			
+			include_attack_speed = await self.yesno(await Embed(
 				channel,
 				user=user,
-				title='There is no possible setup that will give you 100% crit chance',
-				description='Collect more talismans or raise your combat level before trying again'
-			).send()
-			return
+				title='Do you want to include attack speed?'
+			).send(), user)
 
-		embed = Embed(
-			channel,
-			user=user,
-			title='Success!'
-		)
-		for route, color in zip(best_route, [GRAY, GREEN, BLUE, ORANGE, YELLOW]):
-			if str(route):
-				embed.add_field(
-					name=f'**{route.rarity_str.title()}**',
-					value=colorize(route, color),
-					inline=False
-				)
-			else:
-				embed.add_field(
-					name=f'**{route.rarity_str.title()}**',
-					value=r'```¯\_(ツ)_/¯```',
-					inline=False
-				)
-
-		def emod(activity):
-			result = 0
-			for enchantment in ACTIVITIES[activity]:
+			for enchantment in relavant_enchants['zealots']:
 				if enchantment in weapon.enchantments:
-					value = ENCHANTMENT_VALUES[enchantment]
+					value = enchantment_effects[enchantment]
 					if callable(value):
-						result += value(weapon.enchantments[enchantment])
+						player.stats['enchantment modifier'] += value(weapon.enchantments[enchantment])
 					else:
-						result += value * weapon.enchantments[enchantment]
-			return result
-
-		base_mod = stats['enchantment modifier'] + player.skills['combat'] * 4
-		zealot_mod = emod('zealots') + base_mod
-		slayer_mod = emod('slayer bosses') + base_mod
-
-		if weapon.internal_name == 'REAPER_SWORD':
-			slayer_mult = 3
-		elif weapon.internal_name == 'SCORPION_FOIL':
-			slayer_mult = 2.5
+						player.stats['enchantment modifier'] += value * weapon.enchantments[enchantment]
+		
+			await channel.send(str(damage_optimizer(
+				player,
+				perfect_crit_chance=optimizer['name'] == 'perfect crit chance',
+				include_attack_speed=include_attack_speed,
+				only_blacksmith_reforges=blacksmith
+			)))
 		else:
-			slayer_mult = 1
+			await channel.send(str(
+				ehp_optimizer(player, talisman_counts, armor_counts, only_blacksmith_reforges=blacksmith)
+			))
 
-		zealot_damage = skypy.damage(weapon_damage, cur_str, cur_cd, zealot_mod)
-		slayer_damage = skypy.damage(weapon_damage, cur_str, cur_cd, slayer_mod)
-		slayer_damage *= slayer_mult
-
-		zealot_damage_after = skypy.damage(weapon_damage, best_str, best_cd, zealot_mod)
-		slayer_damage_after = skypy.damage(weapon_damage, best_str, best_cd, slayer_mod)
-		slayer_damage_after *= slayer_mult
-
-		embed.add_field(
-			name='**Before**',
-			value=f'```{cur_str:.0f} strength\n{cur_cd:.0f} crit damage\n{cur_cc - potion_cc:.0f} crit chance```'
-				  f'```{zealot_damage:,.0f} to zealots\n{slayer_damage:,.0f} to slayers```'
-		)
-
-		embed.add_field(
-			name='**After**',
-			value=f'```{best_str:.0f} strength\n{best_cd:.0f} crit damage\n{best_cc - potion_cc:.0f} crit chance```'
-				  f'```{zealot_damage_after:,.0f} to zealots\n{slayer_damage_after:,.0f} to slayers```'
-		)
-
-		if zealot_damage > zealot_damage_after or slayer_damage > slayer_damage_after:
-			embed.set_footer(
-				text=f'Even though you will be dealing less damage, you will gain {best_cc - cur_cc} crit chance'
-			)
-
-		await embed.send()
-
-	async def view_missing_talismans(self, message, *args):
+	async def view_missing(self, message, *args):
 		user = message.author
 		channel = message.channel
 
@@ -994,7 +762,7 @@ class Bot(discord.AutoShardedClient):
 				inline=False
 			)
 
-		inactive = [talisman for talisman in player.talismans if talisman.active is False]
+		inactive = [talisman for talisman in player.talismans if talisman.active is False and talisman.internal_name != 'PERSONAL_COMPACTOR_6000']
 
 		if inactive:
 			embed.add_field(
@@ -1014,7 +782,7 @@ class Bot(discord.AutoShardedClient):
 			dm,
 			user=user,
 			title='Skyblock Simplified',
-			description='Welcome to Skyblock Simplified, a Skyblock bot designed to streamline gameplay\n[Click me](https://discord.com/oauth2/authorize?client_id=671040150251372569&permissions=8&scope=bot) to invite the bot to your server\n'
+			description='Welcome to Skyblock Simplified, a Skyblock bot designed to streamline gameplay\n[Click me to invite the bot to your server!](https://discord.com/oauth2/authorize?client_id=671040150251372569&permissions=8&scope=bot)\n'
 						f'**React to this message with any of the emojis to view commands**\n{self.args_message}\n'
 		).set_footer(
 			text='Skyblock Simplified for Hypixel Skyblock | Created by notnotmelon#7218'
@@ -1081,12 +849,13 @@ class Bot(discord.AutoShardedClient):
 			value=f'There are currently {sum(len(guild.members) for guild in self.guilds)} users with access to the bot',
 			inline=False
 		)
-		shards = []
-		for x in range(self.shard_count): shards.append([0,0,0])
+		
+		shards = [[0,0,0]] * self.shard_count
 		for x in self.guilds:
 			shards[x.shard_id][0] += 1
 			shards[x.shard_id][1] += len(x.text_channels)
 			shards[x.shard_id][2] += len(x.members)
+			
 		for x in range(self.shard_count):
 			_embed.add_field(
 				name=f'Shard {x + 1}',
@@ -1094,7 +863,7 @@ class Bot(discord.AutoShardedClient):
 				inline=True
 			)
 		_embed.add_field(
-			name='Heartbeat',
+			name='Latency',
 			value=f'This message was delivered in {self.latency * 1000:.0f} milliseconds',
 			inline=False
 		)
@@ -1104,12 +873,10 @@ class Bot(discord.AutoShardedClient):
 		msg = None
 
 		try:
-			msg = await self.wait_for('message',
-									  check=lambda message: message.author == user and message.channel == channel,
-									  timeout=60 * 3)
+			msg = await self.wait_for('message', check=lambda message: message.author == user and message.channel == channel, timeout=60 * 3)
 		except asyncio.TimeoutError:
 			raise EndSession
-		if msg.content.casefold() == 'exit':
+		if msg.content.lower() == 'exit':
 			raise EndSession
 
 		return msg
@@ -1139,51 +906,6 @@ class Bot(discord.AutoShardedClient):
 	async def yesno(self, message, user):
 		return await self.reaction_menu(message, user, {'✅': True, '❌': False})
 
-	async def book(self, user, channel, pages):
-		page_num = 0
-		backward = {'⬅️': -1}
-		forward = {'➡️': 1}
-		both = {'⬅️': -1, '➡️': 1}
-
-		if channel.type != discord.ChannelType.private and channel.guild.me.permissions_in(channel).manage_messages:
-			r = await pages(page_num)
-			embed, last_page = r
-
-			msg = await embed.send()
-			while True:
-				if page_num == 0 and last_page is True:
-					return
-
-				if page_num == 0:
-					result = await self.reaction_menu(msg, user, forward, edit=True)
-				elif last_page is True:
-					result = await self.reaction_menu(msg, user, backward, edit=True)
-				else:
-					result = await self.reaction_menu(msg, user, both, edit=True)
-				page_num += result
-
-				r = await pages(page_num)
-				embed, last_page = r
-
-				await msg.edit(embed=embed)
-		else:
-			while True:
-				r = await pages(page_num)
-				embed, last_page = r
-
-				msg = await embed.send()
-				if page_num == 0 and last_page is True:
-					return
-
-				if page_num == 0:
-					result = await self.reaction_menu(msg, user, forward, edit=False)
-				elif last_page is True:
-					result = await self.reaction_menu(msg, user, backward, edit=False)
-				else:
-					result = await self.reaction_menu(msg, user, both, edit=False)
-				await msg.delete()
-				page_num += result
-
 	async def api_disabled(self, title, channel, user):
 		await Embed(
 			channel,
@@ -1209,7 +931,7 @@ class Bot(discord.AutoShardedClient):
 			message.channel,
 			user=message.author,
 			title='Here\'s an invite link',
-			description='[Click me to invite the bot](https://discord.com/oauth2/authorize?client_id=671040150251372569&permissions=8&scope=bot)'
+			description='[Click me to invite the bot](https://tinyurl.com/add-sbs)'
 		).send()
 
 discord.Embed = None  # Disable default discord Embed
