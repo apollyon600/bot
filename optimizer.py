@@ -340,8 +340,14 @@ def format_counts(counts):
 def solve(m):
 	SolverFactory('scip', executable='scip').solve(m)
 
+rarities = ['common', 'uncommon', 'rare', 'epic', 'legendary', 'mythic']
+
 def create_model(counts, reforge_set, only_blacksmith_reforges):
 	m = ConcreteModel()
+	print([
+			(i, j, k) for i, count in counts.items() for j in rarities for k, stats in damage_reforges['armor' if i in ('helmet', 'chestplate', 'leggings', 'boots') else i].items()
+			if j in stats and count[j] > 0 and (only_blacksmith_reforges is False or stats['blacksmith'] is True)
+		])
 	m.reforge_set = Set(
 		initialize=[
 			(i, j, k) for i, count in counts.items() for j in rarities for k, stats in damage_reforges['armor' if i in ('helmet', 'chestplate', 'leggings', 'boots') else i].items()
@@ -351,8 +357,6 @@ def create_model(counts, reforge_set, only_blacksmith_reforges):
 	m.reforge_counts = Var(m.reforge_set, domain=NonNegativeIntegers, initialize=0)
 	m.eqn = ConstraintList()
 	return m
-
-rarities = ['common', 'uncommon', 'rare', 'epic', 'legendary', 'mythic']
 
 def damage_optimizer(player, *, perfect_crit_chance, include_attack_speed, only_blacksmith_reforges):
 	armor_types = [type for type, piece in player.armor.items() if piece]
