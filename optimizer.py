@@ -473,32 +473,33 @@ def damage_optimizer(player, *, perfect_crit_chance, include_attack_speed, only_
     return result, format_counts(m.reforge_counts)
 
 
-def ehp_optimizer(player, talisman_rarity_counts, *, only_blacksmith_reforges):
-    '''
-    equipment_types = ['talisman', 'armor']
-    m = create_model(equipment_types, ehp_reforges)
+# def ehp_optimizer(player, talisman_rarity_counts, *, only_blacksmith_reforges):
+    # equipment_types = ['talisman', 'armor']
+    # m = create_model(equipment_types, ehp_reforges)
+    #
+    # m.m = 1 + player.stats['multiplier'] / 100
+    #
+    # m.hp = Var(domain=Reals, initialize=1400)
+    # m.eqn.add(m.hp == max(0, m.m * (quicksum(ehp_reforges[i][k][j].get('health', 0) * m.reforge_counts[i, j, k] for i, j, k in m.reforge_set) + player.stats['health'])))
+    # m.d = Var(domain=Reals, initialize=700)
+    # m.eqn.add(m.d == max(0, m.m * (quicksum(ehp_reforges[i][k][j].get('defense', 0) * m.reforge_counts[i, j, k] for i, j, k in m.reforge_set) + player.stats['defense'])))
+    #
+    # counts = {'talisman': talisman_rarity_counts, 'armor': armor_rarity_counts}
+    # for equipment_type in equipment_types:
+    #     reforges = ehp_reforges[equipment_type]
+    #     sums = {rarity: [] for rarity in rarities}
+    #     for reforge in reforges.keys():
+    #         for rarity in reforges[reforge].keys():
+    #             sums[rarity].append(m.reforge_counts[equipment_type, rarity, reforge])
+    #     for rarity in rarities:
+    #         m.eqn.add(quicksum(sums[rarity]) == counts[equipment_type][rarity])
+    # m.objective = Objective(expr=(m.hp * (1 + m.d / 100)), sense=maximize)
+    # solve(m)
+    #
+    # return {'ehp': m.objective(), 'health': m.hp(), 'defense': m.d()}, format_counts(m.reforge_counts)
 
-    m.m = 1 + player.stats['multiplier'] / 100
-
-    m.hp = Var(domain=Reals, initialize=1400)
-    m.eqn.add(m.hp == max(0, m.m * (quicksum(ehp_reforges[i][k][j].get('health', 0) * m.reforge_counts[i, j, k] for i, j, k in m.reforge_set) + player.stats['health'])))
-    m.d = Var(domain=Reals, initialize=700)
-    m.eqn.add(m.d == max(0, m.m * (quicksum(ehp_reforges[i][k][j].get('defense', 0) * m.reforge_counts[i, j, k] for i, j, k in m.reforge_set) + player.stats['defense'])))
-
-    counts = {'talisman': talisman_rarity_counts, 'armor': armor_rarity_counts}
-    for equipment_type in equipment_types:
-        reforges = ehp_reforges[equipment_type]
-        sums = {rarity: [] for rarity in rarities}
-        for reforge in reforges.keys():
-            for rarity in reforges[reforge].keys():
-                sums[rarity].append(m.reforge_counts[equipment_type, rarity, reforge])
-        for rarity in rarities:
-            m.eqn.add(quicksum(sums[rarity]) == counts[equipment_type][rarity])
-    m.objective = Objective(expr=(m.hp * (1 + m.d / 100)), sense=maximize)
-    solve(m)
-
-    return {'ehp': m.objective(), 'health': m.hp(), 'defense': m.d()}, format_counts(m.reforge_counts)
-    '''
+def ehp_optimizer(only_blacksmith_reforges):
+    return '''Unavailable for now'''
 
 
 def mastiff_ehp_optimizer(only_blacksmith_reforges):
