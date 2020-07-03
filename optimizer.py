@@ -352,8 +352,8 @@ def format_counts(counts):
 
 
 def solve(m):
-    SolverFactory('scip', executable='scip').solve(m)
-
+    SolverFactory('scip', executable='scipampl.exe').solve(m)
+    # m.pprint()
 
 rarities = ['common', 'uncommon', 'rare', 'epic', 'legendary', 'mythic']
 
@@ -376,7 +376,6 @@ def armor_check(armor):
     return 'armor' if armor in ('helmet', 'chestplate', 'leggings', 'boots') else armor
 
 
-# noinspection PyTypeChecker
 def damage_optimizer(player, *, perfect_crit_chance, include_attack_speed, only_blacksmith_reforges):
     armor_types = [type for type, piece in player.armor.items() if piece]
     equipment_types = ['talisman', player.weapon.type] + armor_types
@@ -416,14 +415,11 @@ def damage_optimizer(player, *, perfect_crit_chance, include_attack_speed, only_
 
     # for stat in ['strength', 'crit damage'] + ['crit chance'] * perfect_crit_chance + ['attack speed'] * include_attack_speed:
     #     player.stats.modifiers[stat].insert(0,
-    #                                         lambda stat: stat + quicksum(
+    #                                         lambda stat: stat + sum(
     #                                             damage_reforges[armor_check(i)][k][j].get(stat, 0) * m.reforge_counts[
-    #                                                 i, j, k] for i, j, k in m.reforge_set)
-    #                                         )
+    #                                                 i, j, k] for i, j, k in m.reforge_set))
 
-    print(player.stats.get_stats_with_base('crit chance'))
-    # print(player.stats['crit chance'])
-    print(player.stats.get_stats_with_base('attack speed'))
+    # print(player.stats.get_stats_with_base('strength'))
     # print(player.stats['strength'])
 
     if perfect_crit_chance:
@@ -444,13 +440,13 @@ def damage_optimizer(player, *, perfect_crit_chance, include_attack_speed, only_
         m.eqn.add(200 >= m.a)
 
     m.s = Var(domain=NonNegativeReals, initialize=400)
-    # m.eqn.add(m.s == player.stats.get_stats_with_base('strength'))
+    # m.eqn.add(m.s == player.stats['strength'])
     m.eqn.add(m.s == quicksum(
         damage_reforges[armor_check(i)][k][j].get('strength', 0) * m.reforge_counts[
             i, j, k] for i, j, k in m.reforge_set)
               + player.stats.get_stats_with_base('strength'))
     m.cd = Var(domain=NonNegativeReals, initialize=400)
-    # m.eqn.add(m.cd == player.stats.get_stats_with_base('crit damage'))
+    # m.eqn.add(m.cd == player.stats['crit damage'])
     m.eqn.add(m.cd == quicksum(
         damage_reforges[armor_check(i)][k][j].get('crit damage', 0) * m.reforge_counts[
             i, j, k] for i, j, k in m.reforge_set)

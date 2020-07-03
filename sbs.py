@@ -641,7 +641,7 @@ class Bot(discord.AutoShardedClient):
 			inline=False
 		).add_field(
 			name='💎\tPet Item',
-			value=f'```{pet.item_name}```',
+			value=f'```{pet.item_name if pet else None}```',
 			inline=False
 		).add_field(
 			name='⛑️\tHelmet',
@@ -687,7 +687,7 @@ class Bot(discord.AutoShardedClient):
 			level = await self.reaction_menu(msg, user, emojis)
 
 			for name1, amount in buff.items():
-				player.stats[name1] += amount[level]
+				player.stats.__iadd__(name1, amount[level])
 
 		if optimizer['name'] in ('perfect crit chance', 'maximum damage'):
 			for name, orb in orbs.items():
@@ -700,7 +700,7 @@ class Bot(discord.AutoShardedClient):
 
 					if yn is True:
 						for name, amount in buff.items():
-							player.stats[name] += amount
+							player.stats.__iadd__(name, amount)
 			
 			include_attack_speed = await self.yesno(await Embed(
 				channel,
@@ -712,9 +712,9 @@ class Bot(discord.AutoShardedClient):
 				if enchantment in weapon.enchantments:
 					value = enchantment_effects[enchantment]
 					if callable(value):
-						player.stats['enchantment modifier'] += value(weapon.enchantments[enchantment])
+						player.stats.__iadd__('enchantment modifier', value(weapon.enchantments[enchantment]))
 					else:
-						player.stats['enchantment modifier'] += value * weapon.enchantments[enchantment]
+						player.stats.__iadd__('enchantment modifier', value * weapon.enchantments[enchantment])
 		
 			await channel.send(str(damage_optimizer(
 				player,

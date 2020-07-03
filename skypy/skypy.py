@@ -151,33 +151,31 @@ class Item:
 
 		#Stats
 		self.stats = Stats({})
-
-		r_r = re.compile('.*\(([\w ]+) \+(\d+)')
-		r = re.compile('([\w ]+): \+(\d+)(.*)')
+		self.base_stats = Stats({})
 
 		if name == 'RECLUSE_FANG':
-			self.stats['strength'] += 370
+			self.stats.__iadd__('strength', 370)
 		elif name == 'POOCH_SWORD':
-			self.stats['strength'] += 150
+			self.stats.__iadd__('strength', 150)
 		elif name == 'THE_SHREDDER':
-			self.stats['damage'] += 115
-			self.stats['strength'] += 15
+			self.stats.__iadd__('damage', 115)
+			self.stats.__iadd__('strength', 15)
 		elif name == 'NIGHT_CRYSTAL' or name == 'DAY_CRYSTAL':
-			self.stats['strength'] += 2.5
-			self.stats['defense'] += 2.5
+			self.stats.__iadd__('strength', 2.5)
+			self.stats.__iadd__('defense', 2.5)
 		elif name == 'NEW_YEAR_CAKE_BAG':
-			self.stats['health'] += len(self.contents or [])
+			self.stats.__iadd__('health', len(self.contents) or 0)
 		elif name == 'GRAVITY_TALISMAN':
-			self.stats['strength'] += 10
-			self.stats['defense'] += 10
+			self.stats.__iadd__('strength', 10)
+			self.stats.__iadd__('defense', 10)
 		elif name == 'SPEED_TALISMAN':
-			self.stats['speed'] += 1
+			self.stats.__iadd__('speed', 1)
 		elif name == 'SPEED_RING':
-			self.stats['speed'] += 3
+			self.stats.__iadd__('speed', 3)
 		elif name == 'SPEED_ARTIFACT':
-			self.stats['speed'] += 5
+			self.stats.__iadd__('speed', 5)
 		elif name == 'PIGMAN_SWORD':
-			self.stats['defense'] += 50
+			self.stats.__iadd__('defense', 50)
 		elif self.player:
 			if name == 'POOCH_SWORD' and self.player.weapon == 'POOCH_SWORD':
 				self.stats.modifiers['damage'].insert(0, lambda stat: stat + player.stats['health'] // 50)
@@ -193,6 +191,9 @@ class Item:
 		if self.reforge == 'renowned' and self.player:
 			self.player.stats.multiplier += 0.01
 
+		r_r = re.compile('.*\(([\w ]+) \+(\d+)')
+		r = re.compile('([\w ]+): \+(\d+)(.*)')
+
 		for line in self.description_clean:
 			match = r.match(line)
 			if match:
@@ -201,7 +202,7 @@ class Item:
 				reforge_stat = int(match_r[2]) if match_r else 0
 				if int(match[2]) - reforge_stat == 0:
 					continue
-				self.stats.base_stats['attack speed' if match[1].lower() == 'bonus attack speed' else match[1].lower()] = int(match[2]) - reforge_stat
+				self.base_stats['attack speed' if match[1].lower() == 'bonus attack speed' else match[1].lower()] = int(match[2]) - reforge_stat
 
 	def __getitem__(self, name):
 		return self._nbt[name]
@@ -261,16 +262,16 @@ class Pet:
 			if self.item_name == 'Textbook':
 				self.stats.modifiers['intelligence'].append(lambda stat: stat * 2)
 			elif self.item_name == 'Hardened Scales':
-				self.stats['defense'] += 25
+				self.stats.__iadd__('defense', 25)
 			elif self.item_name == 'Iron Claws':
 				self.stats.modifiers['crit chance'].append(lambda stat: stat * 1.4)
 				self.stats.modifiers['crit damage'].append(lambda stat: stat * 1.4)
 			elif self.item_name == 'Sharpened Claws':
-				self.stats['crit damage'] += 15
+				self.stats.__iadd__('crit damage', 15)
 			elif self.item_name == 'Big Teeth':
-				self.stats['crit chance'] += 5
+				self.stats.__iadd__('crit chance', 5)
 			elif self.item_name == 'Lucky Clover':
-				self.stats['magic find'] += 7
+				self.stats.__iadd__('magic find', 7)
 		else:
 			self.item_name = None
 
@@ -290,28 +291,32 @@ class Stats:
 		self.modifiers = defaultdict(list)
 		self.children = []
 		self.base_children = []
-		self.base_stats = {}
 
 	def __getitem__(self, key):
 		if isinstance(key, str):
-			base = self._dict.get(key, 0) + sum(c[key] for c in self.children if key in c)
+			base = self._dict.get(key, 0) + sum(c[key] for c in self.children)
 			for f in self.modifiers[key]:
 				base = f(base)
 			return base if key in Stats.statics else base * self.multiplier
 		else:
 			raise TypeError
 
-	def __iadd__(self, other):
+	def __iadd__(self, other, value=None):
 		if isinstance(other, Stats):
 			for k, v in other:
 				self[k] += v
+		elif isinstance(other, str) and isinstance(value, (int, float)):
+			if other in self._dict:
+				self._dict[other] += value
+			else:
+				self._dict[other] = value
 		else:
 			raise NotImplementedError
 		return self
 
 	def __setitem__(self, key, value):
 		if isinstance(value, (int, float)):
-			self._dict[key] = value
+				self._dict[key] = value
 		else:
 			raise ValueError
 
@@ -321,10 +326,12 @@ class Stats:
 	def __repr__(self):
 		return str(self._dict)
 
+	def __len__(self):
+		return len(self._dict)
+
 	def get_stats_with_base(self, key):
 		if isinstance(key, str):
-			base = self._dict.get(key, 0) \
-				   + sum(c[key] for c in self.base_children if key in c)
+			base = self._dict.get(key, 0) + sum(c[key] for c in self.base_children)
 			for f in self.modifiers[key]:
 				base = f(base)
 			return base if key in Stats.statics else base * self.multiplier
@@ -487,7 +494,7 @@ class Player(ApiInterface):
 					best = profile
 					break
 		else:
-			for canidate in asyncio.as_completed([create_canidate(profile) for profile in profile_ids]):
+			for canidate in asyncio.as_completed([create_canadate(profile) for profile in profile_ids]):
 				try:
 					canidate = await canidate
 					current = attribute(canidate)
@@ -682,7 +689,7 @@ class Player(ApiInterface):
 
 		#Loads a player's misc stats
 		self.join_date = datetime.fromtimestamp(v.get('first_join', 0) / 1000.0)
-		self.fairy_souls = v.get('fairy_souls', 0)
+		self.fairy_souls = v.get('fairy_souls_collected', 0)
 
 		#Loads a player's numeric stats
 		self.stats = Stats(base_player_stats.copy())
@@ -693,13 +700,14 @@ class Player(ApiInterface):
 		for skill, level in self.skills.items():
 			self.stats += Stats(skill_rewards[skill][level])
 
-		self.stats['health'] += fairy_soul_hp_bonus[self.fairy_souls]
-		self.stats['defense'] += self.fairy_souls // 5 + self.fairy_souls // 25
-		self.stats['strength'] += self.fairy_souls // 5 + self.fairy_souls // 25
-		self.stats['speed'] += self.fairy_souls // 50
+		self.stats.__iadd__('health', fairy_soul_hp_bonus[self.fairy_souls // 5])
+		self.stats.__iadd__('defense', self.fairy_souls // 5 + self.fairy_souls // 25)
+		bonus_str = self.fairy_souls // 5 + self.fairy_souls // 25
+		self.stats.__iadd__('strength', bonus_str)
+		self.stats.__iadd__('speed', self.fairy_souls // 50)
 
 		self.stats.children = [p.stats for p in self.armor.values() if p] + [t.stats for t in self.talismans if t.active]
-		self.stats.base_children = [p.stats.base_stats for p in self.armor.values() if p and bool(p.stats.base_stats)] + [t.stats.base_stats for t in self.talismans if t.active and bool(t.stats.base_stats)]
+		self.stats.base_children = [p.base_stats for p in self.armor.values() if len(p.base_stats) != 0] + [t.base_stats for t in self.talismans if t.active and len(t.base_stats) != 0]
 		if self.pet:
 			self.stats.children.append(self.pet.stats)
 			self.stats.base_children.append(self.pet.stats)
@@ -708,8 +716,7 @@ class Player(ApiInterface):
 		if self.armor == {'boots': 'SUPERIOR_BOOTS', 'chestplate': 'SUPERIOR_CHESTPLATE', 'helmet': 'SUPERIOR_HELMET', 'leggings': 'SUPERIOR_LEGGINGS'}:
 			self.stats.multiplier += 0.05
 		elif self.armor == {'boots': 'YOUNG_BOOTS', 'chestplate': 'YOUNG_CHESTPLATE', 'helmet': 'YOUNG_HELMET', 'leggings': 'YOUNG_LEGGINGS'}:
-			self.stats['speed cap'] += 100
-			self.stats.base_stats['speed cap'] += 100
+			self.stats.__iadd__('speed cap', 100)
 		elif self.armor == {'boots': 'MASTIFF_BOOTS', 'chestplate': 'MASTIFF_CHESTPLATE', 'helmet': 'MASTIFF_HELMET', 'leggings': 'MASTIFF_LEGGINGS'}:
 			self.stats.modifiers['crit damage'].append(lambda stat: stat / 2)
 		elif self.armor['helmet'] == 'TARANTULA_HELMET':
@@ -718,8 +725,8 @@ class Player(ApiInterface):
 	def set_weapon(self, weapon):
 		self.weapon = weapon
 		self.stats.children.append(weapon.stats)
-		if bool(weapon.stats.base_stats):
-			self.stats.base_children.append(weapon.stats.base_stats)
+		if len(weapon.base_stats) != 0:
+			self.stats.base_children.append(weapon.base_stats)
 
 	async def is_online(self):
 		player_data = (await self.__call_api__('/player', name=self.uname))['player']
