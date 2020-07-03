@@ -448,7 +448,7 @@ class Bot(discord.AutoShardedClient):
 			raise error from None
 
 	async def args_to_player(self, user, channel, *args):
-		player = await skypy.Player(keys, uname=args[0], guild=True)
+		player = await skypy.Player(keys, uname=args[0])
 
 		if len(args) == 1:
 			await player.set_profile_automatically()

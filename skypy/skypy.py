@@ -410,10 +410,11 @@ class Player(ApiInterface):
 
 	async def __init__(self, *, uname=None, uuid=None, guild=False, _profiles=None, _achivements=None):
 		if uname and uuid:
-			self.uname, self.uuid = await fetch_uuid_uname(uuid)
-		elif uname:
+			self.uname = uname
+			self.uuid = uuid
+		elif uname and not uuid:
 			self.uname, self.uuid = await fetch_uuid_uname(uname)
-		elif uuid:
+		elif uuid and not uname:
 			self.uname, self.uuid = await fetch_uuid_uname(uuid)
 		else:
 			raise DataError('You need to provide either a minecraft username or uuid!')
@@ -707,7 +708,8 @@ class Player(ApiInterface):
 		self.stats.__iadd__('speed', self.fairy_souls // 50)
 
 		self.stats.children = [p.stats for p in self.armor.values() if p] + [t.stats for t in self.talismans if t.active]
-		self.stats.base_children = [p.base_stats for p in self.armor.values() if len(p.base_stats) != 0] + [t.base_stats for t in self.talismans if t.active and len(t.base_stats) != 0]
+		self.stats.base_children = [p.base_stats for p in self.armor.values() if p and len(p.base_stats) != 0]\
+								   + [t.base_stats for t in self.talismans if t.active and t.base_stats and len(t.base_stats) != 0]
 		if self.pet:
 			self.stats.children.append(self.pet.stats)
 			self.stats.base_children.append(self.pet.stats)
