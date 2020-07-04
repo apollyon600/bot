@@ -104,7 +104,9 @@ talismans = {re.compile(k): v for k, v in {
 	'BAIT_RING': 'Bait Ring',
 	'PERSONAL_COMPACTOR_6000': 'Personal Compactor 6000',
 	'HUNTER_RING': 'Hunter Ring',
-	'SEAL_OF_THE_FAMILY': 'Seal of the Family'
+	'SEAL_OF_THE_FAMILY': 'Seal of the Family',
+	'CHEETAH_TALISMAN': 'Cheetah Talisman',
+	'POTATO_TALISMAN': 'Potato Talisman'
 }.items()}
 
 skills = ['farming', 'mining', 'combat', 'foraging', 'fishing', 'enchanting', 'alchemy', 'taming', 'carpentry', 'runecrafting']
@@ -115,7 +117,7 @@ base_player_stats = {
 	'strength': 0,
 	'crit chance': 30,
 	'crit damage': 50,
-	'attack speed': 100,
+	'attack speed': 0,
 	'health': 100,
 	'defense': 0,
 	'speed': 100,
@@ -189,566 +191,566 @@ tiered_talismans = {
 	'PERSONAL_COMPACTOR_5000': ['Personal Compactor 6000']
 }
 
-reforges = {
-	'sword': {
-		'legendary': {
-			'common': {'strength': 3, 'crit chance': 10, 'crit damage': 5, 'intelligence': 5, 'attack speed': 3},
-			'uncommon': {'strength': 7, 'crit chance': 12, 'crit damage': 10, 'intelligence': 8, 'attack speed': 5},
-			'rare': {'strength': 14, 'crit chance': 14, 'crit damage': 15, 'intelligence': 12, 'attack speed': 7},
-			'epic': {'strength': 18, 'crit chance': 17, 'crit damage': 22, 'intelligence': 18, 'attack speed': 10},
-			'legendary': {'strength': 25, 'crit chance': 20, 'crit damage': 30, 'intelligence': 25, 'attack speed': 15},
-			'mythic': {'strength': 40, 'crit chance': 25, 'crit damage': 40, 'intelligence': 35, 'attack speed': 20},
-			'blacksmith': True
-		},
-		'spicy': {
-			'common': {'strength': 2, 'crit chance': 1, 'crit damage': 25, 'attack speed': 1},
-			'uncommon': {'strength': 3, 'crit chance': 1, 'crit damage': 35, 'attack speed': 2},
-			'rare': {'strength': 4, 'crit chance': 1, 'crit damage': 45, 'attack speed': 4},
-			'epic': {'strength': 7, 'crit chance': 1, 'crit damage': 60, 'attack speed': 7},
-			'legendary': {'strength': 10, 'crit chance': 1, 'crit damage': 80, 'attack speed': 10},
-			'mythic': {'strength': 12, 'crit chance': 1, 'crit damage': 100, 'attack speed': 15},
-			'blacksmith': True
-		},
-		'epic': {
-			'common': {'strength': 15, 'crit damage': 5, 'attack speed': 1},
-			'uncommon': {'strength': 20, 'crit damage': 10, 'attack speed': 2},
-			'rare': {'strength': 25, 'crit damage': 15, 'attack speed': 4},
-			'epic': {'strength': 32, 'crit damage': 22, 'attack speed': 7},
-			'legendary': {'strength': 40, 'crit damage': 30, 'attack speed': 10},
-			'mythic': {'strength': 50, 'crit damage': 40, 'attack speed': 15},
-			'blacksmith': True
-		},
-		'odd': {
-			'common': {'crit chance': 10, 'crit damage': 5, 'intelligence': -5},
-			'uncommon': {'crit chance': 12, 'crit damage': 10, 'intelligence': -10},
-			'rare': {'crit chance': 15, 'crit damage': 15, 'intelligence': -18},
-			'epic': {'crit chance': 20, 'crit damage': 22, 'intelligence': -32},
-			'legendary': {'crit chance': 25, 'crit damage': 30, 'intelligence': -50},
-			'mythic': {'crit chance': 30, 'crit damage': 40, 'intelligence': -75},
-			'blacksmith': True
-		},
-		'gentle': {
-			'common': {'strength': -2, 'attack speed': 10},
-			'uncommon': {'strength': -4, 'attack speed': 20},
-			'rare': {'strength': -6, 'attack speed': 30},
-			'epic': {'strength': -8, 'attack speed': 40},
-			'legendary': {'strength': -10, 'attack speed': 50},
-			'mythic': {'strength': -12, 'attack speed': 60},
-			'blacksmith': True
-		},
-		'fast': {
-			'common': {'strength': 3, 'attack speed': 8},
-			'uncommon': {'strength': 5, 'attack speed': 10},
-			'rare': {'strength': 7, 'attack speed': 15},
-			'epic': {'strength': 10, 'attack speed': 20},
-			'legendary': {'strength': 15, 'attack speed': 25},
-			'mythic': {'strength': 20, 'attack speed': 30},
-			'blacksmith': True
-		},
-		'fair': {
-			'common': {'strength': 2, 'crit chance': 2, 'crit damage': 2, 'intelligence': 2, 'attack speed': 2},
-			'uncommon': {'strength': 3, 'crit chance': 3, 'crit damage': 3, 'intelligence': 3, 'attack speed': 3},
-			'rare': {'strength': 4, 'crit chance': 4, 'crit damage': 4, 'intelligence': 4, 'attack speed': 4},
-			'epic': {'strength': 7, 'crit chance': 7, 'crit damage': 7, 'intelligence': 7, 'attack speed': 7},
-			'legendary': {'strength': 10, 'crit chance': 10, 'crit damage': 10, 'intelligence': 10, 'attack speed': 10},
-			'mythic': {'strength': 12, 'crit chance': 12, 'crit damage': 12, 'intelligence': 12, 'attack speed': 12},
-			'blacksmith': True
-		},
-		'sharp': {
-			'common': {'crit chance': 10, 'crit damage': 2, 'intelligence': 3},
-			'uncommon': {'crit chance': 12, 'crit damage': 4, 'intelligence': 6},
-			'rare': {'crit chance': 14, 'crit damage': 7, 'intelligence': 10},
-			'epic': {'crit chance': 17, 'crit damage': 10, 'intelligence': 15},
-			'legendary': {'crit chance': 20, 'crit damage': 15, 'intelligence': 20},
-			'mythic': {'crit chance': 25, 'crit damage': 20, 'intelligence': 30},
-			'blacksmith': True
-		},
-		'heroic': {
-			'common': {'strength': 15, 'intelligence': 15, 'attack speed': 1},
-			'uncommon': {'strength': 20, 'intelligence': 20, 'attack speed': 2},
-			'rare': {'strength': 25, 'intelligence': 25, 'attack speed': 2},
-			'epic': {'strength': 32, 'intelligence': 32, 'attack speed': 3},
-			'legendary': {'strength': 40, 'intelligence': 40, 'attack speed': 5},
-			'mythic': {'strength': 50, 'intelligence': 50, 'attack speed': 7},
-			'blacksmith': True
-		},
-		'fabled': {
-			#Your Critical hits have a chance to deal up to 20% extra damage (from 100% to 120%, randomly)
-			'common': {'strength': 30, 'crit damage': 35},
-			'uncommon': {'strength': 35, 'crit damage': 40},
-			'rare': {'strength': 40, 'crit damage': 50},
-			'epic': {'strength': 50, 'crit damage': 60},
-			'legendary': {'strength': 60, 'crit damage': 80},
-			'mythic': {'strength': 75, 'crit damage': 100},
-			'blacksmith': False
-		}
-	},
-	'bow': {
-		'awkward': {
-			'common': {'crit chance': 10, 'crit damage': 5, 'intelligence': -5},
-			'uncommon': {'crit chance': 12, 'crit damage': 10, 'intelligence': -10},
-			'rare': {'crit chance': 15, 'crit damage': 15, 'intelligence': -18},
-			'epic': {'crit chance': 20, 'crit damage': 22, 'intelligence': -32},
-			'legendary': {'crit chance': 25, 'crit damage': 30, 'intelligence': -50},
-			'mythic': {'crit chance': 30, 'crit damage': 40, 'intelligence': -60},
-			'blacksmith': True
-		},
-		'rich': {
-			'common': {'crit chance': 10, 'crit damage': 2, 'intelligence': 3},
-			'uncommon': {'crit chance': 12, 'crit damage': 4, 'intelligence': 6},
-			'rare': {'crit chance': 14, 'crit damage': 7, 'intelligence': 10},
-			'epic': {'crit chance': 17, 'crit damage': 10, 'intelligence': 15},
-			'legendary': {'crit chance': 20, 'crit damage': 15, 'intelligence': 20},
-			'mythic': {'crit chance': 25, 'crit damage': 20, 'intelligence': 30},
-			'blacksmith': True
-		},
-		'fine': {
-			'common': {'strength': 3, 'crit chance': 5, 'crit damage': 2},
-			'uncommon': {'strength': 7, 'crit chance': 7, 'crit damage': 4},
-			'rare': {'strength': 12, 'crit chance': 9, 'crit damage': 7},
-			'epic': {'strength': 18, 'crit chance': 12, 'crit damage': 10},
-			'legendary': {'strength': 25, 'crit chance': 15, 'crit damage': 15},
-			'mythic': {'strength': 40, 'crit chance': 20, 'crit damage': 20},
-			'blacksmith': True
-		},
-		'neat': {
-			'common': {'crit chance': 10, 'crit damage': 5},
-			'uncommon': {'crit chance': 13, 'crit damage': 10},
-			'rare': {'crit chance': 16, 'crit damage': 18},
-			'epic': {'crit chance': 19, 'crit damage': 32},
-			'legendary': {'crit chance': 22, 'crit damage': 50},
-			'mythic': {'crit chance': 25, 'crit damage': 75},
-			'blacksmith': True
-		},
-		'hasty': {
-			'common': {'strength': 3, 'crit chance': 20},
-			'uncommon': {'strength': 5, 'crit chance': 25},
-			'rare': {'strength': 7, 'crit chance': 30},
-			'epic': {'strength': 10, 'crit chance': 40},
-			'legendary': {'strength': 15, 'crit chance': 50},
-			'mythic': {'strength': 20, 'crit chance': 60},
-			'blacksmith': True
-		},
-		'grand': {
-			'common': {'strength': 15},
-			'uncommon': {'strength': 20},
-			'rare': {'strength': 25},
-			'epic': {'strength': 32},
-			'legendary': {'strength': 40},
-			'mythic': {'strength': 50},
-			'blacksmith': True
-		},
-		'rapid': {
-			'common': {'strength': 2, 'crit damage': 35},
-			'uncommon': {'strength': 3, 'crit damage': 45},
-			'rare': {'strength': 4, 'crit damage': 55},
-			'epic': {'strength': 7, 'crit damage': 65},
-			'legendary': {'strength': 10, 'crit damage': 75},
-			'mythic': {'strength': 12, 'crit damage': 90},
-			'blacksmith': True
-		},
-		'deadly': {
-			'common': {'strength': 2, 'crit chance': 10, 'crit damage': 1, 'intelligence': 20},
-			'uncommon': {'strength': 3, 'crit chance': 12, 'crit damage': 2, 'intelligence': 25},
-			'rare': {'strength': 4, 'crit chance': 14, 'crit damage': 4, 'intelligence': 30},
-			'epic': {'strength': 7, 'crit chance': 17, 'crit damage': 7, 'intelligence': 40},
-			'legendary': {'strength': 10, 'crit chance': 20, 'crit damage': 10, 'intelligence': 50},
-			'mythic': {'strength': 12, 'crit chance': 25, 'crit damage': 15, 'intelligence': 75},
-			'blacksmith': True
-		},
-		'unreal': {
-			'common': {'strength': 3, 'crit chance': 10, 'crit damage': 5},
-			'uncommon': {'strength': 7, 'crit chance': 11, 'crit damage': 10},
-			'rare': {'strength': 12, 'crit chance': 12, 'crit damage': 18},
-			'epic': {'strength': 18, 'crit chance': 13, 'crit damage': 32},
-			'legendary': {'strength': 25, 'crit chance': 15, 'crit damage': 50},
-			'mythic': {'strength': 40, 'crit chance': 17, 'crit damage': 75},
-			'blacksmith': True
-		}
-	},
-	'armor': {
-		'smart': {
-			'common': {'defense': 4, 'health': 4, 'intelligence': 20},
-			'uncommon': {'defense': 5, 'health': 5, 'intelligence': 40},
-			'rare': {'defense': 6, 'health': 6, 'intelligence': 60},
-			'epic': {'defense': 8, 'health': 8, 'intelligence': 80},
-			'legendary': {'defense': 10, 'health': 10, 'intelligence': 100},
-			'mythic': {'defense': 14, 'health': 14, 'intelligence': 120},
-			'blacksmith': True
-		},
-		'clean': {
-			'common': {'defense': 5, 'health': 5, 'crit chance': 2},
-			'uncommon': {'defense': 7, 'health': 7, 'crit chance': 4},
-			'rare': {'defense': 10, 'health': 10, 'crit chance': 6},
-			'epic': {'defense': 15, 'health': 15, 'crit chance': 8},
-			'legendary': {'defense': 20, 'health': 20, 'crit chance': 10},
-			'mythic': {'defense': 25, 'health': 25, 'crit chance': 12},
-			'blacksmith': True
-		},
-		'fierce': {
-			'common': {'strength': 2, 'crit chance': 1, 'crit damage': 3, 'intelligence': 4},
-			'uncommon': {'strength': 4, 'crit chance': 2,'crit damage': 6, 'intelligence': 5},
-			'rare': {'strength': 6, 'crit chance': 3, 'crit damage': 9, 'intelligence': 7},
-			'epic': {'strength': 8, 'crit chance': 4, 'crit damage': 12, 'intelligence': 10},
-			'legendary': {'strength': 10, 'crit chance': 5, 'crit damage': 15, 'intelligence': 15},
-			'mythic': {'strength': 12, 'crit chance': 6, 'crit damage': 20, 'intelligence': 20},
-			'blacksmith': True
-		},
-		'heavy': {
-			'common': {'defense': 25, 'speed': -1, 'crit damage': -1},
-			'uncommon': {'defense': 35, 'speed': -1, 'crit damage': -2},
-			'rare': {'defense': 50, 'speed': -1, 'crit damage': -3},
-			'epic': {'defense': 65, 'speed': -1, 'crit damage': -3},
-			'legendary': {'defense': 80, 'speed': -1, 'crit damage': -5},
-			'mythic': {'defense': 110, 'speed': -1, 'crit damage': -7},
-			'blacksmith': True
-		},
-		'light': {
-			'common': {'defense': 1, 'speed': 1, 'health': 5, 'attack speed': 1, 'crit damage': 1},
-			'uncommon': {'defense': 2, 'speed': 2, 'health': 7, 'attack speed': 2, 'crit damage': 2},
-			'rare': {'defense': 3, 'speed': 3, 'health': 10, 'attack speed': 3, 'crit damage': 3},
-			'epic': {'defense': 4, 'speed': 4, 'health': 15, 'attack speed': 4, 'crit damage': 4},
-			'legendary': {'defense': 5, 'speed': 5, 'health': 20, 'attack speed': 5, 'crit damage': 5},
-			'mythic': {'defense': 6, 'speed': 6, 'health': 25, 'attack speed': 6, 'crit damage': 6},
-			'blacksmith': True
-		},
-		'mythic': {
-			'common': {'strength': 2, 'defense': 2, 'speed': 2, 'health': 2, 'crit chance': 1, 'intelligence': 20},
-			'uncommon': {'strength': 4, 'defense': 4, 'speed': 2, 'health': 4, 'crit chance': 2, 'intelligence': 25},
-			'rare': {'strength': 6, 'defense': 6, 'speed': 2, 'health': 6, 'crit chance': 3, 'intelligence': 30},
-			'epic': {'strength': 8, 'defense': 8, 'speed': 2, 'health': 8, 'crit chance': 4, 'intelligence': 40},
-			'legendary': {'strength': 10, 'defense': 10, 'speed': 2, 'health': 10, 'crit chance': 5, 'intelligence': 50},
-			'mythic': {'strength': 12, 'defense': 12, 'speed': 2, 'health': 12, 'crit chance': 6, 'intelligence': 60},
-			'blacksmith': True
-		},
-		'titanic': {
-			'common': {'defense': 10, 'health': 10},
-			'uncommon': {'defense': 15, 'health': 15},
-			'rare': {'defense': 20, 'health': 20},
-			'epic': {'defense': 25, 'health': 25},
-			'legendary': {'defense': 25, 'health': 35},
-			'mythic': {'defense': 50, 'health': 50},
-			'blacksmith': True
-		},
-		'wise': {
-			'common': {'speed': 1, 'health': 6, 'intelligence': 25},
-			'uncommon': {'speed': 1, 'health': 8, 'intelligence': 50},
-			'rare': {'speed': 1, 'health': 10, 'intelligence': 75},
-			'epic': {'speed': 2, 'health': 12, 'intelligence': 100},
-			'legendary': {'speed': 2, 'health': 15, 'intelligence': 125},
-			'mythic': {'speed': 3, 'health': 20, 'intelligence': 150},
-			'blacksmith': True
-		},
-		'pure': {
-			'common': {'strength': 2, 'defense': 2, 'speed': 1, 'health': 2, 'crit chance': 2, 'crit damage': 2, 'intelligence': 2, 'attack speed': 1},
-			'uncommon': {'strength': 4, 'defense': 4, 'speed': 1, 'health': 4, 'crit chance': 4, 'crit damage': 4, 'intelligence': 4, 'attack speed': 2},
-			'rare': {'strength': 6, 'defense': 6, 'speed': 1, 'health': 6, 'crit chance': 6, 'crit damage': 6, 'intelligence': 6, 'attack speed': 3},
-			'epic': {'strength': 8, 'defense': 8, 'speed': 1, 'health': 8, 'crit chance': 9,'crit damage': 8, 'intelligence': 8, 'attack speed': 4},
-			'legendary': {'strength': 10, 'defense': 10, 'speed': 1, 'health': 10, 'crit chance': 10, 'crit damage': 10, 'intelligence': 10, 'attack speed': 5},
-			'mythic': {'strength': 12, 'defense': 12, 'speed': 1, 'health': 12, 'crit chance': 12, 'crit damage': 12, 'intelligence': 12, 'attack speed': 6},
-			'blacksmith': True
-		},
-		'necrotic': {
-			'common': {'intelligence': 50},
-			'uncommon': {'intelligence': 75},
-			'rare': {'intelligence': 100},
-			'epic': {'intelligence': 120},
-			'legendary': {'intelligence': 150},
-			'mythic': {'intelligence': 175},
-			'blacksmith': False
-		},
-		'perfect': {
-			'common': {'defense': 10},
-			'uncommon': {'defense': 15},
-			'rare': {'defense': 25},
-			'epic': {'defense': 50},
-			'legendary': {'defense': 75},
-			'mythic': {'defense': 100},
-			'blacksmith': False
-		},
-		'undead': {
-			'common': {'strength': 1, 'defense': 9, 'health': 9, 'attack speed': 1},
-			'uncommon': {'strength': 2, 'defense': 12, 'health': 12, 'attack speed': 2},
-			'rare': {'strength': 2, 'defense': 15, 'health': 15, 'attack speed': 3},
-			'epic': {'strength': 3, 'defense': 18, 'health': 18, 'attack speed': 4},
-			'legendary': {'strength': 5, 'defense': 23, 'health': 23, 'attack speed': 5},
-			'mythic': {'strength': 7, 'defense': 25, 'health': 25, 'attack speed': 6},
-			'blacksmith': False
-		},
-		'spiked': {
-			'common': {'strength': 3, 'defense': 3, 'speed': 2, 'health': 3, 'crit chance': 3, 'crit damage': 3, 'intelligence': 3, 'attack speed': 1},
-			'uncommon': {'strength': 5, 'defense': 5, 'speed': 2, 'health': 5, 'crit chance': 5, 'crit damage': 5, 'intelligence': 5, 'attack speed': 2},
-			'rare': {'strength': 7, 'defense': 7, 'speed': 2, 'health': 7, 'crit chance': 7, 'crit damage': 7, 'intelligence': 7, 'attack speed': 3},
-			'epic': {'strength': 9, 'defense': 9, 'speed': 2, 'health': 9, 'crit chance': 9, 'crit damage': 9, 'intelligence': 9, 'attack speed': 4},
-			'legendary': {'strength': 12, 'defense': 12, 'speed': 2, 'health': 12, 'crit chance': 12, 'crit damage': 12, 'intelligence': 12, 'attack speed': 5},
-			'mythic': {'strength': 15, 'defense': 15, 'speed': 2, 'health': 15, 'crit chance': 15, 'crit damage': 15, 'intelligence': 15, 'attack speed': 6},
-			'blacksmith': False
-		},
-		'renowned': {
-			#Increases all your stats by 1% (similar to Superior passive)
-			'common': {'strength': 3, 'defense': 3, 'speed': 2, 'health': 3, 'crit chance': 3, 'crit damage': 3, 'intelligence': 3, 'attack speed': 1},
-			'uncommon': {'strength': 5, 'defense': 5, 'speed': 2, 'health': 5, 'crit chance': 5, 'crit damage': 5, 'intelligence': 5, 'attack speed': 2},
-			'rare': {'strength': 7, 'defense': 7, 'speed': 2, 'health': 7, 'crit chance': 7, 'crit damage': 7, 'intelligence': 7, 'attack speed': 3},
-			'epic': {'strength': 9, 'defense': 9, 'speed': 2, 'health': 9, 'crit chance': 9, 'crit damage': 9, 'intelligence': 9, 'attack speed': 4},
-			'legendary': {'strength': 12, 'defense': 12, 'speed': 2, 'health': 12, 'crit chance': 12, 'crit damage': 12, 'intelligence': 12, 'attack speed': 5},
-			'mythic': {'strength': 15, 'defense': 15, 'speed': 2, 'health': 15, 'crit chance': 15, 'crit damage': 15, 'intelligence': 15, 'attack speed': 6},
-			'blacksmith': False
-		}
-	},
-	'talisman': {
-		'bizzare': {
-			'common': {'strength': 1, 'crit damage': -1, 'health': 1, 'intelligence': 3},
-			'uncommon': {'strength': 2, 'crit damage': -2, 'health': 1, 'intelligence': 5},
-			'rare': {'strength': 2, 'crit damage': -2, 'health': 1, 'intelligence': 8},
-			'epic': {'strength': 3, 'crit damage': -3, 'health': 1, 'intelligence': 12},
-			'legendary': {'strength': 5, 'crit damage': -5, 'health': 1, 'intelligence': 16},
-			'mythic': {'strength': 7, 'crit damage': -7, 'health': 2, 'intelligence': 20},
-			'blacksmith': True
-		},
-		'ominous': {
-			'common': {'strength': 1, 'defense': 1, 'health': 1, 'crit damage': 1, 'intelligence': 0},
-			'uncommon': {'strength': 1, 'defense': 1, 'health': 1, 'crit damage': 1, 'intelligence': 1},
-			'rare': {'strength': 1, 'defense': 1, 'health': 2, 'crit damage': 1, 'intelligence': 2},
-			'epic': {'strength': 2, 'defense': 2, 'health': 3, 'crit damage': 1, 'intelligence': 3},
-			'legendary': {'strength': 3, 'defense': 3, 'health': 4, 'crit damage': 1, 'intelligence': 4},
-			'mythic': {'strength': 4, 'defense': 4, 'health': 5, 'crit damage': 1, 'intelligence': 5},
-			'blacksmith': True
-		},
-		'simple': {
-			'common': {'strength': 1, 'defense': 1, 'health': 1, 'crit damage': 1, 'intelligence': 1, 'speed': 1},
-			'uncommon': {'strength': 1, 'defense': 1, 'health': 1, 'crit damage': 1, 'intelligence': 1, 'speed': 1},
-			'rare': {'strength': 1, 'defense': 1, 'health': 1, 'crit damage': 1, 'intelligence': 1, 'speed': 1},
-			'epic': {'strength': 1, 'defense': 1, 'health': 1, 'crit damage': 1, 'intelligence': 1, 'speed': 1},
-			'legendary': {'strength': 1, 'defense': 1, 'health': 1, 'crit damage': 1, 'intelligence': 1, 'speed': 1},
-			'mythic': {'strength': 1, 'defense': 1, 'health': 1, 'crit damage': 1, 'intelligence': 1, 'speed': 1},
-			'blacksmith': True
-		},
-		'pleasant': {
-			'common': {'defense': 4},
-			'uncommon': {'defense': 5},
-			'rare': {'defense': 7},
-			'epic': {'defense': 10},
-			'legendary': {'defense': 15},
-			'mythic': {'defense': 20},
-			'blacksmith': True
-		},
-		'shiny': {
-			'common': {'health': 4, 'intelligence': 1},
-			'uncommon': {'health': 5, 'intelligence': 2},
-			'rare': {'health': 7, 'intelligence': 2},
-			'epic': {'health': 10, 'intelligence': 3},
-			'legendary': {'health': 15, 'intelligence': 5},
-			'mythic': {'health': 20, 'intelligence': 7},
-			'blacksmith': True
-		},
-		'vivid': {
-			'common': {'speed': 1, 'health': 1},
-			'uncommon': {'speed': 2, 'health': 2},
-			'rare': {'speed': 3, 'health': 3},
-			'epic': {'speed': 4, 'health': 4},
-			'legendary': {'speed': 5, 'health': 5},
-			'mythic': {'speed': 6, 'health': 6},
-			'blacksmith': True
-		},
-		'pretty': {
-			'common': {'speed': 0, 'health': 1, 'intelligence': 3, 'attack speed': 0},
-			'uncommon': {'speed': 0, 'health': 1, 'intelligence': 4, 'attack speed': 0},
-			'rare': {'speed': 0, 'health': 2, 'intelligence': 6, 'attack speed': 1},
-			'epic': {'speed': 1, 'health': 2, 'intelligence': 9, 'attack speed': 1},
-			'legendary': {'speed': 1, 'health': 3, 'intelligence': 13, 'attack speed': 1},
-			'mythic': {'speed': 2, 'health': 4, 'intelligence': 18, 'attack speed': 1},
-			'blacksmith': True
-		},
-		'itchy': {
-			'common': {'strength': 1, 'crit damage': 3, 'attack speed': 0},
-			'uncommon': {'strength': 1, 'crit damage': 4, 'attack speed': 0},
-			'rare': {'strength': 1, 'crit damage': 5, 'attack speed': 1},
-			'epic': {'strength': 2, 'crit damage': 7, 'attack speed': 1},
-			'legendary': {'strength': 3, 'crit damage': 10, 'attack speed': 1},
-			'mythic': {'strength': 4, 'crit damage': 15, 'attack speed': 1},
-			'blacksmith': True
-		},
-		'keen': {
-			'common': {'defense': 1, 'health': 1, 'intelligence': 1},
-			'uncommon': {'defense': 2, 'health': 2, 'intelligence': 2},
-			'rare': {'defense': 3, 'health': 3, 'intelligence': 2},
-			'epic': {'defense': 4, 'health': 4, 'intelligence': 3},
-			'legendary': {'defense': 5, 'health': 5, 'intelligence': 4},
-			'mythic': {'defense': 7, 'health': 7, 'intelligence': 5},
-			'blacksmith': True
-		},
-		'unpleasant': {
-			'common': {'crit chance': 1},
-			'uncommon': {'crit chance': 1},
-			'rare': {'crit chance': 1},
-			'epic': {'crit chance': 2},
-			'legendary': {'crit chance': 2},
-			'mythic': {'crit chance': 3},
-			'blacksmith': True
-		},
-		'superior': {
-			'common': {'strength': 2, 'crit damage': 2},
-			'uncommon': {'strength': 3, 'crit damage': 2},
-			'rare': {'strength': 4, 'crit damage': 2},
-			'epic': {'strength': 5, 'crit damage': 2},
-			'legendary': {'strength': 7, 'crit damage': 3},
-			'mythic': {'strength': 10, 'crit damage': 5},
-			'blacksmith': True
-		},
-		'forceful': {
-			'common': {'strength': 4},
-			'uncommon': {'strength': 5},
-			'rare': {'strength': 7},
-			'epic': {'strength': 10},
-			'legendary': {'strength': 15},
-			'mythic': {'strength': 20},
-			'blacksmith': True
-		},
-		'hurtful': {
-			'common': {'crit damage': 4},
-			'uncommon': {'crit damage': 5},
-			'rare': {'crit damage': 7},
-			'epic': {'crit damage': 10},
-			'legendary': {'crit damage': 15},
-			'mythic': {'crit damage': 20},
-			'blacksmith': True
-		},
-		'strong': {
-			'common': {'strength': 1, 'crit damage': 1, 'defense': 0},
-			'uncommon': {'strength': 2, 'crit damage': 2, 'defense': 0},
-			'rare': {'strength': 3, 'crit damage': 3, 'defense': 1},
-			'epic': {'strength': 5, 'crit damage': 5, 'defense': 2},
-			'legendary': {'strength': 8, 'crit damage': 8, 'defense': 3},
-			'mythic': {'strength': 12, 'crit damage': 12, 'defense': 4},
-			'blacksmith': True
-		},
-		'demonic': {
-			'common': {'strength': 1, 'intelligence': 3},
-			'uncommon': {'strength': 2, 'intelligence': 4},
-			'rare': {'strength': 2, 'intelligence': 6},
-			'epic': {'strength': 3, 'intelligence': 9},
-			'legendary': {'strength': 5, 'intelligence': 13},
-			'mythic': {'strength': 7, 'intelligence': 18},
-			'blacksmith': True
-		},
-		'zealous': {
-			'common': {'strength': 1, 'speed': 0, 'crit damage': 1, 'intelligence': 1},
-			'uncommon': {'strength': 2, 'speed': 0, 'crit damage': 2, 'intelligence': 2},
-			'rare': {'strength': 2, 'speed': 1, 'crit damage': 2, 'intelligence': 2},
-			'epic': {'strength': 3, 'speed': 1, 'crit damage': 3, 'intelligence': 3},
-			'legendary': {'strength': 5, 'speed': 1, 'crit damage': 5, 'intelligence': 5},
-			'mythic': {'strength': 7, 'speed': 2, 'crit damage': 7, 'intelligence': 7},
-			'blacksmith': True
-		},
-		'godly': {
-			'common': {'strength': 1, 'crit damage': 2, 'intelligence': 1},
-			'uncommon': {'strength': 2, 'crit damage': 2, 'intelligence': 1},
-			'rare': {'strength': 3, 'crit damage': 3, 'intelligence': 1},
-			'epic': {'strength': 5, 'crit damage': 4, 'intelligence': 2},
-			'legendary': {'strength': 7, 'crit damage': 6, 'intelligence': 4},
-			'mythic': {'strength': 10, 'crit damage': 8, 'intelligence': 6},
-			'blacksmith': True
-		}
-	},
-	'fishing rod': {
-		'legendary': {
-			'common': {'strength': 3, 'crit chance': 10, 'crit damage': 5, 'intelligence': 5, 'attack speed': 3},
-			'uncommon': {'strength': 7, 'crit chance': 12, 'crit damage': 10, 'intelligence': 8, 'attack speed': 5},
-			'rare': {'strength': 14, 'crit chance': 14, 'crit damage': 15, 'intelligence': 12, 'attack speed': 7},
-			'epic': {'strength': 18, 'crit chance': 17, 'crit damage': 22, 'intelligence': 18, 'attack speed': 10},
-			'legendary': {'strength': 25, 'crit chance': 20, 'crit damage': 30, 'intelligence': 25, 'attack speed': 15},
-			'mythic': {'strength': 40, 'crit chance': 25, 'crit damage': 40, 'intelligence': 35, 'attack speed': 20},
-			'blacksmith': True
-		},
-		'spicy': {
-			'common': {'strength': 2, 'crit chance': 1, 'crit damage': 25, 'attack speed': 1},
-			'uncommon': {'strength': 3, 'crit chance': 1, 'crit damage': 35, 'attack speed': 2},
-			'rare': {'strength': 4, 'crit chance': 1, 'crit damage': 45, 'attack speed': 4},
-			'epic': {'strength': 7, 'crit chance': 1, 'crit damage': 60, 'attack speed': 7},
-			'legendary': {'strength': 10, 'crit chance': 1, 'crit damage': 80, 'attack speed': 10},
-			'mythic': {'strength': 12, 'crit chance': 1, 'crit damage': 100, 'attack speed': 15},
-			'blacksmith': True
-		},
-		'epic': {
-			'common': {'strength': 15, 'crit damage': 5, 'attack speed': 1},
-			'uncommon': {'strength': 20, 'crit damage': 10, 'attack speed': 2},
-			'rare': {'strength': 25, 'crit damage': 15, 'attack speed': 4},
-			'epic': {'strength': 32, 'crit damage': 22, 'attack speed': 7},
-			'legendary': {'strength': 40, 'crit damage': 30, 'attack speed': 10},
-			'mythic': {'strength': 50, 'crit damage': 40, 'attack speed': 15},
-			'blacksmith': True
-		},
-		'odd': {
-			'common': {'crit chance': 10, 'crit damage': 5, 'intelligence': -5},
-			'uncommon': {'crit chance': 12, 'crit damage': 10, 'intelligence': -10},
-			'rare': {'crit chance': 15, 'crit damage': 15, 'intelligence': -18},
-			'epic': {'crit chance': 20, 'crit damage': 22, 'intelligence': -32},
-			'legendary': {'crit chance': 25, 'crit damage': 30, 'intelligence': -50},
-			'mythic': {'crit chance': 30, 'crit damage': 40, 'intelligence': -75},
-			'blacksmith': True
-		},
-		'gentle': {
-			'common': {'strength': -2, 'attack speed': 10},
-			'uncommon': {'strength': -4, 'attack speed': 20},
-			'rare': {'strength': -6, 'attack speed': 30},
-			'epic': {'strength': -8, 'attack speed': 40},
-			'legendary': {'strength': -10, 'attack speed': 50},
-			'mythic': {'strength': -12, 'attack speed': 60},
-			'blacksmith': True
-		},
-		'fast': {
-			'common': {'strength': 3, 'attack speed': 8},
-			'uncommon': {'strength': 5, 'attack speed': 10},
-			'rare': {'strength': 7, 'attack speed': 15},
-			'epic': {'strength': 10, 'attack speed': 20},
-			'legendary': {'strength': 15, 'attack speed': 25},
-			'mythic': {'strength': 20, 'attack speed': 30},
-			'blacksmith': True
-		},
-		'fair': {
-			'common': {'strength': 2, 'crit chance': 2, 'crit damage': 2, 'intelligence': 2, 'attack speed': 2},
-			'uncommon': {'strength': 3, 'crit chance': 3, 'crit damage': 3, 'intelligence': 3, 'attack speed': 3},
-			'rare': {'strength': 4, 'crit chance': 4, 'crit damage': 4, 'intelligence': 4, 'attack speed': 4},
-			'epic': {'strength': 7, 'crit chance': 7, 'crit damage': 7, 'intelligence': 7, 'attack speed': 7},
-			'legendary': {'strength': 10, 'crit chance': 10, 'crit damage': 10, 'intelligence': 10, 'attack speed': 10},
-			'mythic': {'strength': 12, 'crit chance': 12, 'crit damage': 12, 'intelligence': 12, 'attack speed': 12},
-			'blacksmith': True
-		},
-		'sharp': {
-			'common': {'crit chance': 10, 'crit damage': 2, 'intelligence': 3},
-			'uncommon': {'crit chance': 12, 'crit damage': 4, 'intelligence': 6},
-			'rare': {'crit chance': 14, 'crit damage': 7, 'intelligence': 10},
-			'epic': {'crit chance': 17, 'crit damage': 10, 'intelligence': 15},
-			'legendary': {'crit chance': 20, 'crit damage': 15, 'intelligence': 20},
-			'mythic': {'crit chance': 25, 'crit damage': 20, 'intelligence': 30},
-			'blacksmith': True
-		},
-		'heroic': {
-			'common': {'strength': 15, 'intelligence': 15, 'attack speed': 1},
-			'uncommon': {'strength': 20, 'intelligence': 20, 'attack speed': 2},
-			'rare': {'strength': 25, 'intelligence': 25, 'attack speed': 2},
-			'epic': {'strength': 32, 'intelligence': 32, 'attack speed': 3},
-			'legendary': {'strength': 40, 'intelligence': 40, 'attack speed': 5},
-			'mythic': {'strength': 50, 'intelligence': 50, 'attack speed': 7},
-			'blacksmith': True
-		},
-		'salty': {
-			'common': {'sea creature chance': 1},
-			'uncommon': {'sea creature chance': 2},
-			'rare': {'sea creature chance': 2},
-			'epic': {'sea creature chance': 3},
-			'legendary': {'sea creature chance': 5},
-			'mythic': {'sea creature chance': 7},
-			'blacksmith': False
-		},
-		'treacherous': {
-			'common': {'sea creature chance': 1, 'strength': 5},
-			'uncommon': {'sea creature chance': 2, 'strength': 10},
-			'rare': {'sea creature chance': 2, 'strength': 15},
-			'epic': {'sea creature chance': 3, 'strength': 20},
-			'legendary': {'sea creature chance': 5, 'strength': 25},
-			'mythic': {'sea creature chance': 7, 'strength': 30},
-			'blacksmith': False
-		}
-	}
-}
+# reforges = {
+# 	'sword': {
+# 		'legendary': {
+# 			'common': {'strength': 3, 'crit chance': 10, 'crit damage': 5, 'intelligence': 5, 'attack speed': 3},
+# 			'uncommon': {'strength': 7, 'crit chance': 12, 'crit damage': 10, 'intelligence': 8, 'attack speed': 5},
+# 			'rare': {'strength': 14, 'crit chance': 14, 'crit damage': 15, 'intelligence': 12, 'attack speed': 7},
+# 			'epic': {'strength': 18, 'crit chance': 17, 'crit damage': 22, 'intelligence': 18, 'attack speed': 10},
+# 			'legendary': {'strength': 25, 'crit chance': 20, 'crit damage': 30, 'intelligence': 25, 'attack speed': 15},
+# 			'mythic': {'strength': 40, 'crit chance': 25, 'crit damage': 40, 'intelligence': 35, 'attack speed': 20},
+# 			'blacksmith': True
+# 		},
+# 		'spicy': {
+# 			'common': {'strength': 2, 'crit chance': 1, 'crit damage': 25, 'attack speed': 1},
+# 			'uncommon': {'strength': 3, 'crit chance': 1, 'crit damage': 35, 'attack speed': 2},
+# 			'rare': {'strength': 4, 'crit chance': 1, 'crit damage': 45, 'attack speed': 4},
+# 			'epic': {'strength': 7, 'crit chance': 1, 'crit damage': 60, 'attack speed': 7},
+# 			'legendary': {'strength': 10, 'crit chance': 1, 'crit damage': 80, 'attack speed': 10},
+# 			'mythic': {'strength': 12, 'crit chance': 1, 'crit damage': 100, 'attack speed': 15},
+# 			'blacksmith': True
+# 		},
+# 		'epic': {
+# 			'common': {'strength': 15, 'crit damage': 5, 'attack speed': 1},
+# 			'uncommon': {'strength': 20, 'crit damage': 10, 'attack speed': 2},
+# 			'rare': {'strength': 25, 'crit damage': 15, 'attack speed': 4},
+# 			'epic': {'strength': 32, 'crit damage': 22, 'attack speed': 7},
+# 			'legendary': {'strength': 40, 'crit damage': 30, 'attack speed': 10},
+# 			'mythic': {'strength': 50, 'crit damage': 40, 'attack speed': 15},
+# 			'blacksmith': True
+# 		},
+# 		'odd': {
+# 			'common': {'crit chance': 10, 'crit damage': 5, 'intelligence': -5},
+# 			'uncommon': {'crit chance': 12, 'crit damage': 10, 'intelligence': -10},
+# 			'rare': {'crit chance': 15, 'crit damage': 15, 'intelligence': -18},
+# 			'epic': {'crit chance': 20, 'crit damage': 22, 'intelligence': -32},
+# 			'legendary': {'crit chance': 25, 'crit damage': 30, 'intelligence': -50},
+# 			'mythic': {'crit chance': 30, 'crit damage': 40, 'intelligence': -75},
+# 			'blacksmith': True
+# 		},
+# 		'gentle': {
+# 			'common': {'strength': -2, 'attack speed': 10},
+# 			'uncommon': {'strength': -4, 'attack speed': 20},
+# 			'rare': {'strength': -6, 'attack speed': 30},
+# 			'epic': {'strength': -8, 'attack speed': 40},
+# 			'legendary': {'strength': -10, 'attack speed': 50},
+# 			'mythic': {'strength': -12, 'attack speed': 60},
+# 			'blacksmith': True
+# 		},
+# 		'fast': {
+# 			'common': {'strength': 3, 'attack speed': 8},
+# 			'uncommon': {'strength': 5, 'attack speed': 10},
+# 			'rare': {'strength': 7, 'attack speed': 15},
+# 			'epic': {'strength': 10, 'attack speed': 20},
+# 			'legendary': {'strength': 15, 'attack speed': 25},
+# 			'mythic': {'strength': 20, 'attack speed': 30},
+# 			'blacksmith': True
+# 		},
+# 		'fair': {
+# 			'common': {'strength': 2, 'crit chance': 2, 'crit damage': 2, 'intelligence': 2, 'attack speed': 2},
+# 			'uncommon': {'strength': 3, 'crit chance': 3, 'crit damage': 3, 'intelligence': 3, 'attack speed': 3},
+# 			'rare': {'strength': 4, 'crit chance': 4, 'crit damage': 4, 'intelligence': 4, 'attack speed': 4},
+# 			'epic': {'strength': 7, 'crit chance': 7, 'crit damage': 7, 'intelligence': 7, 'attack speed': 7},
+# 			'legendary': {'strength': 10, 'crit chance': 10, 'crit damage': 10, 'intelligence': 10, 'attack speed': 10},
+# 			'mythic': {'strength': 12, 'crit chance': 12, 'crit damage': 12, 'intelligence': 12, 'attack speed': 12},
+# 			'blacksmith': True
+# 		},
+# 		'sharp': {
+# 			'common': {'crit chance': 10, 'crit damage': 2, 'intelligence': 3},
+# 			'uncommon': {'crit chance': 12, 'crit damage': 4, 'intelligence': 6},
+# 			'rare': {'crit chance': 14, 'crit damage': 7, 'intelligence': 10},
+# 			'epic': {'crit chance': 17, 'crit damage': 10, 'intelligence': 15},
+# 			'legendary': {'crit chance': 20, 'crit damage': 15, 'intelligence': 20},
+# 			'mythic': {'crit chance': 25, 'crit damage': 20, 'intelligence': 30},
+# 			'blacksmith': True
+# 		},
+# 		'heroic': {
+# 			'common': {'strength': 15, 'intelligence': 15, 'attack speed': 1},
+# 			'uncommon': {'strength': 20, 'intelligence': 20, 'attack speed': 2},
+# 			'rare': {'strength': 25, 'intelligence': 25, 'attack speed': 2},
+# 			'epic': {'strength': 32, 'intelligence': 32, 'attack speed': 3},
+# 			'legendary': {'strength': 40, 'intelligence': 40, 'attack speed': 5},
+# 			'mythic': {'strength': 50, 'intelligence': 50, 'attack speed': 7},
+# 			'blacksmith': True
+# 		},
+# 		'fabled': {
+# 			#Your Critical hits have a chance to deal up to 20% extra damage (from 100% to 120%, randomly)
+# 			'common': {'strength': 30, 'crit damage': 35},
+# 			'uncommon': {'strength': 35, 'crit damage': 40},
+# 			'rare': {'strength': 40, 'crit damage': 50},
+# 			'epic': {'strength': 50, 'crit damage': 60},
+# 			'legendary': {'strength': 60, 'crit damage': 80},
+# 			'mythic': {'strength': 75, 'crit damage': 100},
+# 			'blacksmith': False
+# 		}
+# 	},
+# 	'bow': {
+# 		'awkward': {
+# 			'common': {'crit chance': 10, 'crit damage': 5, 'intelligence': -5},
+# 			'uncommon': {'crit chance': 12, 'crit damage': 10, 'intelligence': -10},
+# 			'rare': {'crit chance': 15, 'crit damage': 15, 'intelligence': -18},
+# 			'epic': {'crit chance': 20, 'crit damage': 22, 'intelligence': -32},
+# 			'legendary': {'crit chance': 25, 'crit damage': 30, 'intelligence': -50},
+# 			'mythic': {'crit chance': 30, 'crit damage': 40, 'intelligence': -60},
+# 			'blacksmith': True
+# 		},
+# 		'rich': {
+# 			'common': {'crit chance': 10, 'crit damage': 2, 'intelligence': 3},
+# 			'uncommon': {'crit chance': 12, 'crit damage': 4, 'intelligence': 6},
+# 			'rare': {'crit chance': 14, 'crit damage': 7, 'intelligence': 10},
+# 			'epic': {'crit chance': 17, 'crit damage': 10, 'intelligence': 15},
+# 			'legendary': {'crit chance': 20, 'crit damage': 15, 'intelligence': 20},
+# 			'mythic': {'crit chance': 25, 'crit damage': 20, 'intelligence': 30},
+# 			'blacksmith': True
+# 		},
+# 		'fine': {
+# 			'common': {'strength': 3, 'crit chance': 5, 'crit damage': 2},
+# 			'uncommon': {'strength': 7, 'crit chance': 7, 'crit damage': 4},
+# 			'rare': {'strength': 12, 'crit chance': 9, 'crit damage': 7},
+# 			'epic': {'strength': 18, 'crit chance': 12, 'crit damage': 10},
+# 			'legendary': {'strength': 25, 'crit chance': 15, 'crit damage': 15},
+# 			'mythic': {'strength': 40, 'crit chance': 20, 'crit damage': 20},
+# 			'blacksmith': True
+# 		},
+# 		'neat': {
+# 			'common': {'crit chance': 10, 'crit damage': 5},
+# 			'uncommon': {'crit chance': 13, 'crit damage': 10},
+# 			'rare': {'crit chance': 16, 'crit damage': 18},
+# 			'epic': {'crit chance': 19, 'crit damage': 32},
+# 			'legendary': {'crit chance': 22, 'crit damage': 50},
+# 			'mythic': {'crit chance': 25, 'crit damage': 75},
+# 			'blacksmith': True
+# 		},
+# 		'hasty': {
+# 			'common': {'strength': 3, 'crit chance': 20},
+# 			'uncommon': {'strength': 5, 'crit chance': 25},
+# 			'rare': {'strength': 7, 'crit chance': 30},
+# 			'epic': {'strength': 10, 'crit chance': 40},
+# 			'legendary': {'strength': 15, 'crit chance': 50},
+# 			'mythic': {'strength': 20, 'crit chance': 60},
+# 			'blacksmith': True
+# 		},
+# 		'grand': {
+# 			'common': {'strength': 15},
+# 			'uncommon': {'strength': 20},
+# 			'rare': {'strength': 25},
+# 			'epic': {'strength': 32},
+# 			'legendary': {'strength': 40},
+# 			'mythic': {'strength': 50},
+# 			'blacksmith': True
+# 		},
+# 		'rapid': {
+# 			'common': {'strength': 2, 'crit damage': 35},
+# 			'uncommon': {'strength': 3, 'crit damage': 45},
+# 			'rare': {'strength': 4, 'crit damage': 55},
+# 			'epic': {'strength': 7, 'crit damage': 65},
+# 			'legendary': {'strength': 10, 'crit damage': 75},
+# 			'mythic': {'strength': 12, 'crit damage': 90},
+# 			'blacksmith': True
+# 		},
+# 		'deadly': {
+# 			'common': {'strength': 2, 'crit chance': 10, 'crit damage': 1, 'intelligence': 20},
+# 			'uncommon': {'strength': 3, 'crit chance': 12, 'crit damage': 2, 'intelligence': 25},
+# 			'rare': {'strength': 4, 'crit chance': 14, 'crit damage': 4, 'intelligence': 30},
+# 			'epic': {'strength': 7, 'crit chance': 17, 'crit damage': 7, 'intelligence': 40},
+# 			'legendary': {'strength': 10, 'crit chance': 20, 'crit damage': 10, 'intelligence': 50},
+# 			'mythic': {'strength': 12, 'crit chance': 25, 'crit damage': 15, 'intelligence': 75},
+# 			'blacksmith': True
+# 		},
+# 		'unreal': {
+# 			'common': {'strength': 3, 'crit chance': 10, 'crit damage': 5},
+# 			'uncommon': {'strength': 7, 'crit chance': 11, 'crit damage': 10},
+# 			'rare': {'strength': 12, 'crit chance': 12, 'crit damage': 18},
+# 			'epic': {'strength': 18, 'crit chance': 13, 'crit damage': 32},
+# 			'legendary': {'strength': 25, 'crit chance': 15, 'crit damage': 50},
+# 			'mythic': {'strength': 40, 'crit chance': 17, 'crit damage': 75},
+# 			'blacksmith': True
+# 		}
+# 	},
+# 	'armor': {
+# 		'smart': {
+# 			'common': {'defense': 4, 'health': 4, 'intelligence': 20},
+# 			'uncommon': {'defense': 5, 'health': 5, 'intelligence': 40},
+# 			'rare': {'defense': 6, 'health': 6, 'intelligence': 60},
+# 			'epic': {'defense': 8, 'health': 8, 'intelligence': 80},
+# 			'legendary': {'defense': 10, 'health': 10, 'intelligence': 100},
+# 			'mythic': {'defense': 14, 'health': 14, 'intelligence': 120},
+# 			'blacksmith': True
+# 		},
+# 		'clean': {
+# 			'common': {'defense': 5, 'health': 5, 'crit chance': 2},
+# 			'uncommon': {'defense': 7, 'health': 7, 'crit chance': 4},
+# 			'rare': {'defense': 10, 'health': 10, 'crit chance': 6},
+# 			'epic': {'defense': 15, 'health': 15, 'crit chance': 8},
+# 			'legendary': {'defense': 20, 'health': 20, 'crit chance': 10},
+# 			'mythic': {'defense': 25, 'health': 25, 'crit chance': 12},
+# 			'blacksmith': True
+# 		},
+# 		'fierce': {
+# 			'common': {'strength': 2, 'crit chance': 1, 'crit damage': 3, 'intelligence': 4},
+# 			'uncommon': {'strength': 4, 'crit chance': 2,'crit damage': 6, 'intelligence': 5},
+# 			'rare': {'strength': 6, 'crit chance': 3, 'crit damage': 9, 'intelligence': 7},
+# 			'epic': {'strength': 8, 'crit chance': 4, 'crit damage': 12, 'intelligence': 10},
+# 			'legendary': {'strength': 10, 'crit chance': 5, 'crit damage': 15, 'intelligence': 15},
+# 			'mythic': {'strength': 12, 'crit chance': 6, 'crit damage': 20, 'intelligence': 20},
+# 			'blacksmith': True
+# 		},
+# 		'heavy': {
+# 			'common': {'defense': 25, 'speed': -1, 'crit damage': -1},
+# 			'uncommon': {'defense': 35, 'speed': -1, 'crit damage': -2},
+# 			'rare': {'defense': 50, 'speed': -1, 'crit damage': -3},
+# 			'epic': {'defense': 65, 'speed': -1, 'crit damage': -3},
+# 			'legendary': {'defense': 80, 'speed': -1, 'crit damage': -5},
+# 			'mythic': {'defense': 110, 'speed': -1, 'crit damage': -7},
+# 			'blacksmith': True
+# 		},
+# 		'light': {
+# 			'common': {'defense': 1, 'speed': 1, 'health': 5, 'attack speed': 1, 'crit damage': 1},
+# 			'uncommon': {'defense': 2, 'speed': 2, 'health': 7, 'attack speed': 2, 'crit damage': 2},
+# 			'rare': {'defense': 3, 'speed': 3, 'health': 10, 'attack speed': 3, 'crit damage': 3},
+# 			'epic': {'defense': 4, 'speed': 4, 'health': 15, 'attack speed': 4, 'crit damage': 4},
+# 			'legendary': {'defense': 5, 'speed': 5, 'health': 20, 'attack speed': 5, 'crit damage': 5},
+# 			'mythic': {'defense': 6, 'speed': 6, 'health': 25, 'attack speed': 6, 'crit damage': 6},
+# 			'blacksmith': True
+# 		},
+# 		'mythic': {
+# 			'common': {'strength': 2, 'defense': 2, 'speed': 2, 'health': 2, 'crit chance': 1, 'intelligence': 20},
+# 			'uncommon': {'strength': 4, 'defense': 4, 'speed': 2, 'health': 4, 'crit chance': 2, 'intelligence': 25},
+# 			'rare': {'strength': 6, 'defense': 6, 'speed': 2, 'health': 6, 'crit chance': 3, 'intelligence': 30},
+# 			'epic': {'strength': 8, 'defense': 8, 'speed': 2, 'health': 8, 'crit chance': 4, 'intelligence': 40},
+# 			'legendary': {'strength': 10, 'defense': 10, 'speed': 2, 'health': 10, 'crit chance': 5, 'intelligence': 50},
+# 			'mythic': {'strength': 12, 'defense': 12, 'speed': 2, 'health': 12, 'crit chance': 6, 'intelligence': 60},
+# 			'blacksmith': True
+# 		},
+# 		'titanic': {
+# 			'common': {'defense': 10, 'health': 10},
+# 			'uncommon': {'defense': 15, 'health': 15},
+# 			'rare': {'defense': 20, 'health': 20},
+# 			'epic': {'defense': 25, 'health': 25},
+# 			'legendary': {'defense': 25, 'health': 35},
+# 			'mythic': {'defense': 50, 'health': 50},
+# 			'blacksmith': True
+# 		},
+# 		'wise': {
+# 			'common': {'speed': 1, 'health': 6, 'intelligence': 25},
+# 			'uncommon': {'speed': 1, 'health': 8, 'intelligence': 50},
+# 			'rare': {'speed': 1, 'health': 10, 'intelligence': 75},
+# 			'epic': {'speed': 2, 'health': 12, 'intelligence': 100},
+# 			'legendary': {'speed': 2, 'health': 15, 'intelligence': 125},
+# 			'mythic': {'speed': 3, 'health': 20, 'intelligence': 150},
+# 			'blacksmith': True
+# 		},
+# 		'pure': {
+# 			'common': {'strength': 2, 'defense': 2, 'speed': 1, 'health': 2, 'crit chance': 2, 'crit damage': 2, 'intelligence': 2, 'attack speed': 1},
+# 			'uncommon': {'strength': 4, 'defense': 4, 'speed': 1, 'health': 4, 'crit chance': 4, 'crit damage': 4, 'intelligence': 4, 'attack speed': 2},
+# 			'rare': {'strength': 6, 'defense': 6, 'speed': 1, 'health': 6, 'crit chance': 6, 'crit damage': 6, 'intelligence': 6, 'attack speed': 3},
+# 			'epic': {'strength': 8, 'defense': 8, 'speed': 1, 'health': 8, 'crit chance': 9,'crit damage': 8, 'intelligence': 8, 'attack speed': 4},
+# 			'legendary': {'strength': 10, 'defense': 10, 'speed': 1, 'health': 10, 'crit chance': 10, 'crit damage': 10, 'intelligence': 10, 'attack speed': 5},
+# 			'mythic': {'strength': 12, 'defense': 12, 'speed': 1, 'health': 12, 'crit chance': 12, 'crit damage': 12, 'intelligence': 12, 'attack speed': 6},
+# 			'blacksmith': True
+# 		},
+# 		'necrotic': {
+# 			'common': {'intelligence': 50},
+# 			'uncommon': {'intelligence': 75},
+# 			'rare': {'intelligence': 100},
+# 			'epic': {'intelligence': 120},
+# 			'legendary': {'intelligence': 150},
+# 			'mythic': {'intelligence': 175},
+# 			'blacksmith': False
+# 		},
+# 		'perfect': {
+# 			'common': {'defense': 10},
+# 			'uncommon': {'defense': 15},
+# 			'rare': {'defense': 25},
+# 			'epic': {'defense': 50},
+# 			'legendary': {'defense': 75},
+# 			'mythic': {'defense': 100},
+# 			'blacksmith': False
+# 		},
+# 		'undead': {
+# 			'common': {'strength': 1, 'defense': 9, 'health': 9, 'attack speed': 1},
+# 			'uncommon': {'strength': 2, 'defense': 12, 'health': 12, 'attack speed': 2},
+# 			'rare': {'strength': 2, 'defense': 15, 'health': 15, 'attack speed': 3},
+# 			'epic': {'strength': 3, 'defense': 18, 'health': 18, 'attack speed': 4},
+# 			'legendary': {'strength': 5, 'defense': 23, 'health': 23, 'attack speed': 5},
+# 			'mythic': {'strength': 7, 'defense': 25, 'health': 25, 'attack speed': 6},
+# 			'blacksmith': False
+# 		},
+# 		'spiked': {
+# 			'common': {'strength': 3, 'defense': 3, 'speed': 2, 'health': 3, 'crit chance': 3, 'crit damage': 3, 'intelligence': 3, 'attack speed': 1},
+# 			'uncommon': {'strength': 5, 'defense': 5, 'speed': 2, 'health': 5, 'crit chance': 5, 'crit damage': 5, 'intelligence': 5, 'attack speed': 2},
+# 			'rare': {'strength': 7, 'defense': 7, 'speed': 2, 'health': 7, 'crit chance': 7, 'crit damage': 7, 'intelligence': 7, 'attack speed': 3},
+# 			'epic': {'strength': 9, 'defense': 9, 'speed': 2, 'health': 9, 'crit chance': 9, 'crit damage': 9, 'intelligence': 9, 'attack speed': 4},
+# 			'legendary': {'strength': 12, 'defense': 12, 'speed': 2, 'health': 12, 'crit chance': 12, 'crit damage': 12, 'intelligence': 12, 'attack speed': 5},
+# 			'mythic': {'strength': 15, 'defense': 15, 'speed': 2, 'health': 15, 'crit chance': 15, 'crit damage': 15, 'intelligence': 15, 'attack speed': 6},
+# 			'blacksmith': False
+# 		},
+# 		'renowned': {
+# 			#Increases all your stats by 1% (similar to Superior passive)
+# 			'common': {'strength': 3, 'defense': 3, 'speed': 2, 'health': 3, 'crit chance': 3, 'crit damage': 3, 'intelligence': 3, 'attack speed': 1},
+# 			'uncommon': {'strength': 5, 'defense': 5, 'speed': 2, 'health': 5, 'crit chance': 5, 'crit damage': 5, 'intelligence': 5, 'attack speed': 2},
+# 			'rare': {'strength': 7, 'defense': 7, 'speed': 2, 'health': 7, 'crit chance': 7, 'crit damage': 7, 'intelligence': 7, 'attack speed': 3},
+# 			'epic': {'strength': 9, 'defense': 9, 'speed': 2, 'health': 9, 'crit chance': 9, 'crit damage': 9, 'intelligence': 9, 'attack speed': 4},
+# 			'legendary': {'strength': 12, 'defense': 12, 'speed': 2, 'health': 12, 'crit chance': 12, 'crit damage': 12, 'intelligence': 12, 'attack speed': 5},
+# 			'mythic': {'strength': 15, 'defense': 15, 'speed': 2, 'health': 15, 'crit chance': 15, 'crit damage': 15, 'intelligence': 15, 'attack speed': 6},
+# 			'blacksmith': False
+# 		}
+# 	},
+# 	'talisman': {
+# 		'bizzare': {
+# 			'common': {'strength': 1, 'crit damage': -1, 'health': 1, 'intelligence': 3},
+# 			'uncommon': {'strength': 2, 'crit damage': -2, 'health': 1, 'intelligence': 5},
+# 			'rare': {'strength': 2, 'crit damage': -2, 'health': 1, 'intelligence': 8},
+# 			'epic': {'strength': 3, 'crit damage': -3, 'health': 1, 'intelligence': 12},
+# 			'legendary': {'strength': 5, 'crit damage': -5, 'health': 1, 'intelligence': 16},
+# 			'mythic': {'strength': 7, 'crit damage': -7, 'health': 2, 'intelligence': 20},
+# 			'blacksmith': True
+# 		},
+# 		'ominous': {
+# 			'common': {'strength': 1, 'defense': 1, 'health': 1, 'crit damage': 1, 'intelligence': 0},
+# 			'uncommon': {'strength': 1, 'defense': 1, 'health': 1, 'crit damage': 1, 'intelligence': 1},
+# 			'rare': {'strength': 1, 'defense': 1, 'health': 2, 'crit damage': 1, 'intelligence': 2},
+# 			'epic': {'strength': 2, 'defense': 2, 'health': 3, 'crit damage': 1, 'intelligence': 3},
+# 			'legendary': {'strength': 3, 'defense': 3, 'health': 4, 'crit damage': 1, 'intelligence': 4},
+# 			'mythic': {'strength': 4, 'defense': 4, 'health': 5, 'crit damage': 1, 'intelligence': 5},
+# 			'blacksmith': True
+# 		},
+# 		'simple': {
+# 			'common': {'strength': 1, 'defense': 1, 'health': 1, 'crit damage': 1, 'intelligence': 1, 'speed': 1},
+# 			'uncommon': {'strength': 1, 'defense': 1, 'health': 1, 'crit damage': 1, 'intelligence': 1, 'speed': 1},
+# 			'rare': {'strength': 1, 'defense': 1, 'health': 1, 'crit damage': 1, 'intelligence': 1, 'speed': 1},
+# 			'epic': {'strength': 1, 'defense': 1, 'health': 1, 'crit damage': 1, 'intelligence': 1, 'speed': 1},
+# 			'legendary': {'strength': 1, 'defense': 1, 'health': 1, 'crit damage': 1, 'intelligence': 1, 'speed': 1},
+# 			'mythic': {'strength': 1, 'defense': 1, 'health': 1, 'crit damage': 1, 'intelligence': 1, 'speed': 1},
+# 			'blacksmith': True
+# 		},
+# 		'pleasant': {
+# 			'common': {'defense': 4},
+# 			'uncommon': {'defense': 5},
+# 			'rare': {'defense': 7},
+# 			'epic': {'defense': 10},
+# 			'legendary': {'defense': 15},
+# 			'mythic': {'defense': 20},
+# 			'blacksmith': True
+# 		},
+# 		'shiny': {
+# 			'common': {'health': 4, 'intelligence': 1},
+# 			'uncommon': {'health': 5, 'intelligence': 2},
+# 			'rare': {'health': 7, 'intelligence': 2},
+# 			'epic': {'health': 10, 'intelligence': 3},
+# 			'legendary': {'health': 15, 'intelligence': 5},
+# 			'mythic': {'health': 20, 'intelligence': 7},
+# 			'blacksmith': True
+# 		},
+# 		'vivid': {
+# 			'common': {'speed': 1, 'health': 1},
+# 			'uncommon': {'speed': 2, 'health': 2},
+# 			'rare': {'speed': 3, 'health': 3},
+# 			'epic': {'speed': 4, 'health': 4},
+# 			'legendary': {'speed': 5, 'health': 5},
+# 			'mythic': {'speed': 6, 'health': 6},
+# 			'blacksmith': True
+# 		},
+# 		'pretty': {
+# 			'common': {'speed': 0, 'health': 1, 'intelligence': 3, 'attack speed': 0},
+# 			'uncommon': {'speed': 0, 'health': 1, 'intelligence': 4, 'attack speed': 0},
+# 			'rare': {'speed': 0, 'health': 2, 'intelligence': 6, 'attack speed': 1},
+# 			'epic': {'speed': 1, 'health': 2, 'intelligence': 9, 'attack speed': 1},
+# 			'legendary': {'speed': 1, 'health': 3, 'intelligence': 13, 'attack speed': 1},
+# 			'mythic': {'speed': 2, 'health': 4, 'intelligence': 18, 'attack speed': 1},
+# 			'blacksmith': True
+# 		},
+# 		'itchy': {
+# 			'common': {'strength': 1, 'crit damage': 3, 'attack speed': 0},
+# 			'uncommon': {'strength': 1, 'crit damage': 4, 'attack speed': 0},
+# 			'rare': {'strength': 1, 'crit damage': 5, 'attack speed': 1},
+# 			'epic': {'strength': 2, 'crit damage': 7, 'attack speed': 1},
+# 			'legendary': {'strength': 3, 'crit damage': 10, 'attack speed': 1},
+# 			'mythic': {'strength': 4, 'crit damage': 15, 'attack speed': 1},
+# 			'blacksmith': True
+# 		},
+# 		'keen': {
+# 			'common': {'defense': 1, 'health': 1, 'intelligence': 1},
+# 			'uncommon': {'defense': 2, 'health': 2, 'intelligence': 2},
+# 			'rare': {'defense': 3, 'health': 3, 'intelligence': 2},
+# 			'epic': {'defense': 4, 'health': 4, 'intelligence': 3},
+# 			'legendary': {'defense': 5, 'health': 5, 'intelligence': 4},
+# 			'mythic': {'defense': 7, 'health': 7, 'intelligence': 5},
+# 			'blacksmith': True
+# 		},
+# 		'unpleasant': {
+# 			'common': {'crit chance': 1},
+# 			'uncommon': {'crit chance': 1},
+# 			'rare': {'crit chance': 1},
+# 			'epic': {'crit chance': 2},
+# 			'legendary': {'crit chance': 2},
+# 			'mythic': {'crit chance': 3},
+# 			'blacksmith': True
+# 		},
+# 		'superior': {
+# 			'common': {'strength': 2, 'crit damage': 2},
+# 			'uncommon': {'strength': 3, 'crit damage': 2},
+# 			'rare': {'strength': 4, 'crit damage': 2},
+# 			'epic': {'strength': 5, 'crit damage': 2},
+# 			'legendary': {'strength': 7, 'crit damage': 3},
+# 			'mythic': {'strength': 10, 'crit damage': 5},
+# 			'blacksmith': True
+# 		},
+# 		'forceful': {
+# 			'common': {'strength': 4},
+# 			'uncommon': {'strength': 5},
+# 			'rare': {'strength': 7},
+# 			'epic': {'strength': 10},
+# 			'legendary': {'strength': 15},
+# 			'mythic': {'strength': 20},
+# 			'blacksmith': True
+# 		},
+# 		'hurtful': {
+# 			'common': {'crit damage': 4},
+# 			'uncommon': {'crit damage': 5},
+# 			'rare': {'crit damage': 7},
+# 			'epic': {'crit damage': 10},
+# 			'legendary': {'crit damage': 15},
+# 			'mythic': {'crit damage': 20},
+# 			'blacksmith': True
+# 		},
+# 		'strong': {
+# 			'common': {'strength': 1, 'crit damage': 1, 'defense': 0},
+# 			'uncommon': {'strength': 2, 'crit damage': 2, 'defense': 0},
+# 			'rare': {'strength': 3, 'crit damage': 3, 'defense': 1},
+# 			'epic': {'strength': 5, 'crit damage': 5, 'defense': 2},
+# 			'legendary': {'strength': 8, 'crit damage': 8, 'defense': 3},
+# 			'mythic': {'strength': 12, 'crit damage': 12, 'defense': 4},
+# 			'blacksmith': True
+# 		},
+# 		'demonic': {
+# 			'common': {'strength': 1, 'intelligence': 3},
+# 			'uncommon': {'strength': 2, 'intelligence': 4},
+# 			'rare': {'strength': 2, 'intelligence': 6},
+# 			'epic': {'strength': 3, 'intelligence': 9},
+# 			'legendary': {'strength': 5, 'intelligence': 13},
+# 			'mythic': {'strength': 7, 'intelligence': 18},
+# 			'blacksmith': True
+# 		},
+# 		'zealous': {
+# 			'common': {'strength': 1, 'speed': 0, 'crit damage': 1, 'intelligence': 1},
+# 			'uncommon': {'strength': 2, 'speed': 0, 'crit damage': 2, 'intelligence': 2},
+# 			'rare': {'strength': 2, 'speed': 1, 'crit damage': 2, 'intelligence': 2},
+# 			'epic': {'strength': 3, 'speed': 1, 'crit damage': 3, 'intelligence': 3},
+# 			'legendary': {'strength': 5, 'speed': 1, 'crit damage': 5, 'intelligence': 5},
+# 			'mythic': {'strength': 7, 'speed': 2, 'crit damage': 7, 'intelligence': 7},
+# 			'blacksmith': True
+# 		},
+# 		'godly': {
+# 			'common': {'strength': 1, 'crit damage': 2, 'intelligence': 1},
+# 			'uncommon': {'strength': 2, 'crit damage': 2, 'intelligence': 1},
+# 			'rare': {'strength': 3, 'crit damage': 3, 'intelligence': 1},
+# 			'epic': {'strength': 5, 'crit damage': 4, 'intelligence': 2},
+# 			'legendary': {'strength': 7, 'crit damage': 6, 'intelligence': 4},
+# 			'mythic': {'strength': 10, 'crit damage': 8, 'intelligence': 6},
+# 			'blacksmith': True
+# 		}
+# 	},
+# 	'fishing rod': {
+# 		'legendary': {
+# 			'common': {'strength': 3, 'crit chance': 10, 'crit damage': 5, 'intelligence': 5, 'attack speed': 3},
+# 			'uncommon': {'strength': 7, 'crit chance': 12, 'crit damage': 10, 'intelligence': 8, 'attack speed': 5},
+# 			'rare': {'strength': 14, 'crit chance': 14, 'crit damage': 15, 'intelligence': 12, 'attack speed': 7},
+# 			'epic': {'strength': 18, 'crit chance': 17, 'crit damage': 22, 'intelligence': 18, 'attack speed': 10},
+# 			'legendary': {'strength': 25, 'crit chance': 20, 'crit damage': 30, 'intelligence': 25, 'attack speed': 15},
+# 			'mythic': {'strength': 40, 'crit chance': 25, 'crit damage': 40, 'intelligence': 35, 'attack speed': 20},
+# 			'blacksmith': True
+# 		},
+# 		'spicy': {
+# 			'common': {'strength': 2, 'crit chance': 1, 'crit damage': 25, 'attack speed': 1},
+# 			'uncommon': {'strength': 3, 'crit chance': 1, 'crit damage': 35, 'attack speed': 2},
+# 			'rare': {'strength': 4, 'crit chance': 1, 'crit damage': 45, 'attack speed': 4},
+# 			'epic': {'strength': 7, 'crit chance': 1, 'crit damage': 60, 'attack speed': 7},
+# 			'legendary': {'strength': 10, 'crit chance': 1, 'crit damage': 80, 'attack speed': 10},
+# 			'mythic': {'strength': 12, 'crit chance': 1, 'crit damage': 100, 'attack speed': 15},
+# 			'blacksmith': True
+# 		},
+# 		'epic': {
+# 			'common': {'strength': 15, 'crit damage': 5, 'attack speed': 1},
+# 			'uncommon': {'strength': 20, 'crit damage': 10, 'attack speed': 2},
+# 			'rare': {'strength': 25, 'crit damage': 15, 'attack speed': 4},
+# 			'epic': {'strength': 32, 'crit damage': 22, 'attack speed': 7},
+# 			'legendary': {'strength': 40, 'crit damage': 30, 'attack speed': 10},
+# 			'mythic': {'strength': 50, 'crit damage': 40, 'attack speed': 15},
+# 			'blacksmith': True
+# 		},
+# 		'odd': {
+# 			'common': {'crit chance': 10, 'crit damage': 5, 'intelligence': -5},
+# 			'uncommon': {'crit chance': 12, 'crit damage': 10, 'intelligence': -10},
+# 			'rare': {'crit chance': 15, 'crit damage': 15, 'intelligence': -18},
+# 			'epic': {'crit chance': 20, 'crit damage': 22, 'intelligence': -32},
+# 			'legendary': {'crit chance': 25, 'crit damage': 30, 'intelligence': -50},
+# 			'mythic': {'crit chance': 30, 'crit damage': 40, 'intelligence': -75},
+# 			'blacksmith': True
+# 		},
+# 		'gentle': {
+# 			'common': {'strength': -2, 'attack speed': 10},
+# 			'uncommon': {'strength': -4, 'attack speed': 20},
+# 			'rare': {'strength': -6, 'attack speed': 30},
+# 			'epic': {'strength': -8, 'attack speed': 40},
+# 			'legendary': {'strength': -10, 'attack speed': 50},
+# 			'mythic': {'strength': -12, 'attack speed': 60},
+# 			'blacksmith': True
+# 		},
+# 		'fast': {
+# 			'common': {'strength': 3, 'attack speed': 8},
+# 			'uncommon': {'strength': 5, 'attack speed': 10},
+# 			'rare': {'strength': 7, 'attack speed': 15},
+# 			'epic': {'strength': 10, 'attack speed': 20},
+# 			'legendary': {'strength': 15, 'attack speed': 25},
+# 			'mythic': {'strength': 20, 'attack speed': 30},
+# 			'blacksmith': True
+# 		},
+# 		'fair': {
+# 			'common': {'strength': 2, 'crit chance': 2, 'crit damage': 2, 'intelligence': 2, 'attack speed': 2},
+# 			'uncommon': {'strength': 3, 'crit chance': 3, 'crit damage': 3, 'intelligence': 3, 'attack speed': 3},
+# 			'rare': {'strength': 4, 'crit chance': 4, 'crit damage': 4, 'intelligence': 4, 'attack speed': 4},
+# 			'epic': {'strength': 7, 'crit chance': 7, 'crit damage': 7, 'intelligence': 7, 'attack speed': 7},
+# 			'legendary': {'strength': 10, 'crit chance': 10, 'crit damage': 10, 'intelligence': 10, 'attack speed': 10},
+# 			'mythic': {'strength': 12, 'crit chance': 12, 'crit damage': 12, 'intelligence': 12, 'attack speed': 12},
+# 			'blacksmith': True
+# 		},
+# 		'sharp': {
+# 			'common': {'crit chance': 10, 'crit damage': 2, 'intelligence': 3},
+# 			'uncommon': {'crit chance': 12, 'crit damage': 4, 'intelligence': 6},
+# 			'rare': {'crit chance': 14, 'crit damage': 7, 'intelligence': 10},
+# 			'epic': {'crit chance': 17, 'crit damage': 10, 'intelligence': 15},
+# 			'legendary': {'crit chance': 20, 'crit damage': 15, 'intelligence': 20},
+# 			'mythic': {'crit chance': 25, 'crit damage': 20, 'intelligence': 30},
+# 			'blacksmith': True
+# 		},
+# 		'heroic': {
+# 			'common': {'strength': 15, 'intelligence': 15, 'attack speed': 1},
+# 			'uncommon': {'strength': 20, 'intelligence': 20, 'attack speed': 2},
+# 			'rare': {'strength': 25, 'intelligence': 25, 'attack speed': 2},
+# 			'epic': {'strength': 32, 'intelligence': 32, 'attack speed': 3},
+# 			'legendary': {'strength': 40, 'intelligence': 40, 'attack speed': 5},
+# 			'mythic': {'strength': 50, 'intelligence': 50, 'attack speed': 7},
+# 			'blacksmith': True
+# 		},
+# 		'salty': {
+# 			'common': {'sea creature chance': 1},
+# 			'uncommon': {'sea creature chance': 2},
+# 			'rare': {'sea creature chance': 2},
+# 			'epic': {'sea creature chance': 3},
+# 			'legendary': {'sea creature chance': 5},
+# 			'mythic': {'sea creature chance': 7},
+# 			'blacksmith': False
+# 		},
+# 		'treacherous': {
+# 			'common': {'sea creature chance': 1, 'strength': 5},
+# 			'uncommon': {'sea creature chance': 2, 'strength': 10},
+# 			'rare': {'sea creature chance': 2, 'strength': 15},
+# 			'epic': {'sea creature chance': 3, 'strength': 20},
+# 			'legendary': {'sea creature chance': 5, 'strength': 25},
+# 			'mythic': {'sea creature chance': 7, 'strength': 30},
+# 			'blacksmith': False
+# 		}
+# 	}
+# }

@@ -193,6 +193,9 @@ damage_reforges = {
             'common': {'strength': 2, 'crit damage': 2},
             'uncommon': {'strength': 3, 'crit damage': 2},
             'rare': {'strength': 4, 'crit damage': 2},
+            'epic': {'strength': 5, 'crit damage': 3},
+            'legendary': {'strength': 7, 'crit damage': 3},
+            'mythic': {'strength': 10, 'crit damage': 5},
             'blacksmith': True
         },
         'forceful': {
@@ -214,15 +217,32 @@ damage_reforges = {
             'blacksmith': True
         },
         'strong': {
+            'common': {'strength': 1, 'crit damage': 1, 'defense': 0},
+            'uncommon': {'strength': 2, 'crit damage': 2, 'defense': 0},
+            'rare': {'strength': 3, 'crit damage': 3, 'defense': 1},
             'epic': {'strength': 5, 'crit damage': 5, 'defense': 2},
             'legendary': {'strength': 8, 'crit damage': 8, 'defense': 3},
             'mythic': {'strength': 12, 'crit damage': 12, 'defense': 4},
             'blacksmith': True
         },
-        'godly/strong': {
+        'godly': {
+            'common': {'strength': 1, 'crit damage': 2, 'intelligence': 1},
+            'uncommon': {'strength': 2, 'crit damage': 2, 'intelligence': 1},
             'rare': {'strength': 3, 'crit damage': 3, 'intelligence': 1},
+            'epic': {'strength': 5, 'crit damage': 4, 'intelligence': 2},
+            'legendary': {'strength': 7, 'crit damage': 6, 'intelligence': 4},
+            'mythic': {'strength': 10, 'crit damage': 8, 'intelligence': 6},
             'blacksmith': True
-        }
+        },
+        'strange': {
+            'common': {'crit damage': 1, 'strength': 2, 'defense': 0, 'speed': 1, 'health': 0, 'intelligence': 1, 'attack speed': -1},
+            'uncommon': {'crit damage': 2, 'strength': 1, 'defense': 3, 'speed': 0, 'health': 2, 'intelligence': -1, 'attack speed': 2},
+            'rare': {'crit damage': 0, 'strength': -1, 'defense': 2, 'speed': 1, 'health': 1, 'intelligence': 2, 'attack speed': 0},
+            'epic': {'crit damage': 1, 'strength': 3, 'defense': -1, 'speed': 0, 'health': 7, 'intelligence': 0, 'attack speed': 4},
+            'legendary': {'crit damage': 7, 'strength': 0, 'defense': 1, 'speed': 3, 'health': -1, 'intelligence': 8, 'attack speed': 0},
+            'mythic': {'crit damage': 9, 'strength': 4, 'defense': 1, 'speed': 3, 'health': 0, 'intelligence': 11, 'attack speed': 5},
+            'blacksmith': True
+        },
     },
     'fishing rod': {
         'legendary': {
@@ -352,7 +372,7 @@ def format_counts(counts):
 
 
 def solve(m):
-    SolverFactory('scip', executable='scipampl.exe').solve(m)
+    SolverFactory('scip', executable='scip').solve(m)
     # m.pprint()
 
 rarities = ['common', 'uncommon', 'rare', 'epic', 'legendary', 'mythic']
@@ -420,10 +440,10 @@ def damage_optimizer(player, *, perfect_crit_chance, include_attack_speed, only_
     #                                                 i, j, k] for i, j, k in m.reforge_set))
 
     # print(player.stats.get_stats_with_base('strength'))
-    # print(player.stats['strength'])
+    # print(player.stats['crit chance'])
 
     if perfect_crit_chance:
-        m.cc = Var(domain=NonNegativeReals, initialize=100)
+        m.cc = Var(domain=Reals, initialize=100)
         # m.eqn.add(m.cc == player.stats.get_stats_with_base('crit chance'))
         m.eqn.add(m.cc == quicksum(
             damage_reforges[armor_check(i)][k][j].get('crit chance', 0) * m.reforge_counts[
@@ -431,28 +451,28 @@ def damage_optimizer(player, *, perfect_crit_chance, include_attack_speed, only_
                   + player.stats.get_stats_with_base('crit chance'))
         m.eqn.add(100 <= m.cc)
     if include_attack_speed:
-        m.a = Var(domain=NonNegativeReals, initialize=50)
+        m.a = Var(domain=Reals, initialize=50)
         # m.eqn.add(m.a == player.stats.get_stats_with_base('attack speed'))
         m.eqn.add(m.a == quicksum(
             damage_reforges[armor_check(i)][k][j].get('attack speed', 0) * m.reforge_counts[
                 i, j, k] for i, j, k in m.reforge_set)
                   + player.stats.get_stats_with_base('attack speed'))
-        m.eqn.add(200 >= m.a)
+        m.eqn.add(100 >= m.a)
 
-    m.s = Var(domain=NonNegativeReals, initialize=400)
+    m.s = Var(domain=Reals, initialize=400)
     # m.eqn.add(m.s == player.stats['strength'])
     m.eqn.add(m.s == quicksum(
         damage_reforges[armor_check(i)][k][j].get('strength', 0) * m.reforge_counts[
             i, j, k] for i, j, k in m.reforge_set)
               + player.stats.get_stats_with_base('strength'))
-    m.cd = Var(domain=NonNegativeReals, initialize=400)
+    m.cd = Var(domain=Reals, initialize=400)
     # m.eqn.add(m.cd == player.stats['crit damage'])
     m.eqn.add(m.cd == quicksum(
         damage_reforges[armor_check(i)][k][j].get('crit damage', 0) * m.reforge_counts[
             i, j, k] for i, j, k in m.reforge_set)
               + player.stats.get_stats_with_base('crit damage'))
 
-    m.damage = Var(domain=NonNegativeReals, initialize=10000)
+    m.damage = Var(domain=Reals, initialize=10000)
     m.floored_strength = Var(domain=NonNegativeIntegers, initialize=60)
     m.eqn.add(m.floored_strength >= m.s / 5 - 0.9999)
     m.eqn.add(m.floored_strength <= m.s / 5)
@@ -464,8 +484,10 @@ def damage_optimizer(player, *, perfect_crit_chance, include_attack_speed, only_
     from pyomo.util.infeasible import log_infeasible_constraints
     log_infeasible_constraints(m, log_expression=True, log_variables=True)
 
-    result = {'damage': m.damage() * (1 + player.stats['enchantment modifier'] / 100), 'strength': m.s(),
-              'crit damage': m.cd()}
+    result = {'strength': m.s(),
+              'crit damage': m.cd(),
+              'crit chance': sum(damage_reforges[armor_check(i)][k][j].get('crit chance', 0) * count for (i, j, k), count in m.reforge_counts.get_values().items()) + player.stats.get_stats_with_base('crit chance'),
+              'attack speed: ': sum(damage_reforges[armor_check(i)][k][j].get('attack speed', 0) * count for (i, j, k), count in m.reforge_counts.get_values().items()) + player.stats.get_stats_with_base('attack speed')}
     if perfect_crit_chance:
         result['crit chance'] = m.cc()
     if include_attack_speed:

@@ -147,6 +147,38 @@ relavant_enchants = {
     ]
 }
 
+max_book_levels = {
+    'sharpness': 6,
+    'giant_killer': 6,
+    'smite': 6,
+    'bane_of_arthropods': 6,
+    'first_strike': 4,
+    'ender_slayer': 6,
+    'cubism': 5,
+    'execute': 5,
+    'impaling': 3,
+    'power': 6,
+    'dragon_hunter': 5,
+    'snipe': 3,
+    'spiked_hook': 6
+}
+
+cheap_max_book_levels = {
+    'sharpness': 5,
+    'giant_killer': 5,
+    'smite': 5,
+    'bane_of_arthropods': 5,
+    'first_strike': 4,
+    'ender_slayer': 5,
+    'cubism': 5,
+    'execute': 5,
+    'impaling': 3,
+    'power': 5,
+    'dragon_hunter': 0,
+    'snipe': 3,
+    'spiked_hook': 5
+}
+
 close_message = '\n> _use **exit** to close the session_'
 
 pet_emojis = {
@@ -296,6 +328,11 @@ class Bot(discord.AutoShardedClient):
                         'args': '[username] (profile)',
                         'function': self.view_missing,
                         'desc': 'Displays a list of your missing talismans. Also displays inactive/unnecessary talismans if you have them'
+                    },
+                    'damage': {
+                        'function': self.calculate_damage,
+                        'desc': 'Calcuates damage based on hypothetical stat values. This is not the talisman optimizer',
+                        'session': True
                     }
                 }
             }
@@ -717,41 +754,27 @@ class Bot(discord.AutoShardedClient):
                 title='Do you want to include attack speed?'
             ).send(), user)
 
-            for enchantment in relavant_enchants['zealots']:
-                if enchantment in weapon.enchantments:
-                    value = enchantment_effects[enchantment]
-                    if callable(value):
-                        player.stats.__iadd__('enchantment modifier', value(weapon.enchantments[enchantment]))
-                    else:
-                        player.stats.__iadd__('enchantment modifier', value * weapon.enchantments[enchantment])
-
             best_route = damage_optimizer(
                 player,
                 perfect_crit_chance=optimizer['name'] == 'perfect crit chance',
                 include_attack_speed=include_attack_speed,
                 only_blacksmith_reforges=blacksmith
             )
-            await channel.send(str(best_route))
+            # await channel.send(str(best_route))
 
             best_stats = best_route[0] or {}
             best_equip = best_route[1] or {}
 
-            # else:
-            # 	await channel.send(str(
-            # 		ehp_optimizer(player, talisman_counts, armor_counts, only_blacksmith_reforges=blacksmith)
-            # 	))
-
-            # ---
             embed = Embed(
                 channel,
                 user=user,
                 title='Success!'
             )
+
             for equipment in best_equip:
                 for rarity in best_equip[equipment]:
                     text = f''
                     for reforge in best_equip[equipment][rarity]:
-                        print(type(reforge))
                         text += f'\n{best_equip[equipment][rarity][reforge]} {reforge.title()}'
                     embed.add_field(
                         name=f'**{rarity.title()} {equipment.title()}**',
@@ -770,7 +793,7 @@ class Bot(discord.AutoShardedClient):
                             result += value * weapon.enchantments[enchantment]
                 return result
 
-            base_mod = player.stats['enchantment modifier'] + player.skills['combat'] * 0.04
+            base_mod = player.stats['enchantment modifier']
             zealot_mod = emod('zealots') + base_mod
             slayer_mod = emod('slayer bosses') + base_mod
 
@@ -808,13 +831,7 @@ class Bot(discord.AutoShardedClient):
                       f'```{zealot_damage_after:,.0f} to zealots\n{slayer_damage_after:,.0f} to slayers```'
             )
 
-            # if zealot_damage > zealot_damage_after or slayer_damage > slayer_damage_after:
-            # 	embed.set_footer(
-            # 		text=f'Even though you will be dealing less damage, you will gain {best_cc - cur_cc} crit chance'
-            # 	)
-
             await embed.send()
-        # ---
 
     async def view_missing(self, message, *args):
         user = message.author
@@ -863,6 +880,86 @@ class Bot(discord.AutoShardedClient):
             )
 
         await embed.send()
+
+    async def calculate_damage(self, message, *args):
+        channel = message.channel
+        user = message.author
+
+        stats = {'strength': 0, 'crit damage': 0, 'weapon damage': 0, 'combat level': 0}
+        questions = {
+            'strength': f'{user.mention} how much **strength** do you want to have?',
+            'crit damage': f'{user.mention} how much **crit damage** do you want to have?',
+            'weapon damage': f'{user.mention} how much **damage** does your weapon have on the tooltip?',
+            'combat level': f'{user.mention} what is your **combat level**?'
+        }
+
+        for stat in stats.keys():
+            await channel.send(questions[stat])
+            resp = await self.respond(user, channel)
+
+            if resp.content[0] == '+':
+                resp.content = resp.content[1:]
+
+            if resp.content.isdigit() is False or len(resp.content) > 20:
+                await channel.send(f'{user.mention} Invalid input!')
+                return
+            stats[stat] = int(resp.content)
+
+        mobs = '\n'.join([k.capitalize() for k in relavant_enchants.keys()])
+
+        embed = Embed(
+            channel,
+            user=user,
+            title='Which mob will you be targeting with this setup?'
+        ).add_field(
+            name=None,
+            value=f'```{mobs}```',
+        )
+
+        while True:
+            await embed.send()
+
+            resp = (await self.respond(user, channel)).content.casefold()
+
+            if resp in relavant_enchants:
+                break
+            else:
+                await channel.send(f'{user.mention} choose one of the listed enemies{close_message}')
+
+        msg = await channel.send(
+            f'{user.mention} do you want to use **level 5** or **level 6** enchantments? **[react to this message]**')
+        enchant_levels = await self.reaction_menu(msg, user, {'5️⃣': cheap_max_book_levels, '6️⃣': max_book_levels})
+
+        modifier = stats['combat level'] * 4
+        for enchantment in relavant_enchants[resp]:
+            perk = enchantment_effects[enchantment]
+            if callable(perk):
+                modifier += perk(enchant_levels[enchantment])
+            else:
+                modifier += perk * enchant_levels[enchantment]
+
+        damage = round(skypy.damage(
+            stats['weapon damage'],
+            stats['strength'],
+            stats['crit damage'],
+            modifier
+        ))
+
+        no_crit = round(skypy.damage(
+            stats['weapon damage'],
+            stats['strength'],
+            0,
+            modifier
+        ))
+
+        await Embed(
+            channel,
+            user=user,
+            title=f'{user.name}, you should be doing {damage} damage with those stats'
+        ).add_field(
+            name=f'**{no_crit}** without a crit',
+            value='```lua\n(5 + damage + floor(str ÷ 5)) ⋅\n(1 + str ÷ 100) ⋅\n(1 + cd ÷ 100) ⋅\n(1 + enchants ÷ combat bonus str)```'
+        ).send()
 
     async def help(self, message, *args):
         user = message.author

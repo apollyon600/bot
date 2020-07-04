@@ -174,6 +174,10 @@ class Item:
 			self.stats.__iadd__('speed', 3)
 		elif name == 'SPEED_ARTIFACT':
 			self.stats.__iadd__('speed', 5)
+		elif name == 'CHEETAH_TALISMAN':
+			self.stats.__iadd__('speed', 3)
+		# elif name == 'PARTY_HAT_CRAB':
+			# Get Intelligence base on how long player played (tbd)
 		elif name == 'PIGMAN_SWORD':
 			self.stats.__iadd__('defense', 50)
 		elif self.player:
@@ -546,16 +550,6 @@ class Player(ApiInterface):
 
 		v = self._nbt['members'][self.uuid]
 
-		#Loads all of a player's pets
-		self.pets = []
-		self.pet = None
-		if 'pets' in v:
-			for data in v['pets']:
-				pet = Pet(data)
-				self.pets.append(pet)
-				if pet.active:
-					self.pet = pet
-
 		def parse_inventory(v, *path):
 			try:
 				result = v
@@ -703,16 +697,12 @@ class Player(ApiInterface):
 
 		self.stats.__iadd__('health', fairy_soul_hp_bonus[self.fairy_souls // 5])
 		self.stats.__iadd__('defense', self.fairy_souls // 5 + self.fairy_souls // 25)
-		bonus_str = self.fairy_souls // 5 + self.fairy_souls // 25
-		self.stats.__iadd__('strength', bonus_str)
+		self.stats.__iadd__('strength', self.fairy_souls // 5 + self.fairy_souls // 25)
 		self.stats.__iadd__('speed', self.fairy_souls // 50)
 
 		self.stats.children = [p.stats for p in self.armor.values() if p] + [t.stats for t in self.talismans if t.active]
 		self.stats.base_children = [p.base_stats for p in self.armor.values() if p and len(p.base_stats) != 0]\
 								   + [t.base_stats for t in self.talismans if t.active and t.base_stats and len(t.base_stats) != 0]
-		if self.pet:
-			self.stats.children.append(self.pet.stats)
-			self.stats.base_children.append(self.pet.stats)
 
 		#Set Bonuses
 		if self.armor == {'boots': 'SUPERIOR_BOOTS', 'chestplate': 'SUPERIOR_CHESTPLATE', 'helmet': 'SUPERIOR_HELMET', 'leggings': 'SUPERIOR_LEGGINGS'}:
@@ -724,11 +714,29 @@ class Player(ApiInterface):
 		elif self.armor['helmet'] == 'TARANTULA_HELMET':
 			self.stats.modifiers['crit damage'].insert(0, lambda stat: stat + self.stats['strength'] / 10)
 
+		#Loads all of a player's pets
+		self.pets = []
+		self.pet = None
+		if 'pets' in v:
+			for data in v['pets']:
+				pet = Pet(data)
+				self.pets.append(pet)
+				if pet.active:
+					self.pet = pet
+
+		if self.pet:
+			self.stats.children.append(self.pet.stats)
+			self.stats.base_children.append(self.pet.stats)
+
 	def set_weapon(self, weapon):
 		self.weapon = weapon
 		self.stats.children.append(weapon.stats)
 		if len(weapon.base_stats) != 0:
 			self.stats.base_children.append(weapon.base_stats)
+
+		pet_ability = pets[self.pet.internal_name]['ability']
+		if callable(pet_ability):
+			pet_ability(self)
 
 	async def is_online(self):
 		player_data = (await self.__call_api__('/player', name=self.uname))['player']

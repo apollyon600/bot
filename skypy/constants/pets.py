@@ -1,10 +1,3 @@
-# Fetched from the lastest constant.py from https://github.com/notnotmelon/skyblock-simplified
-# Changelogs:
-# Add comments about damage pet abilities
-# Add pet ability functions accordingly
-# Updated all pet stats
-# TODO: Missing ghoul pet icon
-
 '''
 pet_xp = [0, 100, 210, 330, 460, 605, 765, 940, 1130, 1340, 1570, 1820, 2095, 2395, 2725, 3085, 3485, 3925, 4415, 4955, 5555, 6215, 6945, 7745, 8625, 9585, 10635, 11785, 13045, 14425, 15935, 17585, 19385, 21345, 23475, 25785, 28285, 30985, 33905, 37065, 40485, 44185, 48185, 52535, 57285, 62485, 68185, 74485, 81485, 89285, 97985, 107685, 118485, 130485, 143785, 158485, 174685, 192485, 211985, 233285, 256485, 281685, 309085, 338885, 371285, 406485, 444685, 486085, 530885, 579285, 631485, 687685, 748085, 812885, 882285, 956485, 1035685, 1120385, 1211085, 1308285, 1412485, 1524185, 1643885, 1772085, 1909285, 2055985, 2212685, 2380385, 2560085, 2752785, 2959485, 3181185, 3418885, 3673585, 3946285, 4237985, 4549685, 4883385, 5241085, 5624785, 6036485, 6478185, 6954885, 7471585, 8033285, 8644985, 9311685, 10038385, 10830085, 11691785, 12628485, 13645185, 14746885, 15938585, 17225285, 18611985, 20108685, 21725385, 23472085, 25358785]
 
@@ -94,8 +87,8 @@ def _pigman(player):
 	# Buffs the Pigman sword by (Pet lvl * 0.4) damage and (Pet lvl * 0.25) strength. (All)
 	# Deal (Pet lvl * 0.2%) extra damage to monsters level 100 and up. (Legendary)
 	if player.weapon == 'PIGMAN_SWORD':
-		player.weapon.stats['damage'] += player.pet.level * 0.4
-		player.weapon.stats['strength'] += player.pet.level * 0.25
+		player.weapon.stats.__iadd__('damage', player.pet.level * 0.4)
+		player.weapon.stats.__iadd__('strength', player.pet.level * 0.25)
 
 def _elephant(player):
 	if player.pet.rarity in ('common', 'uncommon', 'rare'):
@@ -106,15 +99,15 @@ def _elephant(player):
 		player.stats.modifiers['health'].insert(0, lambda stat: stat + (player.pet.level / 100) * (player.stats['defense'] // 10))
 
 def _hound(player):
-	player.stats['attack speed'] += player.pet.level / 10
+	player.stats.__iadd__('attack speed', player.pet.level / 10)
 
 def _enderdragon(player):
 	# Deal (Pet lvl * 0.25%) more damage to end mobs. (All)
 	# Buffs the Aspect of the Dragon sword by (Pet lvl * 0.5) damage and (Pet lvl * 0.3) strength. (All)
 	# Increases all stats by (Pet lvl * 0.1%). (Legendary)
 	if player.weapon == 'ASPECT_OF_THE_DRAGONS':
-		player.weapon.stats['damage'] += player.pet.level * 0.5
-		player.weapon.stats['weapon strength'] += player.pet.level * 0.3
+		player.weapon.stats.__iadd__('damage', player.pet.level * 0.5)
+		player.weapon.stats.__iadd__('weapon strength', player.pet.level * 0.3)
 	if player.pet.rarity == 'legendary':
 		player.stats.multiplier += player.pet.level * 0.001
 
@@ -131,40 +124,40 @@ def _bee(player):
 	# (1+ (Pet lvl * 0.09) INT and (1 + (Pet lvl * 0.07)) STR on Rare)
 	# (1+ (Pet lvl * 0.14) INT and (1 + (Pet lvl * 0.11)) STR on Epic)
 	# (1+ (Pet lvl * 0.19) INT and (1 + (Pet lvl * 0.14)) STR on Legendary)
-	player.stats['intelligence'] += 1 + player.pet.level * {'common': 0.02, 'uncommon': 0.02, 'rare': 0.09, 'epic': 0.14, 'legendary': 0.19}[player.pet.rarity]
-	player.stats['strength'] += 1 + player.pet.level * {'common': 0.02, 'uncommon': 0.02, 'rare': 0.07, 'epic': 0.11, 'legendary': 0.14}[player.pet.rarity]
-
+	player.stats.__iadd__('intelligence', 1 + player.pet.level * {'common': 0.02, 'uncommon': 0.02, 'rare': 0.09, 'epic': 0.14, 'legendary': 0.19}[player.pet.rarity])
+	player.stats.__iadd__('strength', 1 + player.pet.level * {'common': 0.02, 'uncommon': 0.02, 'rare': 0.07, 'epic': 0.11, 'legendary': 0.14}[player.pet.rarity])
 
 def _squid(player):
 	# Buffs the Ink Wand by (Pet lvl * 0.3) damage and (Pet lvl * 0.1) strength. (Rare) (0.4 DMG and 0.2 STR on Epic, Legendary)
 	if player.pet.rarity not in ('common', 'uncommon') and player.weapon == 'INK_WAND':
-		player.weapon.stats['damage'] += player.pet.level * {'rare': 0.3, 'epic': 0.4, 'legendary': 0.4}[player.pet.rarity]
-		player.weapon.stats['strength'] += player.pet.level * {'rare': 0.1, 'epic': 0.2, 'legendary': 0.2}[player.pet.rarity]
+		player.weapon.stats.__iadd__('damage', player.pet.level * {'rare': 0.3, 'epic': 0.4, 'legendary': 0.4}[player.pet.rarity])
+		player.weapon.stats.__iadd__('strength', player.pet.level * {'rare': 0.1, 'epic': 0.2, 'legendary': 0.2}[player.pet.rarity])
 
 
 def _parrot(player):
 	# Gives (5 + (Pet lvl * 0.25)) strength to players within 20 Blocks (No stack). (Legendary)
 	if player.pet.rarity == 'legendary':
-		player.stats['strength'] += 5 + (pet.level * 0.25)
+		player.stats.__iadd__('strength', 5 + (player.pet.level * 0.25))
 
 def _blaze(player):
 	# Upgrades Blaze Armor stats and ability by (Pet lvl * 0.4%). (All)
 	# Double effects of Hot Potato Books. (Legendary)
 	if player.armor == {'helmet': 'BLAZE_HELMET', 'chestplate': 'BLAZE_CHESTPLATE', 'leggings': 'BLAZE_LEGGINGS', 'boots': 'BLAZE_BOOTS'} or player.armor == {'helmet': 'FROZEN_BLAZE_HELMET', 'chestplate': 'FROZEN_BLAZE_CHESTPLATE', 'leggings': 'FROZEN_BLAZE_LEGGINGS', 'boots': 'FROZEN_BLAZE_BOOTS'}:
 		for piece in player.armor.values():
-			piece.stats.multiplier *= 1 + player.pet.level * 0.004
+			if piece:
+				piece.stats.multiplier *= 1 + player.pet.level * 0.004
 	if player.pet.rarity == 'legendary':
 		for piece in player.armor.values():
-			if item:
-				item.stats['health'] += item.hot_potatos * 4
-				item.stats['defense'] += item.hot_potatos * 2
+			if piece:
+				piece.stats.__iadd__('health', piece.hot_potatos * 4)
+				piece.stats.__iadd__('defense', piece.hot_potatos * 2)
 		if player.weapon:
-			player.weapon.stats['damage'] += player.weapon.hot_potatos * 2
-			player.weapon.stats['strength'] += player.weapon.hot_potatos * 2
+			player.weapon.stats.__iadd__('damage', player.weapon.hot_potatos * 2)
+			player.weapon.stats.__iadd__('strength', player.weapon.hot_potatos * 2)
 
 def _blackcat(player):
-	player.stats['speed'] += player.pet.level
-	player.stats['speed cap'] += player.pet.level
+	player.stats.__iadd__('speed', player.pet.level)
+	player.stats.__iadd__('speed cap', player.pet.level)
 	player.stats.modifiers['pet luck'].append(lambda stat: stat * 1.15)
 	player.stats.modifiers['magic find'].append(lambda stat: stat * 1.15)
 
@@ -184,10 +177,10 @@ def _magmacube(player):
 
 def _jerry(player):
 	if player.pet.rarity == 'legendary' and player.weapon == 'ASPECT_OF_THE_JERRY':
-		player.weapon.stats['damage'] += player.pet.level * 0.1
+		player.weapon.stats.__iadd__('damage', player.pet.level * 0.1)
 
 def _silverfish(player):
-	player.stats['true defense'] += player.pet.level * {'common': 0.05, 'uncommon': 0.1, 'rare': 0.1, 'epic': 0.15, 'legendary': 0.15}[player.pet.rarity]
+	player.stats.__iadd__('true defense', player.pet.level * {'common': 0.05, 'uncommon': 0.1, 'rare': 0.1, 'epic': 0.15, 'legendary': 0.15}[player.pet.rarity])
 	
 def _turtle(player):
 	player.stats.modifiers['defense'].append(lambda stat: stat * (3 + player.pet.level * 0.17))
@@ -206,13 +199,13 @@ def _lion(player):
 	# Increases damage dealt by (Pet lvl * 0.3%) on your first hit on a mob. (Rare) (0.4% on Epic) (0.5% on Legendary)
 	# Deal (Pet lvl * 0.3%) weapon damage against mobs below level 80. (Legendary)
 	if player.weapon:
-		player.weapon.stats['damage'] += player.pet.level * {'common': 0.03, 'uncommon': 0.05, 'rare': 0.1, 'epic': 0.15, 'legendary': 0.2}[player.pet.rarity]
+		player.weapon.stats.__iadd__('damage', player.pet.level * {'common': 0.03, 'uncommon': 0.05, 'rare': 0.1, 'epic': 0.15, 'legendary': 0.2}[player.pet.rarity])
 
 def _yeti(player):
 	player.stats.modifiers['defense'].insert(0, lambda stat: stat + player.stats['strength'] / 100)
 	if player.pet.rarity == 'legendary' and player.weapon == 'YETI_SWORD':
-		player.weapon.stats['damage'] += 100
-		player.weapon.stats['intelligence'] += 100
+		player.weapon.stats.__iadd__('damage', 100)
+		player.weapon.stats.__iadd__('intelligence', 100)
 		
 def _bluewhale(player):
 	if player.pet.rarity == 'legendary':
@@ -655,7 +648,7 @@ pets = {
 		},
 		'type': 'combat',
 		'ability': None,
-		'icon': ''
+		'icon': '/head/87934565bf522f6f4726cdfe127137be11d37c310db34d8c70253392b5ff5b'
 	},
 	'TARANTULA': {
 		'name': 'Tarantula',
