@@ -56,6 +56,7 @@ skill_rewards = {
 }
 
 talismans = {re.compile(k): v for k, v in {
+	'POTATO_TALISMAN': 'Potato Talisman',
 	'FARMING_TALISMAN': 'Farming Talisman',
 	'VACCINE_TALISMAN': 'Vaccine Talisman',
 	'WOOD_TALISMAN': 'Wood Affinity Talisman',
@@ -69,6 +70,7 @@ talismans = {re.compile(k): v for k, v in {
 	'LAVA_TALISMAN': 'Lava Talisman',
 	'SCAVENGER_TALISMAN': 'Scavenger Talisman',
 	'WOLF_PAW': 'Wolf Paw',
+	'CHEETAH_TALISMAN': 'Cheetah Talisman',
 	'FIRE_TALISMAN': 'Fire Talisman',
 	'PIGS_FOOT': 'Pig\'s Foot',
 	'FROZEN_CHICKEN': 'Frozen Chicken',
@@ -105,8 +107,6 @@ talismans = {re.compile(k): v for k, v in {
 	'PERSONAL_COMPACTOR_6000': 'Personal Compactor 6000',
 	'HUNTER_RING': 'Hunter Ring',
 	'SEAL_OF_THE_FAMILY': 'Seal of the Family',
-	'CHEETAH_TALISMAN': 'Cheetah Talisman',
-	'POTATO_TALISMAN': 'Potato Talisman'
 }.items()}
 
 skills = ['farming', 'mining', 'combat', 'foraging', 'fishing', 'enchanting', 'alchemy', 'taming', 'carpentry', 'runecrafting']

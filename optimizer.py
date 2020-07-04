@@ -487,7 +487,7 @@ def damage_optimizer(player, *, perfect_crit_chance, include_attack_speed, only_
     result = {'strength': m.s(),
               'crit damage': m.cd(),
               'crit chance': sum(damage_reforges[armor_check(i)][k][j].get('crit chance', 0) * count for (i, j, k), count in m.reforge_counts.get_values().items()) + player.stats.get_stats_with_base('crit chance'),
-              'attack speed: ': sum(damage_reforges[armor_check(i)][k][j].get('attack speed', 0) * count for (i, j, k), count in m.reforge_counts.get_values().items()) + player.stats.get_stats_with_base('attack speed')}
+              'attack speed': sum(damage_reforges[armor_check(i)][k][j].get('attack speed', 0) * count for (i, j, k), count in m.reforge_counts.get_values().items()) + player.stats.get_stats_with_base('attack speed')}
     if perfect_crit_chance:
         result['crit chance'] = m.cc()
     if include_attack_speed:

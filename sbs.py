@@ -818,16 +818,12 @@ class Bot(discord.AutoShardedClient):
 
             embed.add_field(
                 name='**Before**',
-                value=f'```{player.stats["strength"]:.0f} strength\n{player.stats["crit damage"]:.0f} crit damage```' +
-                      '{i}'.format(i=f'```{player.stats["crit chance"]} crit chance\n```' if 'crit chance' in best_stats else "") +
-                      '{i}'.format(i=f'```{player.stats["attack speed"]} attack speed\n```' if 'attack speed' in best_stats else "") +
+                value=f'```{player.stats["strength"]:.0f} strength\n{player.stats["crit damage"]:.0f} crit damage\n{player.stats["crit chance"]:.0f} crit chance\n{player.stats["attack speed"]:.0f} attack speed```'
                       f'```{zealot_damage:,.0f} to zealots\n{slayer_damage:,.0f} to slayers```'
             )
             embed.add_field(
                 name='**After**',
-                value=f'```{best_stats["strength"]:.0f} strength\n{best_stats["crit damage"]:.0f} crit damage```' +
-                      '{i}'.format(i=f'```{best_stats["crit chance"]} crit chance\n```' if 'crit chance' in best_stats else "") +
-                      '{i}'.format(i=f'```{best_stats["attack speed"]} attack speed\n```' if 'attack speed' in best_stats else "") +
+                value=f'```{best_stats["strength"]:.0f} strength\n{best_stats["crit damage"]:.0f} crit damage\n{best_stats["crit chance"]:.0f} crit chance\n{best_stats["attack speed"]:.0f} attack speed```'
                       f'```{zealot_damage_after:,.0f} to zealots\n{slayer_damage_after:,.0f} to slayers```'
             )
 
