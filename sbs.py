@@ -225,7 +225,6 @@ pet_emojis = {
     'GHOUL': '🧟‍♀️',
     'TARANTULA': '🕸️',
     'GOLEM': '🗿',
-    'BABY_YETI': '?' #  (tbd)
 }
 
 
@@ -683,7 +682,7 @@ class Bot(discord.AutoShardedClient):
             value=f'```{weapon.name}```',
             inline=False
         ).add_field(
-            name=f'{pet_emojis[pet.internal_name] if pet else "🐣"}\tPet',
+            name=f'{pet_emojis[pet.internal_name] if pet and pet.internal_name in pet_emojis else "🐣"}\tPet',
             value=f'```{format_pet(pet) if pet else None}```',
             inline=False
         ).add_field(
