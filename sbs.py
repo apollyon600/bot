@@ -224,7 +224,8 @@ pet_emojis = {
     'HOUND': '🐶',
     'GHOUL': '🧟‍♀️',
     'TARANTULA': '🕸️',
-    'GOLEM': '🗿'
+    'GOLEM': '🗿',
+    'BABY_YETI': '?' #  (tbd)
 }
 
 
