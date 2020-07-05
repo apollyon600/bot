@@ -319,7 +319,7 @@ damage_reforges = {
         # }
     },
     'talisman': {
-		'bizzare': {
+		'bizarre': {
 			'common': {'strength': 1, 'crit damage': -1, 'health': 1, 'intelligence': 6},
 			'uncommon': {'strength': 2, 'crit damage': -2, 'health': 1, 'intelligence': 8},
 			'rare': {'strength': 2, 'crit damage': -2, 'health': 1, 'intelligence': 10},
@@ -671,4 +671,3 @@ def intelligence_optimizer(only_blacksmith_reforges):
 
 def speed_optimizer(only_blacksmith_reforges):
     return '''Unavailable for now'''
-
