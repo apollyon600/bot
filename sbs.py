@@ -29,6 +29,10 @@ class EndSession(Exception):
 
 
 damage_potions = {
+    'dungeon': {
+        'stats': {'strength': [0, 20], 'crit chance': [0, 10], 'crit damage': [0, 10], 'speed': [0, 5], 'defense': [0, 5]},
+        'levels': [0, 1]
+    },
     'critical': {
         'stats': {'crit chance': [0, 10, 15, 20, 25], 'crit damage': [0, 10, 20, 30, 40]},
         'levels': [0, 3, 4]
@@ -348,7 +352,8 @@ class Bot(discord.AutoShardedClient):
 
     async def on_error(self, *args, **kwargs):
         error = traceback.format_exc().replace('```', '"""')
-        await self.get_user(270352691924959243).send(f'```{error[-1950:]}```')
+        await self.get_user(270352691924959243).send(f'```{error[-1950:]}```')  # melon
+        await self.get_user(148460858438057985).send(f'```{error[-1950:]}```')  # yuerino
         print(error)
 
     async def on_ready(self):
@@ -619,20 +624,20 @@ class Bot(discord.AutoShardedClient):
             if tali.active:
                 talisman_counts[tali.rarity] += 1
 
-        if optimizer['name'] == 'effective health' and player.armor == {'boots': 'MASTIFF_BOOTS',
-                                                                        'chestplate': 'MASTIFF_CHESTPLATE',
-                                                                        'helmet': 'MASTIFF_HELMET',
-                                                                        'leggings': 'MASTIFF_LEGGINGS'}:
-            split = '``````'.join(mastiff_ehp_optimizer(blacksmith).split('\n'))
-            await Embed(
-                channel,
-                user=user,
-                title=f'Best Effective Health Reforges with Mastiff'
-            ).add_field(
-                name=None,
-                value=f'```{split}```'
-            ).send()
-            return
+        # if optimizer['name'] == 'effective health' and player.armor == {'boots': 'MASTIFF_BOOTS',
+        #                                                                 'chestplate': 'MASTIFF_CHESTPLATE',
+        #                                                                 'helmet': 'MASTIFF_HELMET',
+        #                                                                 'leggings': 'MASTIFF_LEGGINGS'}:
+        #     split = '``````'.join(mastiff_ehp_optimizer(blacksmith).split('\n'))
+        #     await Embed(
+        #         channel,
+        #         user=user,
+        #         title=f'Best Effective Health Reforges with Mastiff'
+        #     ).add_field(
+        #         name=None,
+        #         value=f'```{split}```'
+        #     ).send()
+        #     return
 
         if len(player.weapons) == 0:
             await channel.send(f'{user.mention}, you have `no weapons` in your inventory')
@@ -726,7 +731,8 @@ class Bot(discord.AutoShardedClient):
             if weapon.type != 'bow' and name == 'archery':
                 continue
 
-            msg = await channel.send(f'{user.mention} what level of `{name} potion` do you use?')
+            msg = await channel.send(f'{user.mention} what level of `{name} potion` do you use?' +
+                                     '{s}'.format(s='\nSelect 0 if you want to choose normal potion instead of dungeon potion' if name == 'dungeon' else ''))
 
             emojis = {number_emojis[level]: level for level in levels}
 
@@ -734,6 +740,9 @@ class Bot(discord.AutoShardedClient):
 
             for name1, amount in buff.items():
                 player.stats.__iadd__(name1, amount[level])
+
+            if name == 'dungeon' and level > 0:
+                break
 
         if optimizer['name'] in ('perfect crit chance', 'maximum damage'):
             for name, orb in orbs.items():

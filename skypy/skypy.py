@@ -242,6 +242,8 @@ async def fetch_uuid_uname(uname_or_uuid):
 			return json['name'], json['id']
 	except asyncio.TimeoutError:
 		raise ExternalAPIError('Could not connect to https://api.mojang.com') from None
+	except aiohttp.ClientResponseError:
+		raise BadNameError(uname_or_uuid, 'Can\'t get player name or uuid')
 
 class Pet:
 	def __init__(self, nbt):
@@ -276,6 +278,8 @@ class Pet:
 				self.stats.__iadd__('crit chance', 5)
 			elif self.item_name == 'Lucky Clover':
 				self.stats.__iadd__('magic find', 7)
+			elif self.item_name == 'Tier Boost':
+				self.rarity = pet_rarity[pet_rarity.index(self.rarity) + 1]
 		else:
 			self.item_name = None
 
@@ -713,8 +717,8 @@ class Player(ApiInterface):
 		#Set Bonuses
 		if self.armor == {'helmet': 'SUPERIOR_DRAGON_HELMET', 'chestplate': 'SUPERIOR_DRAGON_CHESTPLATE', 'leggings': 'SUPERIOR_DRAGON_LEGGINGS', 'boots': 'SUPERIOR_DRAGON_BOOTS'}:
 			self.stats.multiplier += 0.05
-		elif self.armor == {'helmet': 'YOUNG_HELMET', 'chestplate': 'YOUNG_CHESTPLATE', 'leggings': 'YOUNG_LEGGINGS', 'boots': 'YOUNG_BOOTS'}: #name maybe wrong check later
-			self.stats.__iadd__('speed cap', 100)
+		# elif self.armor == {'helmet': 'YOUNG_HELMET', 'chestplate': 'YOUNG_CHESTPLATE', 'leggings': 'YOUNG_LEGGINGS', 'boots': 'YOUNG_BOOTS'}: #name maybe wrong check later
+		# 	self.stats.__iadd__('speed cap', 100)
 		# elif self.armor == {'helmet': 'MASTIFF_HELMET', 'chestplate': 'MASTIFF_CHESTPLATE', 'leggings': 'MASTIFF_LEGGINGS', 'boots': 'MASTIFF_BOOTS'}:
 		# 	self.stats.modifiers['crit damage'].append(lambda stat: stat / 2)
 		# 	self.stats.modifiers['health'].append(lambda stat: stat + self.stats['crit damage'] * 50)

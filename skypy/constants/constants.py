@@ -587,7 +587,7 @@ tiered_talismans = {
 # 			'legendary': {'crit chance': 2},
 # 			'mythic': {'crit chance': 3},
 # 			'blacksmith': True
-# 		},  # (tbd)
+# 		},
 # 		'superior': {
 # 			'common': {'strength': 2, 'crit damage': 2},
 # 			'uncommon': {'strength': 3, 'crit damage': 2},

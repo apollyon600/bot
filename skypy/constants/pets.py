@@ -8,6 +8,8 @@ def xp_slice(start):
 pet_xp = {'common': xp_slice(1), 'uncommon': xp_slice(7), 'rare': xp_slice(12), 'epic': xp_slice(17), 'legendary': xp_slice(21)}
 '''
 
+pet_rarity = ['common', 'uncommon', 'rare', 'epic', 'legendary', 'mythic']
+
 pet_xp = {
 	'common': [
 		0, 100, 210, 330, 460, 605, 765, 940, 1130, 1340, 1570, 1820, 2095,
@@ -105,9 +107,9 @@ def _enderdragon(player):
 	# Deal (Pet lvl * 0.25%) more damage to end mobs. (All)
 	# Buffs the Aspect of the Dragon sword by (Pet lvl * 0.5) damage and (Pet lvl * 0.3) strength. (All)
 	# Increases all stats by (Pet lvl * 0.1%). (Legendary)
-	if player.weapon == 'ASPECT_OF_THE_DRAGONS':
+	if player.weapon == 'ASPECT_OF_THE_DRAGON':
 		player.weapon.stats.__iadd__('damage', player.pet.level * 0.5)
-		player.weapon.stats.__iadd__('weapon strength', player.pet.level * 0.3)
+		player.weapon.stats.__iadd__('strength', player.pet.level * 0.3)
 	if player.pet.rarity == 'legendary':
 		player.stats.multiplier += player.pet.level * 0.001
 
@@ -119,7 +121,7 @@ def _giraffe(player):
 	pass
 
 def _bee(player):
-	#I'm not 100% sure about this one, may need revision in the future
+	# I'm not 100% sure about this one, may need revision in the future
 	# Gain (1 + (Pet lvl * 0.02)) Intelligence and (1 + (Pet lvl * 0.02)) Strength for each nearby bee. (Max 15) (Common)
 	# (1+ (Pet lvl * 0.09) INT and (1 + (Pet lvl * 0.07)) STR on Rare)
 	# (1+ (Pet lvl * 0.14) INT and (1 + (Pet lvl * 0.11)) STR on Epic)
@@ -214,8 +216,6 @@ def _bluewhale(player):
 	if player.pet.rarity in ('rare', 'epic', 'legendary'):
 		player.stats.modifiers['defense'].insert(0, lambda stat: stat + (player.pet.level * 0.03) * (player.stats['defense'] // 20))
 
-def _ocelot(player):
-	pass
 
 pets = {
 	'SKELETON_HORSE': {
@@ -224,8 +224,8 @@ pets = {
 			'intelligence': lambda lvl: lvl,
 			'speed': lambda lvl: lvl / 2
 		},
-		'type': 'combat',
 		'ability': None,
+		'type': 'combat',
 		'icon': '/head/47effce35132c86ff72bcae77dfbb1d22587e94df3cbc2570ed17cf8973a'
 	},
 	'SNOWMAN': {
@@ -300,8 +300,8 @@ pets = {
 			'health': lambda lvl: lvl,
 			'speed': lambda lvl: lvl / 5
 		},
-		'type': 'farming',
 		'ability': None,
+		'type': 'farming',
 		'icon': '/head/117bffc1972acd7f3b4a8f43b5b6c7534695b8fd62677e0306b2831574b'
 	},
 	'HORSE': {
@@ -345,7 +345,7 @@ pets = {
 		'stats': {
 			'speed': lambda lvl: lvl / 2
 		},
-		'ability': _ocelot,
+		'ability': None,
 		'type': 'foraging',
 		'icon': '/head/5657cd5c2989ff97570fec4ddcdc6926a68a3393250c1be1f0b114a1db1'
 	},
@@ -391,8 +391,8 @@ pets = {
 		'stats': {
 			'crit damage': lambda lvl: lvl * 0.75
 		},
-		'type': 'combat',
 		'ability': None,
+		'type': 'combat',
 		'icon': '/head/6eab75eaa5c9f2c43a0d23cfdce35f4df632e9815001850377385f7b2f039ce1'
 	},
 	'BLUE_WHALE': {
@@ -400,8 +400,8 @@ pets = {
 		'stats': {
 			'health': lambda lvl: lvl * 2
 		},
-		'type': 'fishing',
 		'ability': _bluewhale,
+		'type': 'fishing',
 		'icon': '/head/dab779bbccc849f88273d844e8ca2f3a67a1699cb216c0a11b44326ce2cc20'
 	},
 	'GIRAFFE': {
@@ -553,8 +553,8 @@ pets = {
 			'intelligence': lambda lvl: lvl,
 			'sea creature chance': lambda lvl: lvl / 20
 		},
-		'type': 'fishing',
 		'ability': _dolphin,
+		'type': 'fishing',
 		'icon': '/head/6271bda308834d738faf194677090bc3'
 	},
 	'JELLYFISH': {
@@ -562,6 +562,7 @@ pets = {
 		'stats': {
 			'health': lambda lvl: lvl * 2
 		},
+		'ability': None,
 		'type': 'alchemy',
 		'icon': '/head/913f086ccb56323f238ba3489ff2a1a34c0fdceeafc483acff0e5488cfd6c2f1'
 	},
@@ -653,8 +654,8 @@ pets = {
 			'health': lambda lvl: lvl,
 			'intelligence': lambda lvl: lvl * 0.7
 		},
-		'type': 'combat',
 		'ability': None,
+		'type': 'combat',
 		'icon': '/head/87934565bf522f6f4726cdfe127137be11d37c310db34d8c70253392b5ff5b'
 	},
 	'TARANTULA': {
@@ -685,8 +686,8 @@ pets = {
 			'intelligence': lambda lvl: lvl,
 			'speed': lambda lvl: lvl / 4
 		},
-		'type': 'combat',
 		'ability': _blackcat,
+		'type': 'combat',
 		'icon': '/head/e4b45cbaa19fe3d68c856cd3846c03b5f59de81a480eec921ab4fa3cd81317'
 	},
 	'BABY_YETI': {
@@ -694,8 +695,8 @@ pets = {
         'stats': {
             'strength': lambda lvl: lvl * 2 / 5
         },
-        'type': 'fishing',
 		'ability': _yeti,
+        'type': 'fishing',
         'icon': '/head/ab126814fc3fa846dad934c349628a7a1de5b415021a03ef4211d62514d5'
      }
 }

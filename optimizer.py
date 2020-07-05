@@ -515,10 +515,6 @@ def damage_optimizer(player, *, perfect_crit_chance, include_attack_speed, only_
             if counts[equipment_type][rarity] > 0:
                 m.eqn.add(quicksum(sums[rarity]) == counts[equipment_type][rarity])
 
-    # if only_blacksmith_reforges is False:
-    #     player.stats.multiplier += quicksum(
-    #         m.reforge_counts[piece, rarity, 'renowned'] for piece in armor_types for rarity in rarities) / 100
-
     # for stat in ['strength', 'crit damage'] + ['crit chance'] * perfect_crit_chance + ['attack speed'] * include_attack_speed:
     #     player.stats.modifiers[stat].insert(0,
     #                                         lambda stat: stat + quicksum(
@@ -534,11 +530,16 @@ def damage_optimizer(player, *, perfect_crit_chance, include_attack_speed, only_
     m.cd = Var(domain=Reals, initialize=400)
     m.damage = Var(domain=Reals, initialize=10000)
     m.floored_strength = Var(domain=Integers, initialize=60)
+    # m.m = Var(domain=Reals, initialize=1)
     # ---
 
     # --- modifiers ---
     # manually add it here now, will find a better way to do it
     cd_tara_helm = m.s / 10 if player.armor['helmet'] == 'TARANTULA_HELMET' else 0
+    # ---
+
+    # --- multiplier --- doesnt work yet
+    # m.eqn.add(m.m == player.stats.multiplier + (quicksum(m.reforge_counts[i, j, k]*0.01 for i, j, k in m.reforge_set if i in armor_types and k == 'renowned') if not only_blacksmith_reforges else 0))
     # ---
 
     # --- crit chance ---
