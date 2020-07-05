@@ -740,9 +740,10 @@ class Player(ApiInterface):
 		self.stats.children.append((weapon.type, weapon.stats))
 		self.stats.base_children.append((weapon.type, weapon.base_stats))
 
-		pet_ability = pets[self.pet.internal_name]['ability']
-		if callable(pet_ability):
-			pet_ability(self)
+		if self.pet:
+			pet_ability = pets[self.pet.internal_name]['ability']
+			if callable(pet_ability):
+				pet_ability(self)
 
 	async def is_online(self):
 		player_data = (await self.__call_api__('/player', name=self.uname))['player']
