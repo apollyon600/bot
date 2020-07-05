@@ -214,6 +214,9 @@ def _bluewhale(player):
 	if player.pet.rarity in ('rare', 'epic', 'legendary'):
 		player.stats.modifiers['defense'].insert(0, lambda stat: stat + (player.pet.level * 0.03) * (player.stats['defense'] // 20))
 
+def _ocelot(player):
+	pass
+
 pets = {
 	'SKELETON_HORSE': {
 		'name': 'Skeleton Horse',
@@ -242,6 +245,7 @@ pets = {
 			'intelligence': lambda lvl: lvl,
 			'speed': lambda lvl: lvl / 20
 		},
+		'ability': None,
 		'type': 'mining',
 		'icon': '/head/382fc3f71b41769376a9e92fe3adbaac3772b999b219c9d6b4680ba9983e527'
 	},
@@ -341,6 +345,7 @@ pets = {
 		'stats': {
 			'speed': lambda lvl: lvl / 2
 		},
+		'ability': _ocelot,
 		'type': 'foraging',
 		'icon': '/head/5657cd5c2989ff97570fec4ddcdc6926a68a3393250c1be1f0b114a1db1'
 	},
@@ -377,6 +382,7 @@ pets = {
 			'intelligence': lambda lvl: lvl,
 			'defense': lambda lvl: lvl / 2
 		},
+		'ability': None,
 		'type': 'fishing',
 		'icon': '/head/221025434045bda7025b3e514b316a4b770c6faa4ba9adb4be3809526db77f9d'
 	},

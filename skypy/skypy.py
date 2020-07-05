@@ -706,8 +706,8 @@ class Player(ApiInterface):
 		self.stats.__iadd__('strength', self.fairy_souls // 5 + self.fairy_souls // 25)
 		self.stats.__iadd__('speed', self.fairy_souls // 50)
 
-		self.stats.children = [(p.type, p.stats) for p in self.armor.values()] + [(t.type, t.stats) for t in self.talismans if t.active]
-		self.stats.base_children = [(p.type, p.base_stats) for p in self.armor.values()]\
+		self.stats.children = [(p.type, p.stats) for p in self.armor.values() if p] + [(t.type, t.stats) for t in self.talismans if t.active]
+		self.stats.base_children = [(p.type, p.base_stats) for p in self.armor.values() if p]\
 								   + [(t.type, t.base_stats) for t in self.talismans if t.active]
 
 		#Set Bonuses
