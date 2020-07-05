@@ -337,6 +337,15 @@ damage_reforges = {
             'mythic': {'strength': 4, 'crit damage': 15, 'attack speed': 1},
             'blacksmith': True
         },
+		'unpleasant': {
+			'common': {'crit chance': 1},
+			'uncommon': {'crit chance': 1},
+			'rare': {'crit chance': 1},
+			'epic': {'crit chance': 2},
+			'legendary': {'crit chance': 2},
+			'mythic': {'crit chance': 3},
+			'blacksmith': True
+		},
         'superior': {
             'common': {'strength': 2, 'crit damage': 2},
             'uncommon': {'strength': 3, 'crit damage': 2},
@@ -527,7 +536,7 @@ def damage_optimizer(player, *, perfect_crit_chance, include_attack_speed, only_
 
         cc_rule = create_constraint_rule('crit chance', m, counts, player)
         m.eqn.add(m.cc == player.stats.multiplier * (cc_rule + player.stats.get_raw_base_stats('crit chance')))
-        m.eqn.add(100 <= m.cc)
+        m.eqn.add(100 <= m.cc)  # m.cc => 100 is actually m.cc > 100 for some reason, need double check, but if m.cc => 99 then it's actually => 99
     # ---
 
     # --- attack speed ---
@@ -541,7 +550,7 @@ def damage_optimizer(player, *, perfect_crit_chance, include_attack_speed, only_
 
         a_rule = create_constraint_rule('attack speed', m, counts, player)
         m.eqn.add(m.a == player.stats.multiplier * (a_rule + player.stats.get_raw_base_stats('attack speed')))
-        m.eqn.add(100 >= m.a)
+        m.eqn.add(200 >= m.a)
     # ---
 
     # --- strength ---
@@ -569,13 +578,13 @@ def damage_optimizer(player, *, perfect_crit_chance, include_attack_speed, only_
     # ---
 
     m.damage = Var(domain=Reals, initialize=10000)
-    m.floored_strength = Var(domain=NonNegativeIntegers, initialize=60)
+    m.floored_strength = Var(domain=Integers, initialize=60)
     m.eqn.add(m.floored_strength >= m.s / 5 - 0.9999)
     m.eqn.add(m.floored_strength <= m.s / 5)
     m.eqn.add(m.damage == (5 + player.weapon.stats['damage'] + m.floored_strength) * (1 + m.s / 100) * (1 + m.cd / 100))
     # weapon damage doesn't affect by global multiplier?
 
-    m.objective = Objective(expr=m.damage * m.a / 100 if include_attack_speed else m.damage, sense=maximize)
+    m.objective = Objective(expr=m.damage * ((m.a / 100) / 0.5) if include_attack_speed else m.damage, sense=maximize)
     solve(m)
 
     from pyomo.util.infeasible import log_infeasible_constraints
@@ -584,11 +593,11 @@ def damage_optimizer(player, *, perfect_crit_chance, include_attack_speed, only_
     result = {'strength': m.s(),
               'crit damage': m.cd(),
               'crit chance': get_stat_with_reforges('crit chance', m.reforge_counts, counts, player),
-              'attack speed': get_stat_with_reforges('attack speed', m.reforge_counts, counts, player)}
+              'attack speed': get_stat_with_reforges('attack speed', m.reforge_counts, counts, player) - 100}
     if perfect_crit_chance:
         result['crit chance'] = m.cc()
     if include_attack_speed:
-        result['attack speed'] = m.a()
+        result['attack speed'] = m.a() - 100
     return result, format_counts(m.reforge_counts)
 
 

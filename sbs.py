@@ -765,6 +765,15 @@ class Bot(discord.AutoShardedClient):
             best_stats = best_route[0] or {}
             best_equip = best_route[1] or {}
 
+            if not best_equip:
+                await Embed(
+                    channel,
+                    user=user,
+                    title='Optimization is not possible',
+                    description='Collect more talismans or raise your combat level before trying again'
+                ).send()
+                return
+
             embed = Embed(
                 channel,
                 user=user,
@@ -818,7 +827,7 @@ class Bot(discord.AutoShardedClient):
 
             embed.add_field(
                 name='**Before**',
-                value=f'```{player.stats["strength"]:.0f} strength\n{player.stats["crit damage"]:.0f} crit damage\n{player.stats["crit chance"]:.0f} crit chance\n{player.stats["attack speed"]:.0f} attack speed```'
+                value=f'```{player.stats["strength"]:.0f} strength\n{player.stats["crit damage"]:.0f} crit damage\n{player.stats["crit chance"]:.0f} crit chance\n{player.stats["attack speed"]-100:.0f} attack speed```'
                       f'```{zealot_damage:,.0f} to zealots\n{slayer_damage:,.0f} to slayers```'
             )
             embed.add_field(

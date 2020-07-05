@@ -181,9 +181,9 @@ class Item:
 		elif name == 'PIGMAN_SWORD':
 			self.stats.__iadd__('defense', 50)
 		elif self.player:
-			if name == 'POOCH_SWORD' and self.player.weapon == 'POOCH_SWORD':
-				self.stats.modifiers['damage'].insert(0, lambda stat: stat + player.stats['health'] // 50)
-			elif re.match('MUSHROOM_(HELMET|CHESTPLATE|LEGGINGS|BOOTS)', name) and self.player.armor == {'helmet': 'MUSHROOM_HELMET', 'chestplate': 'MUSHROOM_CHESTPLATE', 'leggings': 'MUSHROOM_LEGGINGS', 'boots': 'MUSHROOM_BOOTS'}:
+			# if name == 'POOCH_SWORD' and self.player.weapon == 'POOCH_SWORD':
+			# 	self.stats.modifiers['damage'].insert(0, lambda stat: stat + player.stats['health'] // 50)
+			if re.match('MUSHROOM_(HELMET|CHESTPLATE|LEGGINGS|BOOTS)', name) and self.player.armor == {'helmet': 'MUSHROOM_HELMET', 'chestplate': 'MUSHROOM_CHESTPLATE', 'leggings': 'MUSHROOM_LEGGINGS', 'boots': 'MUSHROOM_BOOTS'}:
 				self.stats.multiplier *= 3
 			elif re.match('END_(HELMET|CHESTPLATE|LEGGINGS|BOOTS)', name) and self.player.armor == {'helmet': 'END_HELMET', 'chestplate': 'END_CHESTPLATE', 'leggings': 'END_LEGGINGS', 'boots': 'END_BOOTS'}:
 				self.stats.multiplier *= 2
@@ -715,11 +715,11 @@ class Player(ApiInterface):
 			self.stats.multiplier += 0.05
 		elif self.armor == {'helmet': 'YOUNG_HELMET', 'chestplate': 'YOUNG_CHESTPLATE', 'leggings': 'YOUNG_LEGGINGS', 'boots': 'YOUNG_BOOTS'}: #name maybe wrong check later
 			self.stats.__iadd__('speed cap', 100)
-		elif self.armor == {'helmet': 'MASTIFF_HELMET', 'chestplate': 'MASTIFF_CHESTPLATE', 'leggings': 'MASTIFF_LEGGINGS', 'boots': 'MASTIFF_BOOTS'}:
-			self.stats.modifiers['crit damage'].append(lambda stat: stat / 2)
-			self.stats.modifiers['health'].append(lambda stat: stat + self.stats['crit damage'] * 50)
-		elif self.armor['helmet'] == 'TARANTULA_HELMET':
-			self.stats.modifiers['crit damage'].insert(0, lambda stat: stat + self.stats['strength'] / 10)
+		# elif self.armor == {'helmet': 'MASTIFF_HELMET', 'chestplate': 'MASTIFF_CHESTPLATE', 'leggings': 'MASTIFF_LEGGINGS', 'boots': 'MASTIFF_BOOTS'}:
+		# 	self.stats.modifiers['crit damage'].append(lambda stat: stat / 2)
+		# 	self.stats.modifiers['health'].append(lambda stat: stat + self.stats['crit damage'] * 50)
+		# elif self.armor['helmet'] == 'TARANTULA_HELMET':
+		# 	self.stats.modifiers['crit damage'].insert(0, lambda stat: stat + self.stats['strength'] / 10)
 
 		#Loads all of a player's pets
 		self.pets = []

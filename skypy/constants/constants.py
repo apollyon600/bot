@@ -117,7 +117,7 @@ base_player_stats = {
 	'strength': 0,
 	'crit chance': 30,
 	'crit damage': 50,
-	'attack speed': 0,
+	'attack speed': 100,
 	'health': 100,
 	'defense': 0,
 	'speed': 100,
