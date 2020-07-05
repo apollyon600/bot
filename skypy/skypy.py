@@ -164,7 +164,7 @@ class Item:
 			self.stats.__iadd__('strength', 2.5)
 			self.stats.__iadd__('defense', 2.5)
 		elif name == 'NEW_YEAR_CAKE_BAG':
-			self.stats.__iadd__('health', len(self.contents) or 0)
+			self.stats.__iadd__('health', len(self.contents) if self.contents else 0)
 		elif name == 'GRAVITY_TALISMAN':
 			self.stats.__iadd__('strength', 10)
 			self.stats.__iadd__('defense', 10)
@@ -718,8 +718,8 @@ class Player(ApiInterface):
 		# elif self.armor == {'helmet': 'MASTIFF_HELMET', 'chestplate': 'MASTIFF_CHESTPLATE', 'leggings': 'MASTIFF_LEGGINGS', 'boots': 'MASTIFF_BOOTS'}:
 		# 	self.stats.modifiers['crit damage'].append(lambda stat: stat / 2)
 		# 	self.stats.modifiers['health'].append(lambda stat: stat + self.stats['crit damage'] * 50)
-		# elif self.armor['helmet'] == 'TARANTULA_HELMET':
-		# 	self.stats.modifiers['crit damage'].insert(0, lambda stat: stat + self.stats['strength'] / 10)
+		elif self.armor['helmet'] == 'TARANTULA_HELMET':
+			self.stats.modifiers['crit damage'].insert(0, lambda stat: stat + self.stats['strength'] / 10)
 
 		#Loads all of a player's pets
 		self.pets = []

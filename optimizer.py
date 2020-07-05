@@ -525,9 +525,24 @@ def damage_optimizer(player, *, perfect_crit_chance, include_attack_speed, only_
     #                                             damage_reforges[armor_check(i)][k][j].get(stat, 0) * m.reforge_counts[
     #                                                 i, j, k] for i, j, k in m.reforge_set))
 
-    # --- crit chance ---
+    # --- variables ---
     if perfect_crit_chance:
         m.cc = Var(domain=Reals, initialize=100)
+    if include_attack_speed:
+        m.a = Var(domain=Reals, initialize=50)
+    m.s = Var(domain=Reals, initialize=400)
+    m.cd = Var(domain=Reals, initialize=400)
+    m.damage = Var(domain=Reals, initialize=10000)
+    m.floored_strength = Var(domain=Integers, initialize=60)
+    # ---
+
+    # --- modifiers ---
+    # manually add it here now, will find a better way to do it
+    cd_tara_helm = m.s / 10 if player.armor['helmet'] == 'TARANTULA_HELMET' else 0
+    # ---
+
+    # --- crit chance ---
+    if perfect_crit_chance:
         # m.eqn.add(m.cc == player.stats.get_stats_with_base('crit chance'))
         # m.eqn.add(m.cc == quicksum(
         #     damage_reforges[armor_check(i)][k][j].get('crit chance', 0) * m.reforge_counts[
@@ -541,7 +556,6 @@ def damage_optimizer(player, *, perfect_crit_chance, include_attack_speed, only_
 
     # --- attack speed ---
     if include_attack_speed:
-        m.a = Var(domain=Reals, initialize=50)
         # m.eqn.add(m.a == player.stats.get_stats_with_base('attack speed'))
         # m.eqn.add(m.a == quicksum(
         #     damage_reforges[armor_check(i)][k][j].get('attack speed', 0) * m.reforge_counts[
@@ -554,7 +568,6 @@ def damage_optimizer(player, *, perfect_crit_chance, include_attack_speed, only_
     # ---
 
     # --- strength ---
-    m.s = Var(domain=Reals, initialize=400)
     # m.eqn.add(m.s == player.stats['strength'])
     # m.eqn.add(m.s == player.stats.multiplier * quicksum(
     #     damage_reforges[armor_check(i)][k][j].get('strength', 0) * m.reforge_counts[
@@ -566,7 +579,6 @@ def damage_optimizer(player, *, perfect_crit_chance, include_attack_speed, only_
     # ---
 
     # --- crit damage ---
-    m.cd = Var(domain=Reals, initialize=400)
     # m.eqn.add(m.cd == player.stats['crit damage'])
     # m.eqn.add(m.cd == quicksum(
     #     damage_reforges[armor_check(i)][k][j].get('crit damage', 0) * m.reforge_counts[
@@ -574,11 +586,9 @@ def damage_optimizer(player, *, perfect_crit_chance, include_attack_speed, only_
     #           + player.stats.get_stats_with_base('crit damage'))
 
     cd_rule = create_constraint_rule('crit damage', m, counts, player)
-    m.eqn.add(m.cd == player.stats.multiplier * (cd_rule + player.stats.get_raw_base_stats('crit damage')))
+    m.eqn.add(m.cd == player.stats.multiplier * (cd_rule + player.stats.get_raw_base_stats('crit damage') + cd_tara_helm))
     # ---
 
-    m.damage = Var(domain=Reals, initialize=10000)
-    m.floored_strength = Var(domain=Integers, initialize=60)
     m.eqn.add(m.floored_strength >= m.s / 5 - 0.9999)
     m.eqn.add(m.floored_strength <= m.s / 5)
     m.eqn.add(m.damage == (5 + player.weapon.stats['damage'] + m.floored_strength) * (1 + m.s / 100) * (1 + m.cd / 100))
@@ -587,8 +597,8 @@ def damage_optimizer(player, *, perfect_crit_chance, include_attack_speed, only_
     m.objective = Objective(expr=m.damage * ((m.a / 100) / 0.5) if include_attack_speed else m.damage, sense=maximize)
     solve(m)
 
-    from pyomo.util.infeasible import log_infeasible_constraints
-    log_infeasible_constraints(m, log_expression=True, log_variables=True)
+    # from pyomo.util.infeasible import log_infeasible_constraints
+    # log_infeasible_constraints(m, log_expression=True, log_variables=True)
 
     result = {'strength': m.s(),
               'crit damage': m.cd(),
