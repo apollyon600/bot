@@ -194,12 +194,12 @@ tiered_talismans = {
 # reforges = {
 # 	'sword': {
 # 		'legendary': {
-# 			'common': {'strength': 3, 'crit chance': 10, 'crit damage': 5, 'intelligence': 5, 'attack speed': 3},
-# 			'uncommon': {'strength': 7, 'crit chance': 12, 'crit damage': 10, 'intelligence': 8, 'attack speed': 5},
-# 			'rare': {'strength': 14, 'crit chance': 14, 'crit damage': 15, 'intelligence': 12, 'attack speed': 7},
-# 			'epic': {'strength': 18, 'crit chance': 17, 'crit damage': 22, 'intelligence': 18, 'attack speed': 10},
-# 			'legendary': {'strength': 25, 'crit chance': 20, 'crit damage': 30, 'intelligence': 25, 'attack speed': 15},
-# 			'mythic': {'strength': 40, 'crit chance': 25, 'crit damage': 40, 'intelligence': 35, 'attack speed': 20},
+# 			'common': {'strength': 3, 'crit chance': 5, 'crit damage': 5, 'intelligence': 5, 'attack speed': 2},
+# 			'uncommon': {'strength': 7, 'crit chance': 7, 'crit damage': 10, 'intelligence': 8, 'attack speed': 3},
+# 			'rare': {'strength': 12, 'crit chance': 9, 'crit damage': 15, 'intelligence': 12, 'attack speed': 5},
+# 			'epic': {'strength': 18, 'crit chance': 12, 'crit damage': 22, 'intelligence': 18, 'attack speed': 7},
+# 			'legendary': {'strength': 25, 'crit chance': 15, 'crit damage': 28, 'intelligence': 25, 'attack speed': 10},
+# 			'mythic': {'strength': 32, 'crit chance': 18, 'crit damage': 36, 'intelligence': 35, 'attack speed': 15},
 # 			'blacksmith': True
 # 		},
 # 		'spicy': {
@@ -212,39 +212,39 @@ tiered_talismans = {
 # 			'blacksmith': True
 # 		},
 # 		'epic': {
-# 			'common': {'strength': 15, 'crit damage': 5, 'attack speed': 1},
-# 			'uncommon': {'strength': 20, 'crit damage': 10, 'attack speed': 2},
-# 			'rare': {'strength': 25, 'crit damage': 15, 'attack speed': 4},
-# 			'epic': {'strength': 32, 'crit damage': 22, 'attack speed': 7},
-# 			'legendary': {'strength': 40, 'crit damage': 30, 'attack speed': 10},
-# 			'mythic': {'strength': 50, 'crit damage': 40, 'attack speed': 15},
+# 			'common': {'strength': 15, 'crit damage': 10, 'attack speed': 1},
+# 			'uncommon': {'strength': 20, 'crit damage': 15, 'attack speed': 2},
+# 			'rare': {'strength': 25, 'crit damage': 20, 'attack speed': 4},
+# 			'epic': {'strength': 32, 'crit damage': 27, 'attack speed': 7},
+# 			'legendary': {'strength': 40, 'crit damage': 35, 'attack speed': 10},
+# 			'mythic': {'strength': 50, 'crit damage': 45, 'attack speed': 15},
 # 			'blacksmith': True
 # 		},
 # 		'odd': {
-# 			'common': {'crit chance': 10, 'crit damage': 5, 'intelligence': -5},
-# 			'uncommon': {'crit chance': 12, 'crit damage': 10, 'intelligence': -10},
-# 			'rare': {'crit chance': 15, 'crit damage': 15, 'intelligence': -18},
-# 			'epic': {'crit chance': 20, 'crit damage': 22, 'intelligence': -32},
-# 			'legendary': {'crit chance': 25, 'crit damage': 30, 'intelligence': -50},
-# 			'mythic': {'crit chance': 30, 'crit damage': 40, 'intelligence': -75},
+# 			'common': {'crit chance': 12, 'crit damage': 10, 'intelligence': -5},
+# 			'uncommon': {'crit chance': 15, 'crit damage': 15, 'intelligence': -10},
+# 			'rare': {'crit chance': 20, 'crit damage': 22, 'intelligence': -16},
+# 			'epic': {'crit chance': 25, 'crit damage': 30, 'intelligence': -24},
+# 			'legendary': {'crit chance': 30, 'crit damage': 40, 'intelligence': -36},
+# 			'mythic': {'crit chance': 35, 'crit damage': 50, 'intelligence': -50},
 # 			'blacksmith': True
 # 		},
 # 		'gentle': {
-# 			'common': {'strength': -2, 'attack speed': 10},
-# 			'uncommon': {'strength': -4, 'attack speed': 20},
-# 			'rare': {'strength': -6, 'attack speed': 30},
-# 			'epic': {'strength': -8, 'attack speed': 40},
-# 			'legendary': {'strength': -10, 'attack speed': 50},
-# 			'mythic': {'strength': -12, 'attack speed': 60},
-# 			'blacksmith': True
-# 		},
-# 		'fast': {
 # 			'common': {'strength': 3, 'attack speed': 8},
 # 			'uncommon': {'strength': 5, 'attack speed': 10},
 # 			'rare': {'strength': 7, 'attack speed': 15},
 # 			'epic': {'strength': 10, 'attack speed': 20},
 # 			'legendary': {'strength': 15, 'attack speed': 25},
 # 			'mythic': {'strength': 20, 'attack speed': 30},
+# 			'blacksmith': True
+# 		},
+# 		'fast': {
+# 			'common': {'attack speed': 10},
+# 			'uncommon': {'attack speed': 20},
+# 			'rare': {'attack speed': 30},
+# 			'epic': {'attack speed': 40},
+# 			'legendary': {'attack speed': 50},
+# 			'mythic': {'attack speed': 60},
 # 			'blacksmith': True
 # 		},
 # 		'fair': {
@@ -257,21 +257,21 @@ tiered_talismans = {
 # 			'blacksmith': True
 # 		},
 # 		'sharp': {
-# 			'common': {'crit chance': 10, 'crit damage': 2, 'intelligence': 3},
-# 			'uncommon': {'crit chance': 12, 'crit damage': 4, 'intelligence': 6},
-# 			'rare': {'crit chance': 14, 'crit damage': 7, 'intelligence': 10},
-# 			'epic': {'crit chance': 17, 'crit damage': 10, 'intelligence': 15},
-# 			'legendary': {'crit chance': 20, 'crit damage': 15, 'intelligence': 20},
-# 			'mythic': {'crit chance': 25, 'crit damage': 20, 'intelligence': 30},
+# 			'common': {'crit chance': 10, 'crit damage': 20},
+# 			'uncommon': {'crit chance': 12, 'crit damage': 30},
+# 			'rare': {'crit chance': 14, 'crit damage': 40},
+# 			'epic': {'crit chance': 17, 'crit damage': 55},
+# 			'legendary': {'crit chance': 20, 'crit damage': 75},
+# 			'mythic': {'crit chance': 25, 'crit damage': 90},
 # 			'blacksmith': True
 # 		},
 # 		'heroic': {
-# 			'common': {'strength': 15, 'intelligence': 15, 'attack speed': 1},
-# 			'uncommon': {'strength': 20, 'intelligence': 20, 'attack speed': 2},
-# 			'rare': {'strength': 25, 'intelligence': 25, 'attack speed': 2},
-# 			'epic': {'strength': 32, 'intelligence': 32, 'attack speed': 3},
-# 			'legendary': {'strength': 40, 'intelligence': 40, 'attack speed': 5},
-# 			'mythic': {'strength': 50, 'intelligence': 50, 'attack speed': 7},
+# 			'common': {'strength': 15, 'intelligence': 40, 'attack speed': 1},
+# 			'uncommon': {'strength': 20, 'intelligence': 50, 'attack speed': 2},
+# 			'rare': {'strength': 25, 'intelligence': 65, 'attack speed': 2},
+# 			'epic': {'strength': 32, 'intelligence': 80, 'attack speed': 3},
+# 			'legendary': {'strength': 40, 'intelligence': 100, 'attack speed': 5},
+# 			'mythic': {'strength': 50, 'intelligence': 125, 'attack speed': 7},
 # 			'blacksmith': True
 # 		},
 # 		'fabled': {
@@ -296,12 +296,12 @@ tiered_talismans = {
 # 			'blacksmith': True
 # 		},
 # 		'rich': {
-# 			'common': {'crit chance': 10, 'crit damage': 2, 'intelligence': 3},
-# 			'uncommon': {'crit chance': 12, 'crit damage': 4, 'intelligence': 6},
-# 			'rare': {'crit chance': 14, 'crit damage': 7, 'intelligence': 10},
-# 			'epic': {'crit chance': 17, 'crit damage': 10, 'intelligence': 15},
-# 			'legendary': {'crit chance': 20, 'crit damage': 15, 'intelligence': 20},
-# 			'mythic': {'crit chance': 25, 'crit damage': 20, 'intelligence': 30},
+# 			'common': {'strength': 2, 'crit chance': 10, 'crit damage': 1, 'intelligence': 20},
+# 			'uncommon': {'strength': 3, 'crit chance': 12, 'crit damage': 2, 'intelligence': 25},
+# 			'rare': {'strength': 4, 'crit chance': 14, 'crit damage': 4, 'intelligence': 30},
+# 			'epic': {'strength': 7, 'crit chance': 17, 'crit damage': 7, 'intelligence': 40},
+# 			'legendary': {'strength': 10, 'crit chance': 20, 'crit damage': 10, 'intelligence': 50},
+# 			'mythic': {'strength': 12, 'crit chance': 25, 'crit damage': 15, 'intelligence': 75},
 # 			'blacksmith': True
 # 		},
 # 		'fine': {
@@ -314,12 +314,12 @@ tiered_talismans = {
 # 			'blacksmith': True
 # 		},
 # 		'neat': {
-# 			'common': {'crit chance': 10, 'crit damage': 5},
-# 			'uncommon': {'crit chance': 13, 'crit damage': 10},
-# 			'rare': {'crit chance': 16, 'crit damage': 18},
-# 			'epic': {'crit chance': 19, 'crit damage': 32},
-# 			'legendary': {'crit chance': 22, 'crit damage': 50},
-# 			'mythic': {'crit chance': 25, 'crit damage': 75},
+# 			'common': {'crit chance': 10, 'crit damage': 4, 'intelligence': 3},
+# 			'uncommon': {'crit chance': 12, 'crit damage': 8, 'intelligence': 6},
+# 			'rare': {'crit chance': 14, 'crit damage': 14, 'intelligence': 10},
+# 			'epic': {'crit chance': 17, 'crit damage': 20, 'intelligence': 15},
+# 			'legendary': {'crit chance': 20, 'crit damage': 30, 'intelligence': 20},
+# 			'mythic': {'crit chance': 25, 'crit damage': 40, 'intelligence': 30},
 # 			'blacksmith': True
 # 		},
 # 		'hasty': {
@@ -332,12 +332,12 @@ tiered_talismans = {
 # 			'blacksmith': True
 # 		},
 # 		'grand': {
-# 			'common': {'strength': 15},
-# 			'uncommon': {'strength': 20},
-# 			'rare': {'strength': 25},
-# 			'epic': {'strength': 32},
-# 			'legendary': {'strength': 40},
-# 			'mythic': {'strength': 50},
+# 			'common': {'strength': 25},
+# 			'uncommon': {'strength': 32},
+# 			'rare': {'strength': 40},
+# 			'epic': {'strength': 50},
+# 			'legendary': {'strength': 60},
+# 			'mythic': {'strength': 70},
 # 			'blacksmith': True
 # 		},
 # 		'rapid': {
@@ -350,32 +350,32 @@ tiered_talismans = {
 # 			'blacksmith': True
 # 		},
 # 		'deadly': {
-# 			'common': {'strength': 2, 'crit chance': 10, 'crit damage': 1, 'intelligence': 20},
-# 			'uncommon': {'strength': 3, 'crit chance': 12, 'crit damage': 2, 'intelligence': 25},
-# 			'rare': {'strength': 4, 'crit chance': 14, 'crit damage': 4, 'intelligence': 30},
-# 			'epic': {'strength': 7, 'crit chance': 17, 'crit damage': 7, 'intelligence': 40},
-# 			'legendary': {'strength': 10, 'crit chance': 20, 'crit damage': 10, 'intelligence': 50},
-# 			'mythic': {'strength': 12, 'crit chance': 25, 'crit damage': 15, 'intelligence': 75},
+# 			'common': {'crit chance': 10, 'crit damage': 5},
+# 			'uncommon': {'crit chance': 13, 'crit damage': 10},
+# 			'rare': {'crit chance': 16, 'crit damage': 18},
+# 			'epic': {'crit chance': 19, 'crit damage': 32},
+# 			'legendary': {'crit chance': 22, 'crit damage': 50},
+# 			'mythic': {'crit chance': 25, 'crit damage': 70},
 # 			'blacksmith': True
 # 		},
 # 		'unreal': {
-# 			'common': {'strength': 3, 'crit chance': 10, 'crit damage': 5},
-# 			'uncommon': {'strength': 7, 'crit chance': 11, 'crit damage': 10},
-# 			'rare': {'strength': 12, 'crit chance': 12, 'crit damage': 18},
-# 			'epic': {'strength': 18, 'crit chance': 13, 'crit damage': 32},
-# 			'legendary': {'strength': 25, 'crit chance': 15, 'crit damage': 50},
-# 			'mythic': {'strength': 40, 'crit chance': 17, 'crit damage': 75},
+# 			'common': {'strength': 3, 'crit chance': 8, 'crit damage': 5},
+# 			'uncommon': {'strength': 7, 'crit chance': 9, 'crit damage': 10},
+# 			'rare': {'strength': 12, 'crit chance': 10, 'crit damage': 18},
+# 			'epic': {'strength': 18, 'crit chance': 11, 'crit damage': 32},
+# 			'legendary': {'strength': 25, 'crit chance': 13, 'crit damage': 50},
+# 			'mythic': {'strength': 34, 'crit chance': 15, 'crit damage': 75},
 # 			'blacksmith': True
 # 		}
 # 	},
 # 	'armor': {
 # 		'smart': {
 # 			'common': {'defense': 4, 'health': 4, 'intelligence': 20},
-# 			'uncommon': {'defense': 5, 'health': 5, 'intelligence': 40},
-# 			'rare': {'defense': 6, 'health': 6, 'intelligence': 60},
-# 			'epic': {'defense': 8, 'health': 8, 'intelligence': 80},
-# 			'legendary': {'defense': 10, 'health': 10, 'intelligence': 100},
-# 			'mythic': {'defense': 14, 'health': 14, 'intelligence': 120},
+# 			'uncommon': {'defense': 6, 'health': 6, 'intelligence': 40},
+# 			'rare': {'defense': 9, 'health': 9, 'intelligence': 60},
+# 			'epic': {'defense': 12, 'health': 12, 'intelligence': 80},
+# 			'legendary': {'defense': 15, 'health': 15, 'intelligence': 100},
+# 			'mythic': {'defense': 20, 'health': 20, 'intelligence': 120},
 # 			'blacksmith': True
 # 		},
 # 		'clean': {
@@ -388,30 +388,30 @@ tiered_talismans = {
 # 			'blacksmith': True
 # 		},
 # 		'fierce': {
-# 			'common': {'strength': 2, 'crit chance': 1, 'crit damage': 3, 'intelligence': 4},
-# 			'uncommon': {'strength': 4, 'crit chance': 2,'crit damage': 6, 'intelligence': 5},
-# 			'rare': {'strength': 6, 'crit chance': 3, 'crit damage': 9, 'intelligence': 7},
-# 			'epic': {'strength': 8, 'crit chance': 4, 'crit damage': 12, 'intelligence': 10},
-# 			'legendary': {'strength': 10, 'crit chance': 5, 'crit damage': 15, 'intelligence': 15},
-# 			'mythic': {'strength': 12, 'crit chance': 6, 'crit damage': 20, 'intelligence': 20},
+# 			'common': {'strength': 2, 'crit chance': 2, 'crit damage': 4},
+# 			'uncommon': {'strength': 4, 'crit chance': 3, 'crit damage': 7},
+# 			'rare': {'strength': 6, 'crit chance': 4, 'crit damage': 10},
+# 			'epic': {'strength': 8, 'crit chance': 5, 'crit damage': 14},
+# 			'legendary': {'strength': 10, 'crit chance': 6, 'crit damage': 18},
+# 			'mythic': {'strength': 12, 'crit chance': 8, 'crit damage': 24},
 # 			'blacksmith': True
 # 		},
 # 		'heavy': {
 # 			'common': {'defense': 25, 'speed': -1, 'crit damage': -1},
 # 			'uncommon': {'defense': 35, 'speed': -1, 'crit damage': -2},
-# 			'rare': {'defense': 50, 'speed': -1, 'crit damage': -3},
+# 			'rare': {'defense': 50, 'speed': -1, 'crit damage': -2},
 # 			'epic': {'defense': 65, 'speed': -1, 'crit damage': -3},
 # 			'legendary': {'defense': 80, 'speed': -1, 'crit damage': -5},
 # 			'mythic': {'defense': 110, 'speed': -1, 'crit damage': -7},
 # 			'blacksmith': True
 # 		},
 # 		'light': {
-# 			'common': {'defense': 1, 'speed': 1, 'health': 5, 'attack speed': 1, 'crit damage': 1},
-# 			'uncommon': {'defense': 2, 'speed': 2, 'health': 7, 'attack speed': 2, 'crit damage': 2},
-# 			'rare': {'defense': 3, 'speed': 3, 'health': 10, 'attack speed': 3, 'crit damage': 3},
-# 			'epic': {'defense': 4, 'speed': 4, 'health': 15, 'attack speed': 4, 'crit damage': 4},
-# 			'legendary': {'defense': 5, 'speed': 5, 'health': 20, 'attack speed': 5, 'crit damage': 5},
-# 			'mythic': {'defense': 6, 'speed': 6, 'health': 25, 'attack speed': 6, 'crit damage': 6},
+# 			'common': {'defense': 1, 'speed': 1, 'health': 5, 'crit chance': 1, 'attack speed': 1, 'crit damage': 1},
+# 			'uncommon': {'defense': 2, 'speed': 2, 'health': 7, 'crit chance': 1,  'attack speed': 2, 'crit damage': 2},
+# 			'rare': {'defense': 3, 'speed': 3, 'health': 10, 'crit chance': 2,  'attack speed': 3, 'crit damage': 3},
+# 			'epic': {'defense': 4, 'speed': 4, 'health': 15, 'crit chance': 2,  'attack speed': 4, 'crit damage': 4},
+# 			'legendary': {'defense': 5, 'speed': 5, 'health': 20, 'crit chance': 2,  'attack speed': 5, 'crit damage': 5},
+# 			'mythic': {'defense': 6, 'speed': 6, 'health': 25, 'crit chance': 3,  'attack speed': 6, 'crit damage': 6},
 # 			'blacksmith': True
 # 		},
 # 		'mythic': {
@@ -428,7 +428,7 @@ tiered_talismans = {
 # 			'uncommon': {'defense': 15, 'health': 15},
 # 			'rare': {'defense': 20, 'health': 20},
 # 			'epic': {'defense': 25, 'health': 25},
-# 			'legendary': {'defense': 25, 'health': 35},
+# 			'legendary': {'defense': 35, 'health': 35},
 # 			'mythic': {'defense': 50, 'health': 50},
 # 			'blacksmith': True
 # 		},
@@ -443,11 +443,11 @@ tiered_talismans = {
 # 		},
 # 		'pure': {
 # 			'common': {'strength': 2, 'defense': 2, 'speed': 1, 'health': 2, 'crit chance': 2, 'crit damage': 2, 'intelligence': 2, 'attack speed': 1},
-# 			'uncommon': {'strength': 4, 'defense': 4, 'speed': 1, 'health': 4, 'crit chance': 4, 'crit damage': 4, 'intelligence': 4, 'attack speed': 2},
-# 			'rare': {'strength': 6, 'defense': 6, 'speed': 1, 'health': 6, 'crit chance': 6, 'crit damage': 6, 'intelligence': 6, 'attack speed': 3},
-# 			'epic': {'strength': 8, 'defense': 8, 'speed': 1, 'health': 8, 'crit chance': 9,'crit damage': 8, 'intelligence': 8, 'attack speed': 4},
-# 			'legendary': {'strength': 10, 'defense': 10, 'speed': 1, 'health': 10, 'crit chance': 10, 'crit damage': 10, 'intelligence': 10, 'attack speed': 5},
-# 			'mythic': {'strength': 12, 'defense': 12, 'speed': 1, 'health': 12, 'crit chance': 12, 'crit damage': 12, 'intelligence': 12, 'attack speed': 6},
+# 			'uncommon': {'strength': 3, 'defense': 3, 'speed': 1, 'health': 3, 'crit chance': 4, 'crit damage': 3, 'intelligence': 3, 'attack speed': 1},
+# 			'rare': {'strength': 4, 'defense': 4, 'speed': 1, 'health': 4, 'crit chance': 6, 'crit damage': 4, 'intelligence': 4, 'attack speed': 2},
+# 			'epic': {'strength': 6, 'defense': 6, 'speed': 1, 'health': 6, 'crit chance': 8, 'crit damage': 6, 'intelligence': 6, 'attack speed': 3},
+# 			'legendary': {'strength': 8, 'defense': 8, 'speed': 1, 'health': 8, 'crit chance': 10, 'crit damage': 8, 'intelligence': 8, 'attack speed': 4},
+# 			'mythic': {'strength': 10, 'defense': 10, 'speed': 1, 'health': 10, 'crit chance': 12, 'crit damage': 10, 'intelligence': 10, 'attack speed': 5},
 # 			'blacksmith': True
 # 		},
 # 		'necrotic': {
@@ -499,12 +499,12 @@ tiered_talismans = {
 # 	},
 # 	'talisman': {
 # 		'bizzare': {
-# 			'common': {'strength': 1, 'crit damage': -1, 'health': 1, 'intelligence': 3},
-# 			'uncommon': {'strength': 2, 'crit damage': -2, 'health': 1, 'intelligence': 5},
-# 			'rare': {'strength': 2, 'crit damage': -2, 'health': 1, 'intelligence': 8},
-# 			'epic': {'strength': 3, 'crit damage': -3, 'health': 1, 'intelligence': 12},
-# 			'legendary': {'strength': 5, 'crit damage': -5, 'health': 1, 'intelligence': 16},
-# 			'mythic': {'strength': 7, 'crit damage': -7, 'health': 2, 'intelligence': 20},
+# 			'common': {'strength': 1, 'crit damage': -1, 'health': 1, 'intelligence': 6},
+# 			'uncommon': {'strength': 2, 'crit damage': -2, 'health': 1, 'intelligence': 8},
+# 			'rare': {'strength': 2, 'crit damage': -2, 'health': 1, 'intelligence': 10},
+# 			'epic': {'strength': 3, 'crit damage': -3, 'health': 1, 'intelligence': 14},
+# 			'legendary': {'strength': 5, 'crit damage': -5, 'health': 1, 'intelligence': 20},
+# 			'mythic': {'strength': 7, 'crit damage': -7, 'health': 2, 'intelligence': 30},
 # 			'blacksmith': True
 # 		},
 # 		'ominous': {
@@ -515,7 +515,7 @@ tiered_talismans = {
 # 			'legendary': {'strength': 3, 'defense': 3, 'health': 4, 'crit damage': 1, 'intelligence': 4},
 # 			'mythic': {'strength': 4, 'defense': 4, 'health': 5, 'crit damage': 1, 'intelligence': 5},
 # 			'blacksmith': True
-# 		},
+# 		},  # (tbd)
 # 		'simple': {
 # 			'common': {'strength': 1, 'defense': 1, 'health': 1, 'crit damage': 1, 'intelligence': 1, 'speed': 1},
 # 			'uncommon': {'strength': 1, 'defense': 1, 'health': 1, 'crit damage': 1, 'intelligence': 1, 'speed': 1},
@@ -524,7 +524,7 @@ tiered_talismans = {
 # 			'legendary': {'strength': 1, 'defense': 1, 'health': 1, 'crit damage': 1, 'intelligence': 1, 'speed': 1},
 # 			'mythic': {'strength': 1, 'defense': 1, 'health': 1, 'crit damage': 1, 'intelligence': 1, 'speed': 1},
 # 			'blacksmith': True
-# 		},
+# 		},  # (tbd)
 # 		'pleasant': {
 # 			'common': {'defense': 4},
 # 			'uncommon': {'defense': 5},
@@ -533,7 +533,7 @@ tiered_talismans = {
 # 			'legendary': {'defense': 15},
 # 			'mythic': {'defense': 20},
 # 			'blacksmith': True
-# 		},
+# 		},  # (tbd)
 # 		'shiny': {
 # 			'common': {'health': 4, 'intelligence': 1},
 # 			'uncommon': {'health': 5, 'intelligence': 2},
@@ -542,7 +542,7 @@ tiered_talismans = {
 # 			'legendary': {'health': 15, 'intelligence': 5},
 # 			'mythic': {'health': 20, 'intelligence': 7},
 # 			'blacksmith': True
-# 		},
+# 		},  # (tbd)
 # 		'vivid': {
 # 			'common': {'speed': 1, 'health': 1},
 # 			'uncommon': {'speed': 2, 'health': 2},
@@ -551,7 +551,7 @@ tiered_talismans = {
 # 			'legendary': {'speed': 5, 'health': 5},
 # 			'mythic': {'speed': 6, 'health': 6},
 # 			'blacksmith': True
-# 		},
+# 		},  # (tbd)
 # 		'pretty': {
 # 			'common': {'speed': 0, 'health': 1, 'intelligence': 3, 'attack speed': 0},
 # 			'uncommon': {'speed': 0, 'health': 1, 'intelligence': 4, 'attack speed': 0},
@@ -560,7 +560,7 @@ tiered_talismans = {
 # 			'legendary': {'speed': 1, 'health': 3, 'intelligence': 13, 'attack speed': 1},
 # 			'mythic': {'speed': 2, 'health': 4, 'intelligence': 18, 'attack speed': 1},
 # 			'blacksmith': True
-# 		},
+# 		},  # (tbd)
 # 		'itchy': {
 # 			'common': {'strength': 1, 'crit damage': 3, 'attack speed': 0},
 # 			'uncommon': {'strength': 1, 'crit damage': 4, 'attack speed': 0},
@@ -578,7 +578,7 @@ tiered_talismans = {
 # 			'legendary': {'defense': 5, 'health': 5, 'intelligence': 4},
 # 			'mythic': {'defense': 7, 'health': 7, 'intelligence': 5},
 # 			'blacksmith': True
-# 		},
+# 		},  # (tbd)
 # 		'unpleasant': {
 # 			'common': {'crit chance': 1},
 # 			'uncommon': {'crit chance': 1},
@@ -587,12 +587,12 @@ tiered_talismans = {
 # 			'legendary': {'crit chance': 2},
 # 			'mythic': {'crit chance': 3},
 # 			'blacksmith': True
-# 		},
+# 		},  # (tbd)
 # 		'superior': {
 # 			'common': {'strength': 2, 'crit damage': 2},
 # 			'uncommon': {'strength': 3, 'crit damage': 2},
 # 			'rare': {'strength': 4, 'crit damage': 2},
-# 			'epic': {'strength': 5, 'crit damage': 2},
+# 			'epic': {'strength': 5, 'crit damage': 3},
 # 			'legendary': {'strength': 7, 'crit damage': 3},
 # 			'mythic': {'strength': 10, 'crit damage': 5},
 # 			'blacksmith': True
@@ -624,24 +624,6 @@ tiered_talismans = {
 # 			'mythic': {'strength': 12, 'crit damage': 12, 'defense': 4},
 # 			'blacksmith': True
 # 		},
-# 		'demonic': {
-# 			'common': {'strength': 1, 'intelligence': 3},
-# 			'uncommon': {'strength': 2, 'intelligence': 4},
-# 			'rare': {'strength': 2, 'intelligence': 6},
-# 			'epic': {'strength': 3, 'intelligence': 9},
-# 			'legendary': {'strength': 5, 'intelligence': 13},
-# 			'mythic': {'strength': 7, 'intelligence': 18},
-# 			'blacksmith': True
-# 		},
-# 		'zealous': {
-# 			'common': {'strength': 1, 'speed': 0, 'crit damage': 1, 'intelligence': 1},
-# 			'uncommon': {'strength': 2, 'speed': 0, 'crit damage': 2, 'intelligence': 2},
-# 			'rare': {'strength': 2, 'speed': 1, 'crit damage': 2, 'intelligence': 2},
-# 			'epic': {'strength': 3, 'speed': 1, 'crit damage': 3, 'intelligence': 3},
-# 			'legendary': {'strength': 5, 'speed': 1, 'crit damage': 5, 'intelligence': 5},
-# 			'mythic': {'strength': 7, 'speed': 2, 'crit damage': 7, 'intelligence': 7},
-# 			'blacksmith': True
-# 		},
 # 		'godly': {
 # 			'common': {'strength': 1, 'crit damage': 2, 'intelligence': 1},
 # 			'uncommon': {'strength': 2, 'crit damage': 2, 'intelligence': 1},
@@ -650,90 +632,42 @@ tiered_talismans = {
 # 			'legendary': {'strength': 7, 'crit damage': 6, 'intelligence': 4},
 # 			'mythic': {'strength': 10, 'crit damage': 8, 'intelligence': 6},
 # 			'blacksmith': True
-# 		}
+# 		},
+# 		'demonic': {
+# 			'common': {'strength': 1, 'intelligence': 5},
+# 			'uncommon': {'strength': 2, 'intelligence': 7},
+# 			'rare': {'strength': 2, 'intelligence': 9},
+# 			'epic': {'strength': 3, 'intelligence': 12},
+# 			'legendary': {'strength': 5, 'intelligence': 17},
+# 			'mythic': {'strength': 7, 'intelligence': 24},
+# 			'blacksmith': True
+# 		},
+# 		'zealous': {
+# 			'common': {'strength': 1, 'speed': 0, 'crit damage': 1, 'intelligence': 1},
+# 			'uncommon': {'strength': 2, 'speed': 0, 'crit damage': 2, 'intelligence': 2},
+# 			'rare': {'strength': 2, 'speed': 1, 'crit damage': 2, 'intelligence': 3},
+# 			'epic': {'strength': 3, 'speed': 1, 'crit damage': 3, 'intelligence': 5},
+# 			'legendary': {'strength': 5, 'speed': 1, 'crit damage': 5, 'intelligence': 7},
+# 			'mythic': {'strength': 7, 'speed': 2, 'crit damage': 7, 'intelligence': 10},
+# 			'blacksmith': True
+# 		},
+# 		'strange': {
+# 			'common': {'crit damage': 1, 'strength': 2, 'defense': 0, 'speed': 1, 'health': 0, 'intelligence': 1,
+# 					   'attack speed': -1},
+# 			'uncommon': {'crit damage': 2, 'strength': 1, 'defense': 3, 'speed': 0, 'health': 2, 'intelligence': -1,
+# 						 'attack speed': 2},
+# 			'rare': {'crit damage': 0, 'strength': -1, 'defense': 2, 'speed': 1, 'health': 1, 'intelligence': 2,
+# 					 'attack speed': 0},
+# 			'epic': {'crit damage': 1, 'strength': 3, 'defense': -1, 'speed': 0, 'health': 7, 'intelligence': 0,
+# 					 'attack speed': 4},
+# 			'legendary': {'crit damage': 7, 'strength': 0, 'defense': 1, 'speed': 3, 'health': -1, 'intelligence': 8,
+# 						  'attack speed': 0},
+# 			'mythic': {'crit damage': 9, 'strength': 4, 'defense': 1, 'speed': 3, 'health': 0, 'intelligence': 11,
+# 					   'attack speed': 5},
+# 			'blacksmith': True
+# 		},
 # 	},
 # 	'fishing rod': {
-# 		'legendary': {
-# 			'common': {'strength': 3, 'crit chance': 10, 'crit damage': 5, 'intelligence': 5, 'attack speed': 3},
-# 			'uncommon': {'strength': 7, 'crit chance': 12, 'crit damage': 10, 'intelligence': 8, 'attack speed': 5},
-# 			'rare': {'strength': 14, 'crit chance': 14, 'crit damage': 15, 'intelligence': 12, 'attack speed': 7},
-# 			'epic': {'strength': 18, 'crit chance': 17, 'crit damage': 22, 'intelligence': 18, 'attack speed': 10},
-# 			'legendary': {'strength': 25, 'crit chance': 20, 'crit damage': 30, 'intelligence': 25, 'attack speed': 15},
-# 			'mythic': {'strength': 40, 'crit chance': 25, 'crit damage': 40, 'intelligence': 35, 'attack speed': 20},
-# 			'blacksmith': True
-# 		},
-# 		'spicy': {
-# 			'common': {'strength': 2, 'crit chance': 1, 'crit damage': 25, 'attack speed': 1},
-# 			'uncommon': {'strength': 3, 'crit chance': 1, 'crit damage': 35, 'attack speed': 2},
-# 			'rare': {'strength': 4, 'crit chance': 1, 'crit damage': 45, 'attack speed': 4},
-# 			'epic': {'strength': 7, 'crit chance': 1, 'crit damage': 60, 'attack speed': 7},
-# 			'legendary': {'strength': 10, 'crit chance': 1, 'crit damage': 80, 'attack speed': 10},
-# 			'mythic': {'strength': 12, 'crit chance': 1, 'crit damage': 100, 'attack speed': 15},
-# 			'blacksmith': True
-# 		},
-# 		'epic': {
-# 			'common': {'strength': 15, 'crit damage': 5, 'attack speed': 1},
-# 			'uncommon': {'strength': 20, 'crit damage': 10, 'attack speed': 2},
-# 			'rare': {'strength': 25, 'crit damage': 15, 'attack speed': 4},
-# 			'epic': {'strength': 32, 'crit damage': 22, 'attack speed': 7},
-# 			'legendary': {'strength': 40, 'crit damage': 30, 'attack speed': 10},
-# 			'mythic': {'strength': 50, 'crit damage': 40, 'attack speed': 15},
-# 			'blacksmith': True
-# 		},
-# 		'odd': {
-# 			'common': {'crit chance': 10, 'crit damage': 5, 'intelligence': -5},
-# 			'uncommon': {'crit chance': 12, 'crit damage': 10, 'intelligence': -10},
-# 			'rare': {'crit chance': 15, 'crit damage': 15, 'intelligence': -18},
-# 			'epic': {'crit chance': 20, 'crit damage': 22, 'intelligence': -32},
-# 			'legendary': {'crit chance': 25, 'crit damage': 30, 'intelligence': -50},
-# 			'mythic': {'crit chance': 30, 'crit damage': 40, 'intelligence': -75},
-# 			'blacksmith': True
-# 		},
-# 		'gentle': {
-# 			'common': {'strength': -2, 'attack speed': 10},
-# 			'uncommon': {'strength': -4, 'attack speed': 20},
-# 			'rare': {'strength': -6, 'attack speed': 30},
-# 			'epic': {'strength': -8, 'attack speed': 40},
-# 			'legendary': {'strength': -10, 'attack speed': 50},
-# 			'mythic': {'strength': -12, 'attack speed': 60},
-# 			'blacksmith': True
-# 		},
-# 		'fast': {
-# 			'common': {'strength': 3, 'attack speed': 8},
-# 			'uncommon': {'strength': 5, 'attack speed': 10},
-# 			'rare': {'strength': 7, 'attack speed': 15},
-# 			'epic': {'strength': 10, 'attack speed': 20},
-# 			'legendary': {'strength': 15, 'attack speed': 25},
-# 			'mythic': {'strength': 20, 'attack speed': 30},
-# 			'blacksmith': True
-# 		},
-# 		'fair': {
-# 			'common': {'strength': 2, 'crit chance': 2, 'crit damage': 2, 'intelligence': 2, 'attack speed': 2},
-# 			'uncommon': {'strength': 3, 'crit chance': 3, 'crit damage': 3, 'intelligence': 3, 'attack speed': 3},
-# 			'rare': {'strength': 4, 'crit chance': 4, 'crit damage': 4, 'intelligence': 4, 'attack speed': 4},
-# 			'epic': {'strength': 7, 'crit chance': 7, 'crit damage': 7, 'intelligence': 7, 'attack speed': 7},
-# 			'legendary': {'strength': 10, 'crit chance': 10, 'crit damage': 10, 'intelligence': 10, 'attack speed': 10},
-# 			'mythic': {'strength': 12, 'crit chance': 12, 'crit damage': 12, 'intelligence': 12, 'attack speed': 12},
-# 			'blacksmith': True
-# 		},
-# 		'sharp': {
-# 			'common': {'crit chance': 10, 'crit damage': 2, 'intelligence': 3},
-# 			'uncommon': {'crit chance': 12, 'crit damage': 4, 'intelligence': 6},
-# 			'rare': {'crit chance': 14, 'crit damage': 7, 'intelligence': 10},
-# 			'epic': {'crit chance': 17, 'crit damage': 10, 'intelligence': 15},
-# 			'legendary': {'crit chance': 20, 'crit damage': 15, 'intelligence': 20},
-# 			'mythic': {'crit chance': 25, 'crit damage': 20, 'intelligence': 30},
-# 			'blacksmith': True
-# 		},
-# 		'heroic': {
-# 			'common': {'strength': 15, 'intelligence': 15, 'attack speed': 1},
-# 			'uncommon': {'strength': 20, 'intelligence': 20, 'attack speed': 2},
-# 			'rare': {'strength': 25, 'intelligence': 25, 'attack speed': 2},
-# 			'epic': {'strength': 32, 'intelligence': 32, 'attack speed': 3},
-# 			'legendary': {'strength': 40, 'intelligence': 40, 'attack speed': 5},
-# 			'mythic': {'strength': 50, 'intelligence': 50, 'attack speed': 7},
-# 			'blacksmith': True
-# 		},
 # 		'salty': {
 # 			'common': {'sea creature chance': 1},
 # 			'uncommon': {'sea creature chance': 2},

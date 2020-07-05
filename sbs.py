@@ -9,7 +9,7 @@ import asyncio
 import discord
 import os
 import skypy.skypy as skypy
-from optimizer import damage_optimizer, ehp_optimizer, mastiff_ehp_optimizer, intelligence_optimizer, speed_optimizer
+from optimizer import damage_optimizer, ehp_optimizer, intelligence_optimizer, speed_optimizer
 
 if os.environ.get('API_KEY') is None:
     import dotenv
@@ -74,7 +74,7 @@ orbs = {
 profile_emojis = {
     'Apple': '🍎',
     'Banana': '🍌',
-    'blueberry': '🔵',
+    'Blueberry': '🔵',
     'Coconut': '🥥',
     'Cucumber': '🥒',
     'Grapes': '🍇',
@@ -82,7 +82,7 @@ profile_emojis = {
     'Lemon': '🍋',
     'Lime': '🍏',
     'Mango': '🥭',
-    'orange': '🍊',
+    'Orange': '🍊',
     'Papaya': '🍈',
     'Peach': '🍑',
     'Pear': '🍐',
@@ -954,7 +954,7 @@ class Bot(discord.AutoShardedClient):
             title=f'{user.name}, you should be doing {damage} damage with those stats'
         ).add_field(
             name=f'**{no_crit}** without a crit',
-            value='```lua\n(5 + damage + floor(str ÷ 5)) ⋅\n(1 + str ÷ 100) ⋅\n(1 + cd ÷ 100) ⋅\n(1 + enchants ÷ combat bonus str)```'
+            value='```lua\n(5 + damage + floor(str ÷ 5)) ⋅\n(1 + str ÷ 100) ⋅\n(1 + cd ÷ 100) ⋅\n(1 + enchants ÷ combat bonus)```'
         ).send()
 
     async def help(self, message, *args):

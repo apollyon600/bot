@@ -132,7 +132,7 @@ class Item:
 			if self != 'ENCHANTED_BOOK':
 				for type, list in {'sword': sword_enchants, 'bow': bow_enchants, 'fishing rod': rod_enchants}.items():
 					for e in list:
-						if e != 'looting' and e in self.enchantments:
+						if e != 'looting' and e != 'dragon_hunter' and e in self.enchantments:
 							self.type = type
 							break
 		else:
@@ -298,7 +298,7 @@ class Stats:
 
 	def __getitem__(self, key):
 		if isinstance(key, str):
-			base = self._dict.get(key, 0) + sum(c[key] for c in self.children)
+			base = self._dict.get(key, 0) + sum(c[key] for t, c in self.children)
 			for f in self.modifiers[key]:
 				base = f(base)
 			return base if key in Stats.statics else base * self.multiplier
@@ -335,10 +335,16 @@ class Stats:
 
 	def get_stats_with_base(self, key):
 		if isinstance(key, str):
-			base = self._dict.get(key, 0) + sum(c[key] for c in self.base_children)
+			base = self._dict.get(key, 0) + sum(self.children[i][1].multiplier*c[key] for i, (t, c) in enumerate(self.base_children))
 			for f in self.modifiers[key]:
 				base = f(base)
 			return base if key in Stats.statics else base * self.multiplier
+		else:
+			raise TypeError
+
+	def get_raw_base_stats(self, key):
+		if isinstance(key, str):
+			return self._dict.get(key, 0) + sum(self.children[i][1].multiplier*c[key] for i, (t, c) in enumerate(self.base_children))
 		else:
 			raise TypeError
 
@@ -700,17 +706,18 @@ class Player(ApiInterface):
 		self.stats.__iadd__('strength', self.fairy_souls // 5 + self.fairy_souls // 25)
 		self.stats.__iadd__('speed', self.fairy_souls // 50)
 
-		self.stats.children = [p.stats for p in self.armor.values() if p] + [t.stats for t in self.talismans if t.active]
-		self.stats.base_children = [p.base_stats for p in self.armor.values() if p and len(p.base_stats) != 0]\
-								   + [t.base_stats for t in self.talismans if t.active and t.base_stats and len(t.base_stats) != 0]
+		self.stats.children = [(p.type, p.stats) for p in self.armor.values()] + [(t.type, t.stats) for t in self.talismans if t.active]
+		self.stats.base_children = [(p.type, p.base_stats) for p in self.armor.values()]\
+								   + [(t.type, t.base_stats) for t in self.talismans if t.active]
 
 		#Set Bonuses
-		if self.armor == {'boots': 'SUPERIOR_BOOTS', 'chestplate': 'SUPERIOR_CHESTPLATE', 'helmet': 'SUPERIOR_HELMET', 'leggings': 'SUPERIOR_LEGGINGS'}:
+		if self.armor == {'helmet': 'SUPERIOR_DRAGON_HELMET', 'chestplate': 'SUPERIOR_DRAGON_CHESTPLATE', 'leggings': 'SUPERIOR_DRAGON_LEGGINGS', 'boots': 'SUPERIOR_DRAGON_BOOTS'}:
 			self.stats.multiplier += 0.05
-		elif self.armor == {'boots': 'YOUNG_BOOTS', 'chestplate': 'YOUNG_CHESTPLATE', 'helmet': 'YOUNG_HELMET', 'leggings': 'YOUNG_LEGGINGS'}:
+		elif self.armor == {'helmet': 'YOUNG_HELMET', 'chestplate': 'YOUNG_CHESTPLATE', 'leggings': 'YOUNG_LEGGINGS', 'boots': 'YOUNG_BOOTS'}: #name maybe wrong check later
 			self.stats.__iadd__('speed cap', 100)
-		elif self.armor == {'boots': 'MASTIFF_BOOTS', 'chestplate': 'MASTIFF_CHESTPLATE', 'helmet': 'MASTIFF_HELMET', 'leggings': 'MASTIFF_LEGGINGS'}:
+		elif self.armor == {'helmet': 'MASTIFF_HELMET', 'chestplate': 'MASTIFF_CHESTPLATE', 'leggings': 'MASTIFF_LEGGINGS', 'boots': 'MASTIFF_BOOTS'}:
 			self.stats.modifiers['crit damage'].append(lambda stat: stat / 2)
+			self.stats.modifiers['health'].append(lambda stat: stat + self.stats['crit damage'] * 50)
 		elif self.armor['helmet'] == 'TARANTULA_HELMET':
 			self.stats.modifiers['crit damage'].insert(0, lambda stat: stat + self.stats['strength'] / 10)
 
@@ -725,14 +732,13 @@ class Player(ApiInterface):
 					self.pet = pet
 
 		if self.pet:
-			self.stats.children.append(self.pet.stats)
-			self.stats.base_children.append(self.pet.stats)
+			self.stats.children.append((self.pet.internal_name, self.pet.stats))
+			self.stats.base_children.append((self.pet.internal_name, self.pet.stats))
 
 	def set_weapon(self, weapon):
 		self.weapon = weapon
-		self.stats.children.append(weapon.stats)
-		if len(weapon.base_stats) != 0:
-			self.stats.base_children.append(weapon.base_stats)
+		self.stats.children.append((weapon.type, weapon.stats))
+		self.stats.base_children.append((weapon.type, weapon.base_stats))
 
 		pet_ability = pets[self.pet.internal_name]['ability']
 		if callable(pet_ability):

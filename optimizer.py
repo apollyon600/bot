@@ -3,12 +3,12 @@ from pyomo.environ import *
 damage_reforges = {
     'sword': {
         'legendary': {
-            'common': {'strength': 3, 'crit chance': 10, 'crit damage': 5, 'intelligence': 5, 'attack speed': 3},
-            'uncommon': {'strength': 7, 'crit chance': 12, 'crit damage': 10, 'intelligence': 8, 'attack speed': 5},
-            'rare': {'strength': 14, 'crit chance': 14, 'crit damage': 15, 'intelligence': 12, 'attack speed': 7},
-            'epic': {'strength': 18, 'crit chance': 17, 'crit damage': 22, 'intelligence': 18, 'attack speed': 10},
-            'legendary': {'strength': 25, 'crit chance': 20, 'crit damage': 30, 'intelligence': 25, 'attack speed': 15},
-            'mythic': {'strength': 40, 'crit chance': 25, 'crit damage': 40, 'intelligence': 35, 'attack speed': 20},
+            'common': {'strength': 3, 'crit chance': 5, 'crit damage': 5, 'intelligence': 5, 'attack speed': 2},
+            'uncommon': {'strength': 7, 'crit chance': 7, 'crit damage': 10, 'intelligence': 8, 'attack speed': 3},
+            'rare': {'strength': 12, 'crit chance': 9, 'crit damage': 15, 'intelligence': 12, 'attack speed': 5},
+            'epic': {'strength': 18, 'crit chance': 12, 'crit damage': 22, 'intelligence': 18, 'attack speed': 7},
+            'legendary': {'strength': 25, 'crit chance': 15, 'crit damage': 28, 'intelligence': 25, 'attack speed': 10},
+            'mythic': {'strength': 32, 'crit chance': 18, 'crit damage': 36, 'intelligence': 35, 'attack speed': 15},
             'blacksmith': True
         },
         'spicy': {
@@ -21,31 +21,24 @@ damage_reforges = {
             'blacksmith': True
         },
         'epic': {
-            'common': {'strength': 15, 'crit damage': 5, 'attack speed': 1},
-            'uncommon': {'strength': 20, 'crit damage': 10, 'attack speed': 2},
-            'rare': {'strength': 25, 'crit damage': 15, 'attack speed': 4},
-            'epic': {'strength': 32, 'crit damage': 22, 'attack speed': 7},
-            'legendary': {'strength': 40, 'crit damage': 30, 'attack speed': 10},
-            'mythic': {'strength': 50, 'crit damage': 40, 'attack speed': 15},
+            'common': {'strength': 15, 'crit damage': 10, 'attack speed': 1},
+            'uncommon': {'strength': 20, 'crit damage': 15, 'attack speed': 2},
+            'rare': {'strength': 25, 'crit damage': 20, 'attack speed': 4},
+            'epic': {'strength': 32, 'crit damage': 27, 'attack speed': 7},
+            'legendary': {'strength': 40, 'crit damage': 35, 'attack speed': 10},
+            'mythic': {'strength': 50, 'crit damage': 45, 'attack speed': 15},
             'blacksmith': True
         },
         'odd': {
-            'rare': {'crit chance': 15, 'crit damage': 15, 'intelligence': -18},
-            'epic': {'crit chance': 20, 'crit damage': 22, 'intelligence': -32},
-            'legendary': {'crit chance': 25, 'crit damage': 30, 'intelligence': -50},
-            'mythic': {'crit chance': 30, 'crit damage': 40, 'intelligence': -75},
+            'common': {'crit chance': 12, 'crit damage': 10, 'intelligence': -5},
+            'uncommon': {'crit chance': 15, 'crit damage': 15, 'intelligence': -10},
+            'rare': {'crit chance': 20, 'crit damage': 22, 'intelligence': -16},
+            'epic': {'crit chance': 25, 'crit damage': 30, 'intelligence': -24},
+            'legendary': {'crit chance': 30, 'crit damage': 40, 'intelligence': -36},
+            'mythic': {'crit chance': 35, 'crit damage': 50, 'intelligence': -50},
             'blacksmith': True
         },
         'gentle': {
-            'common': {'strength': -2, 'attack speed': 10},
-            'uncommon': {'strength': -4, 'attack speed': 20},
-            'rare': {'strength': -6, 'attack speed': 30},
-            'epic': {'strength': -8, 'attack speed': 40},
-            'legendary': {'strength': -10, 'attack speed': 50},
-            'mythic': {'strength': -12, 'attack speed': 60},
-            'blacksmith': True
-        },
-        'fast': {
             'common': {'strength': 3, 'attack speed': 8},
             'uncommon': {'strength': 5, 'attack speed': 10},
             'rare': {'strength': 7, 'attack speed': 15},
@@ -54,34 +47,88 @@ damage_reforges = {
             'mythic': {'strength': 20, 'attack speed': 30},
             'blacksmith': True
         },
-        'fabled': {
-            'common': {'strength': 30, 'crit damage': 35},
-            'uncommon': {'strength': 35, 'crit damage': 40},
-            'rare': {'strength': 40, 'crit damage': 50},
-            'epic': {'strength': 50, 'crit damage': 60},
-            'legendary': {'strength': 60, 'crit damage': 80},
-            'mythic': {'strength': 75, 'crit damage': 100},
-            'blacksmith': False
-        }
+        'fast': {
+            'common': {'attack speed': 10},
+            'uncommon': {'attack speed': 20},
+            'rare': {'attack speed': 30},
+            'epic': {'attack speed': 40},
+            'legendary': {'attack speed': 50},
+            'mythic': {'attack speed': 60},
+            'blacksmith': True
+        },
+		'fair': {
+			'common': {'strength': 2, 'crit chance': 2, 'crit damage': 2, 'intelligence': 2, 'attack speed': 2},
+			'uncommon': {'strength': 3, 'crit chance': 3, 'crit damage': 3, 'intelligence': 3, 'attack speed': 3},
+			'rare': {'strength': 4, 'crit chance': 4, 'crit damage': 4, 'intelligence': 4, 'attack speed': 4},
+			'epic': {'strength': 7, 'crit chance': 7, 'crit damage': 7, 'intelligence': 7, 'attack speed': 7},
+			'legendary': {'strength': 10, 'crit chance': 10, 'crit damage': 10, 'intelligence': 10, 'attack speed': 10},
+			'mythic': {'strength': 12, 'crit chance': 12, 'crit damage': 12, 'intelligence': 12, 'attack speed': 12},
+			'blacksmith': True
+		},
+		'sharp': {
+			'common': {'crit chance': 10, 'crit damage': 20},
+			'uncommon': {'crit chance': 12, 'crit damage': 30},
+			'rare': {'crit chance': 14, 'crit damage': 40},
+			'epic': {'crit chance': 17, 'crit damage': 55},
+			'legendary': {'crit chance': 20, 'crit damage': 75},
+			'mythic': {'crit chance': 25, 'crit damage': 90},
+			'blacksmith': True
+		},
+		'heroic': {
+			'common': {'strength': 15, 'intelligence': 40, 'attack speed': 1},
+			'uncommon': {'strength': 20, 'intelligence': 50, 'attack speed': 2},
+			'rare': {'strength': 25, 'intelligence': 65, 'attack speed': 2},
+			'epic': {'strength': 32, 'intelligence': 80, 'attack speed': 3},
+			'legendary': {'strength': 40, 'intelligence': 100, 'attack speed': 5},
+			'mythic': {'strength': 50, 'intelligence': 125, 'attack speed': 7},
+			'blacksmith': True
+		},
+        # 'fabled': {
+        #     # Your Critical hits have a chance to deal up to 20% extra damage (from 100% to 120%, randomly)
+        #     'common': {'strength': 30, 'crit damage': 35},
+        #     'uncommon': {'strength': 35, 'crit damage': 40},
+        #     'rare': {'strength': 40, 'crit damage': 50},
+        #     'epic': {'strength': 50, 'crit damage': 60},
+        #     'legendary': {'strength': 60, 'crit damage': 80},
+        #     'mythic': {'strength': 75, 'crit damage': 100},
+        #     'blacksmith': False
+        # }
     },
     'bow': {
         'awkward': {
-            'epic': {'crit chance': 20, 'crit damage': 22, 'intelligence': -32},
-            'legendary': {'crit chance': 25, 'crit damage': 30, 'intelligence': -50},
-            'mythic': {'crit chance': 30, 'crit damage': 40, 'intelligence': -60},
-            'blacksmith': True
+            'common': {'crit chance': 10, 'crit damage': 5, 'intelligence': -5},
+     		'uncommon': {'crit chance': 12, 'crit damage': 10, 'intelligence': -10},
+    		'rare': {'crit chance': 15, 'crit damage': 15, 'intelligence': -18},
+    		'epic': {'crit chance': 20, 'crit damage': 22, 'intelligence': -32},
+        	'legendary': {'crit chance': 25, 'crit damage': 30, 'intelligence': -50},
+        	'mythic': {'crit chance': 30, 'crit damage': 40, 'intelligence': -60},
+        	'blacksmith': True
         },
+		'rich': {
+			'common': {'strength': 2, 'crit chance': 10, 'crit damage': 1, 'intelligence': 20},
+			'uncommon': {'strength': 3, 'crit chance': 12, 'crit damage': 2, 'intelligence': 25},
+			'rare': {'strength': 4, 'crit chance': 14, 'crit damage': 4, 'intelligence': 30},
+			'epic': {'strength': 7, 'crit chance': 17, 'crit damage': 7, 'intelligence': 40},
+			'legendary': {'strength': 10, 'crit chance': 20, 'crit damage': 10, 'intelligence': 50},
+			'mythic': {'strength': 12, 'crit chance': 25, 'crit damage': 15, 'intelligence': 75},
+			'blacksmith': True
+		},
         'fine': {
+            'common': {'strength': 3, 'crit chance': 5, 'crit damage': 2},
+            'uncommon': {'strength': 7, 'crit chance': 7, 'crit damage': 4},
+            'rare': {'strength': 12, 'crit chance': 9, 'crit damage': 7},
+            'epic': {'strength': 18, 'crit chance': 12, 'crit damage': 10},
+            'legendary': {'strength': 25, 'crit chance': 15, 'crit damage': 15},
             'mythic': {'strength': 40, 'crit chance': 20, 'crit damage': 20},
             'blacksmith': True
         },
         'neat': {
-            'common': {'crit chance': 10, 'crit damage': 5},
-            'uncommon': {'crit chance': 13, 'crit damage': 10},
-            'rare': {'crit chance': 16, 'crit damage': 18},
-            'epic': {'crit chance': 19, 'crit damage': 32},
-            'legendary': {'crit chance': 22, 'crit damage': 50},
-            'mythic': {'crit chance': 25, 'crit damage': 75},
+            'common': {'crit chance': 10, 'crit damage': 4, 'intelligence': 3},
+            'uncommon': {'crit chance': 12, 'crit damage': 8, 'intelligence': 6},
+            'rare': {'crit chance': 14, 'crit damage': 14, 'intelligence': 10},
+            'epic': {'crit chance': 17, 'crit damage': 20, 'intelligence': 15},
+            'legendary': {'crit chance': 20, 'crit damage': 30, 'intelligence': 20},
+            'mythic': {'crit chance': 25, 'crit damage': 40, 'intelligence': 30},
             'blacksmith': True
         },
         'hasty': {
@@ -94,12 +141,12 @@ damage_reforges = {
             'blacksmith': True
         },
         'grand': {
-            'common': {'strength': 15},
-            'uncommon': {'strength': 20},
-            'rare': {'strength': 25},
-            'epic': {'strength': 32},
-            'legendary': {'strength': 40},
-            'mythic': {'strength': 50},
+            'common': {'strength': 25},
+            'uncommon': {'strength': 32},
+            'rare': {'strength': 40},
+            'epic': {'strength': 50},
+            'legendary': {'strength': 60},
+            'mythic': {'strength': 70},
             'blacksmith': True
         },
         'rapid': {
@@ -112,65 +159,175 @@ damage_reforges = {
             'blacksmith': True
         },
         'deadly': {
-            'uncommon': {'strength': 3, 'crit chance': 12, 'crit damage': 2, 'intelligence': 25},
-            'rare': {'strength': 4, 'crit chance': 14, 'crit damage': 4, 'intelligence': 30},
-            'epic': {'strength': 7, 'crit chance': 17, 'crit damage': 7, 'intelligence': 40},
-            'legendary': {'strength': 10, 'crit chance': 20, 'crit damage': 10, 'intelligence': 50},
-            'mythic': {'strength': 12, 'crit chance': 25, 'crit damage': 15, 'intelligence': 75},
+            'common': {'crit chance': 10, 'crit damage': 5},
+            'uncommon': {'crit chance': 13, 'crit damage': 10},
+            'rare': {'crit chance': 16, 'crit damage': 18},
+            'epic': {'crit chance': 19, 'crit damage': 32},
+            'legendary': {'crit chance': 22, 'crit damage': 50},
+            'mythic': {'crit chance': 25, 'crit damage': 70},
             'blacksmith': True
         },
         'unreal': {
-            'common': {'strength': 3, 'crit chance': 10, 'crit damage': 5},
-            'uncommon': {'strength': 7, 'crit chance': 11, 'crit damage': 10},
-            'rare': {'strength': 12, 'crit chance': 12, 'crit damage': 18},
-            'epic': {'strength': 18, 'crit chance': 13, 'crit damage': 32},
-            'legendary': {'strength': 25, 'crit chance': 15, 'crit damage': 50},
-            'mythic': {'strength': 40, 'crit chance': 17, 'crit damage': 75},
+            'common': {'strength': 3, 'crit chance': 8, 'crit damage': 5},
+            'uncommon': {'strength': 7, 'crit chance': 9, 'crit damage': 10},
+            'rare': {'strength': 12, 'crit chance': 10, 'crit damage': 18},
+            'epic': {'strength': 18, 'crit chance': 11, 'crit damage': 32},
+            'legendary': {'strength': 25, 'crit chance': 13, 'crit damage': 50},
+            'mythic': {'strength': 34, 'crit chance': 15, 'crit damage': 75},
             'blacksmith': True
         }
     },
     'armor': {
-        'fierce': {
-            'common': {'strength': 2, 'crit chance': 1, 'crit damage': 3, 'intelligence': 4},
-            'uncommon': {'strength': 4, 'crit chance': 2, 'crit damage': 6, 'intelligence': 5},
-            'rare': {'strength': 6, 'crit chance': 3, 'crit damage': 9, 'intelligence': 7},
-            'epic': {'strength': 8, 'crit chance': 4, 'crit damage': 12, 'intelligence': 10},
-            'legendary': {'strength': 10, 'crit chance': 5, 'crit damage': 15, 'intelligence': 15},
-            'mythic': {'strength': 12, 'crit chance': 6, 'crit damage': 20, 'intelligence': 20},
-            'blacksmith': True
-        },
-        'pure': {
-            'common': {'strength': 2, 'defense': 2, 'speed': 1, 'health': 2, 'crit chance': 2, 'crit damage': 2,
-                       'intelligence': 2, 'attack speed': 1},
-            'uncommon': {'strength': 4, 'defense': 4, 'speed': 1, 'health': 4, 'crit chance': 4, 'crit damage': 4,
-                         'intelligence': 4, 'attack speed': 2},
-            'rare': {'strength': 6, 'defense': 6, 'speed': 1, 'health': 6, 'crit chance': 6, 'crit damage': 6,
-                     'intelligence': 6, 'attack speed': 3},
-            'epic': {'strength': 8, 'defense': 8, 'speed': 1, 'health': 8, 'crit chance': 9, 'crit damage': 8,
-                     'intelligence': 8, 'attack speed': 4},
-            'legendary': {'strength': 10, 'defense': 10, 'speed': 1, 'health': 10, 'crit chance': 10, 'crit damage': 10,
-                          'intelligence': 10, 'attack speed': 5},
-            'mythic': {'strength': 12, 'defense': 12, 'speed': 1, 'health': 12, 'crit chance': 12, 'crit damage': 12,
-                       'intelligence': 12, 'attack speed': 6},
-            'blacksmith': True
-        },
-        'renowned': {
-            'common': {'strength': 3, 'defense': 3, 'speed': 2, 'health': 3, 'crit chance': 3, 'crit damage': 3,
-                       'intelligence': 3, 'attack speed': 1},
-            'uncommon': {'strength': 5, 'defense': 5, 'speed': 2, 'health': 5, 'crit chance': 5, 'crit damage': 5,
-                         'intelligence': 5, 'attack speed': 2},
-            'rare': {'strength': 7, 'defense': 7, 'speed': 2, 'health': 7, 'crit chance': 7, 'crit damage': 7,
-                     'intelligence': 7, 'attack speed': 3},
-            'epic': {'strength': 9, 'defense': 9, 'speed': 2, 'health': 9, 'crit chance': 9, 'crit damage': 9,
-                     'intelligence': 9, 'attack speed': 4},
-            'legendary': {'strength': 12, 'defense': 12, 'speed': 2, 'health': 12, 'crit chance': 12, 'crit damage': 12,
-                          'intelligence': 12, 'attack speed': 5},
-            'mythic': {'strength': 15, 'defense': 15, 'speed': 2, 'health': 15, 'crit chance': 15, 'crit damage': 15,
-                       'intelligence': 15, 'attack speed': 6},
-            'blacksmith': False
-        }
+		'smart': {
+			'common': {'defense': 4, 'health': 4, 'intelligence': 20},
+			'uncommon': {'defense': 6, 'health': 6, 'intelligence': 40},
+			'rare': {'defense': 9, 'health': 9, 'intelligence': 60},
+			'epic': {'defense': 12, 'health': 12, 'intelligence': 80},
+			'legendary': {'defense': 15, 'health': 15, 'intelligence': 100},
+			'mythic': {'defense': 20, 'health': 20, 'intelligence': 120},
+			'blacksmith': True
+		},
+		'clean': {
+			'common': {'defense': 5, 'health': 5, 'crit chance': 2},
+			'uncommon': {'defense': 7, 'health': 7, 'crit chance': 4},
+			'rare': {'defense': 10, 'health': 10, 'crit chance': 6},
+			'epic': {'defense': 15, 'health': 15, 'crit chance': 8},
+			'legendary': {'defense': 20, 'health': 20, 'crit chance': 10},
+			'mythic': {'defense': 25, 'health': 25, 'crit chance': 12},
+			'blacksmith': True
+		},
+		'fierce': {
+			'common': {'strength': 2, 'crit chance': 2, 'crit damage': 4},
+			'uncommon': {'strength': 4, 'crit chance': 3, 'crit damage': 7},
+			'rare': {'strength': 6, 'crit chance': 4, 'crit damage': 10},
+			'epic': {'strength': 8, 'crit chance': 5, 'crit damage': 14},
+			'legendary': {'strength': 10, 'crit chance': 6, 'crit damage': 18},
+			'mythic': {'strength': 12, 'crit chance': 8, 'crit damage': 24},
+			'blacksmith': True
+		},
+		'heavy': {
+			'common': {'defense': 25, 'speed': -1, 'crit damage': -1},
+			'uncommon': {'defense': 35, 'speed': -1, 'crit damage': -2},
+			'rare': {'defense': 50, 'speed': -1, 'crit damage': -2},
+			'epic': {'defense': 65, 'speed': -1, 'crit damage': -3},
+			'legendary': {'defense': 80, 'speed': -1, 'crit damage': -5},
+			'mythic': {'defense': 110, 'speed': -1, 'crit damage': -7},
+			'blacksmith': True
+		},
+		'light': {
+			'common': {'defense': 1, 'speed': 1, 'health': 5, 'crit chance': 1, 'attack speed': 1, 'crit damage': 1},
+			'uncommon': {'defense': 2, 'speed': 2, 'health': 7, 'crit chance': 1,  'attack speed': 2, 'crit damage': 2},
+			'rare': {'defense': 3, 'speed': 3, 'health': 10, 'crit chance': 2,  'attack speed': 3, 'crit damage': 3},
+			'epic': {'defense': 4, 'speed': 4, 'health': 15, 'crit chance': 2,  'attack speed': 4, 'crit damage': 4},
+			'legendary': {'defense': 5, 'speed': 5, 'health': 20, 'crit chance': 2,  'attack speed': 5, 'crit damage': 5},
+			'mythic': {'defense': 6, 'speed': 6, 'health': 25, 'crit chance': 3,  'attack speed': 6, 'crit damage': 6},
+			'blacksmith': True
+		},
+		'mythic': {
+			'common': {'strength': 2, 'defense': 2, 'speed': 2, 'health': 2, 'crit chance': 1, 'intelligence': 20},
+			'uncommon': {'strength': 4, 'defense': 4, 'speed': 2, 'health': 4, 'crit chance': 2, 'intelligence': 25},
+			'rare': {'strength': 6, 'defense': 6, 'speed': 2, 'health': 6, 'crit chance': 3, 'intelligence': 30},
+			'epic': {'strength': 8, 'defense': 8, 'speed': 2, 'health': 8, 'crit chance': 4, 'intelligence': 40},
+			'legendary': {'strength': 10, 'defense': 10, 'speed': 2, 'health': 10, 'crit chance': 5, 'intelligence': 50},
+			'mythic': {'strength': 12, 'defense': 12, 'speed': 2, 'health': 12, 'crit chance': 6, 'intelligence': 60},
+			'blacksmith': True
+		},
+		'titanic': {
+			'common': {'defense': 10, 'health': 10},
+			'uncommon': {'defense': 15, 'health': 15},
+			'rare': {'defense': 20, 'health': 20},
+			'epic': {'defense': 25, 'health': 25},
+			'legendary': {'defense': 35, 'health': 35},
+			'mythic': {'defense': 50, 'health': 50},
+			'blacksmith': True
+		},
+		'wise': {
+			'common': {'speed': 1, 'health': 6, 'intelligence': 25},
+			'uncommon': {'speed': 1, 'health': 8, 'intelligence': 50},
+			'rare': {'speed': 1, 'health': 10, 'intelligence': 75},
+			'epic': {'speed': 2, 'health': 12, 'intelligence': 100},
+			'legendary': {'speed': 2, 'health': 15, 'intelligence': 125},
+			'mythic': {'speed': 3, 'health': 20, 'intelligence': 150},
+			'blacksmith': True
+		},
+		'pure': {
+			'common': {'strength': 2, 'defense': 2, 'speed': 1, 'health': 2, 'crit chance': 2, 'crit damage': 2, 'intelligence': 2, 'attack speed': 1},
+			'uncommon': {'strength': 3, 'defense': 3, 'speed': 1, 'health': 3, 'crit chance': 4, 'crit damage': 3, 'intelligence': 3, 'attack speed': 1},
+			'rare': {'strength': 4, 'defense': 4, 'speed': 1, 'health': 4, 'crit chance': 6, 'crit damage': 4, 'intelligence': 4, 'attack speed': 2},
+			'epic': {'strength': 6, 'defense': 6, 'speed': 1, 'health': 6, 'crit chance': 8, 'crit damage': 6, 'intelligence': 6, 'attack speed': 3},
+			'legendary': {'strength': 8, 'defense': 8, 'speed': 1, 'health': 8, 'crit chance': 10, 'crit damage': 8, 'intelligence': 8, 'attack speed': 4},
+			'mythic': {'strength': 10, 'defense': 10, 'speed': 1, 'health': 10, 'crit chance': 12, 'crit damage': 10, 'intelligence': 10, 'attack speed': 5},
+			'blacksmith': True
+		},
+        # 'necrotic': {
+        #     'common': {'intelligence': 50},
+        #     'uncommon': {'intelligence': 75},
+        #     'rare': {'intelligence': 100},
+        #     'epic': {'intelligence': 120},
+        #     'legendary': {'intelligence': 150},
+        #     'mythic': {'intelligence': 175},
+        #     'blacksmith': False
+        # },
+        # 'perfect': {
+        #     'common': {'defense': 10},
+        #     'uncommon': {'defense': 15},
+        #     'rare': {'defense': 25},
+        #     'epic': {'defense': 50},
+        #     'legendary': {'defense': 75},
+        #     'mythic': {'defense': 100},
+        #     'blacksmith': False
+        # },
+        # 'undead': {
+        #     'common': {'strength': 1, 'defense': 9, 'health': 9, 'attack speed': 1},
+        #     'uncommon': {'strength': 2, 'defense': 12, 'health': 12, 'attack speed': 2},
+        #     'rare': {'strength': 2, 'defense': 15, 'health': 15, 'attack speed': 3},
+        #     'epic': {'strength': 3, 'defense': 18, 'health': 18, 'attack speed': 4},
+        #     'legendary': {'strength': 5, 'defense': 23, 'health': 23, 'attack speed': 5},
+        #     'mythic': {'strength': 7, 'defense': 25, 'health': 25, 'attack speed': 6},
+        #     'blacksmith': False
+        # },
+        # 'spiked': {
+        #     'common': {'strength': 3, 'defense': 3, 'speed': 2, 'health': 3, 'crit chance': 3, 'crit damage': 3,
+        #                'intelligence': 3, 'attack speed': 1},
+        #     'uncommon': {'strength': 5, 'defense': 5, 'speed': 2, 'health': 5, 'crit chance': 5, 'crit damage': 5,
+        #                  'intelligence': 5, 'attack speed': 2},
+        #     'rare': {'strength': 7, 'defense': 7, 'speed': 2, 'health': 7, 'crit chance': 7, 'crit damage': 7,
+        #              'intelligence': 7, 'attack speed': 3},
+        #     'epic': {'strength': 9, 'defense': 9, 'speed': 2, 'health': 9, 'crit chance': 9, 'crit damage': 9,
+        #              'intelligence': 9, 'attack speed': 4},
+        #     'legendary': {'strength': 12, 'defense': 12, 'speed': 2, 'health': 12, 'crit chance': 12, 'crit damage': 12,
+        #                   'intelligence': 12, 'attack speed': 5},
+        #     'mythic': {'strength': 15, 'defense': 15, 'speed': 2, 'health': 15, 'crit chance': 15, 'crit damage': 15,
+        #                'intelligence': 15, 'attack speed': 6},
+        #     'blacksmith': False
+        # },
+        # 'renowned': {
+        #     # Increases all your stats by 1% (similar to Superior passive)
+        #     'common': {'strength': 3, 'defense': 3, 'speed': 2, 'health': 3, 'crit chance': 3, 'crit damage': 3,
+        #                'intelligence': 3, 'attack speed': 1},
+        #     'uncommon': {'strength': 5, 'defense': 5, 'speed': 2, 'health': 5, 'crit chance': 5, 'crit damage': 5,
+        #                  'intelligence': 5, 'attack speed': 2},
+        #     'rare': {'strength': 7, 'defense': 7, 'speed': 2, 'health': 7, 'crit chance': 7, 'crit damage': 7,
+        #              'intelligence': 7, 'attack speed': 3},
+        #     'epic': {'strength': 9, 'defense': 9, 'speed': 2, 'health': 9, 'crit chance': 9, 'crit damage': 9,
+        #              'intelligence': 9, 'attack speed': 4},
+        #     'legendary': {'strength': 12, 'defense': 12, 'speed': 2, 'health': 12, 'crit chance': 12, 'crit damage': 12,
+        #                   'intelligence': 12, 'attack speed': 5},
+        #     'mythic': {'strength': 15, 'defense': 15, 'speed': 2, 'health': 15, 'crit chance': 15, 'crit damage': 15,
+        #                'intelligence': 15, 'attack speed': 6},
+        #     'blacksmith': False
+        # }
     },
     'talisman': {
+		'bizzare': {
+			'common': {'strength': 1, 'crit damage': -1, 'health': 1, 'intelligence': 6},
+			'uncommon': {'strength': 2, 'crit damage': -2, 'health': 1, 'intelligence': 8},
+			'rare': {'strength': 2, 'crit damage': -2, 'health': 1, 'intelligence': 10},
+			'epic': {'strength': 3, 'crit damage': -3, 'health': 1, 'intelligence': 14},
+			'legendary': {'strength': 5, 'crit damage': -5, 'health': 1, 'intelligence': 20},
+			'mythic': {'strength': 7, 'crit damage': -7, 'health': 2, 'intelligence': 30},
+			'blacksmith': True
+		},
         'itchy': {
             'common': {'strength': 1, 'crit damage': 3, 'attack speed': 0},
             'uncommon': {'strength': 1, 'crit damage': 4, 'attack speed': 0},
@@ -178,15 +335,6 @@ damage_reforges = {
             'epic': {'strength': 2, 'crit damage': 7, 'attack speed': 1},
             'legendary': {'strength': 3, 'crit damage': 10, 'attack speed': 1},
             'mythic': {'strength': 4, 'crit damage': 15, 'attack speed': 1},
-            'blacksmith': True
-        },
-        'unpleasant': {
-            'common': {'crit chance': 1},
-            'uncommon': {'crit chance': 1},
-            'rare': {'crit chance': 1},
-            'epic': {'crit chance': 2},
-            'legendary': {'crit chance': 2},
-            'mythic': {'crit chance': 3},
             'blacksmith': True
         },
         'superior': {
@@ -234,6 +382,24 @@ damage_reforges = {
             'mythic': {'strength': 10, 'crit damage': 8, 'intelligence': 6},
             'blacksmith': True
         },
+		'demonic': {
+			'common': {'strength': 1, 'intelligence': 5},
+			'uncommon': {'strength': 2, 'intelligence': 7},
+			'rare': {'strength': 2, 'intelligence': 9},
+			'epic': {'strength': 3, 'intelligence': 12},
+			'legendary': {'strength': 5, 'intelligence': 17},
+			'mythic': {'strength': 7, 'intelligence': 24},
+			'blacksmith': True
+		},
+		'zealous': {
+			'common': {'strength': 1, 'speed': 0, 'crit damage': 1, 'intelligence': 1},
+			'uncommon': {'strength': 2, 'speed': 0, 'crit damage': 2, 'intelligence': 2},
+			'rare': {'strength': 2, 'speed': 1, 'crit damage': 2, 'intelligence': 3},
+			'epic': {'strength': 3, 'speed': 1, 'crit damage': 3, 'intelligence': 5},
+			'legendary': {'strength': 5, 'speed': 1, 'crit damage': 5, 'intelligence': 7},
+			'mythic': {'strength': 7, 'speed': 2, 'crit damage': 7, 'intelligence': 10},
+			'blacksmith': True
+		},
         'strange': {
             'common': {'crit damage': 1, 'strength': 2, 'defense': 0, 'speed': 1, 'health': 0, 'intelligence': 1, 'attack speed': -1},
             'uncommon': {'crit damage': 2, 'strength': 1, 'defense': 3, 'speed': 0, 'health': 2, 'intelligence': -1, 'attack speed': 2},
@@ -243,117 +409,10 @@ damage_reforges = {
             'mythic': {'crit damage': 9, 'strength': 4, 'defense': 1, 'speed': 3, 'health': 0, 'intelligence': 11, 'attack speed': 5},
             'blacksmith': True
         },
-    },
-    'fishing rod': {
-        'legendary': {
-            'common': {'strength': 3, 'crit chance': 10, 'crit damage': 5, 'intelligence': 5, 'attack speed': 3},
-            'uncommon': {'strength': 7, 'crit chance': 12, 'crit damage': 10, 'intelligence': 8, 'attack speed': 5},
-            'rare': {'strength': 14, 'crit chance': 14, 'crit damage': 15, 'intelligence': 12, 'attack speed': 7},
-            'epic': {'strength': 18, 'crit chance': 17, 'crit damage': 22, 'intelligence': 18, 'attack speed': 10},
-            'legendary': {'strength': 25, 'crit chance': 20, 'crit damage': 30, 'intelligence': 25, 'attack speed': 15},
-            'mythic': {'strength': 40, 'crit chance': 25, 'crit damage': 40, 'intelligence': 35, 'attack speed': 20},
-            'blacksmith': True
-        },
-        'spicy': {
-            'common': {'strength': 2, 'crit chance': 1, 'crit damage': 25, 'attack speed': 1},
-            'uncommon': {'strength': 3, 'crit chance': 1, 'crit damage': 35, 'attack speed': 2},
-            'rare': {'strength': 4, 'crit chance': 1, 'crit damage': 45, 'attack speed': 4},
-            'epic': {'strength': 7, 'crit chance': 1, 'crit damage': 60, 'attack speed': 7},
-            'legendary': {'strength': 10, 'crit chance': 1, 'crit damage': 80, 'attack speed': 10},
-            'mythic': {'strength': 12, 'crit chance': 1, 'crit damage': 100, 'attack speed': 15},
-            'blacksmith': True
-        },
-        'epic': {
-            'common': {'strength': 15, 'crit damage': 5, 'attack speed': 1},
-            'uncommon': {'strength': 20, 'crit damage': 10, 'attack speed': 2},
-            'rare': {'strength': 25, 'crit damage': 15, 'attack speed': 4},
-            'epic': {'strength': 32, 'crit damage': 22, 'attack speed': 7},
-            'legendary': {'strength': 40, 'crit damage': 30, 'attack speed': 10},
-            'mythic': {'strength': 50, 'crit damage': 40, 'attack speed': 15},
-            'blacksmith': True
-        },
-        'odd': {
-            'rare': {'crit chance': 15, 'crit damage': 15, 'intelligence': -18},
-            'epic': {'crit chance': 20, 'crit damage': 22, 'intelligence': -32},
-            'legendary': {'crit chance': 25, 'crit damage': 30, 'intelligence': -50},
-            'mythic': {'crit chance': 30, 'crit damage': 40, 'intelligence': -75},
-            'blacksmith': True
-        },
-        'gentle': {
-            'common': {'strength': -2, 'attack speed': 10},
-            'uncommon': {'strength': -4, 'attack speed': 20},
-            'rare': {'strength': -6, 'attack speed': 30},
-            'epic': {'strength': -8, 'attack speed': 40},
-            'legendary': {'strength': -10, 'attack speed': 50},
-            'mythic': {'strength': -12, 'attack speed': 60},
-            'blacksmith': True
-        },
-        'fast': {
-            'common': {'strength': 3, 'attack speed': 8},
-            'uncommon': {'strength': 5, 'attack speed': 10},
-            'rare': {'strength': 7, 'attack speed': 15},
-            'epic': {'strength': 10, 'attack speed': 20},
-            'legendary': {'strength': 15, 'attack speed': 25},
-            'mythic': {'strength': 20, 'attack speed': 30},
-            'blacksmith': True
-        }
     }
 }
 
-ehp_reforges = {
-    'armor': {
-        'heavy': {
-            'common': {'defense': 25, 'speed': -1, 'crit damage': -1},
-            'uncommon': {'defense': 35, 'speed': -1, 'crit damage': -2},
-            'rare': {'defense': 50, 'speed': -1, 'crit damage': -3},
-            'epic': {'defense': 65, 'speed': -1, 'crit damage': -3},
-            'legendary': {'defense': 80, 'speed': -1, 'crit damage': -5},
-            'mythic': {'defense': 110, 'speed': -1, 'crit damage': -7},
-            'blacksmith': True
-        },
-        'titanic': {
-            'common': {'defense': 10, 'health': 10},
-            'uncommon': {'defense': 15, 'health': 15},
-            'rare': {'defense': 20, 'health': 20},
-            'epic': {'defense': 25, 'health': 25},
-            'legendary': {'defense': 25, 'health': 35},
-            'mythic': {'defense': 50, 'health': 50},
-            'blacksmith': True
-        }
-    },
-    'talisman': {
-        'simple': {
-            'common': {'strength': 1, 'defense': 1, 'health': 1, 'crit damage': 1, 'intelligence': 1, 'speed': 1},
-            'blacksmith': True
-        },
-        'pleasant': {
-            'common': {'defense': 4},
-            'uncommon': {'defense': 5},
-            'rare': {'defense': 7},
-            'epic': {'defense': 10},
-            'legendary': {'defense': 15},
-            'mythic': {'defense': 20},
-            'blacksmith': True
-        },
-        'shiny': {
-            'common': {'health': 4, 'intelligence': 1},
-            'uncommon': {'health': 5, 'intelligence': 2},
-            'rare': {'health': 7, 'intelligence': 2},
-            'epic': {'health': 10, 'intelligence': 3},
-            'legendary': {'health': 15, 'intelligence': 5},
-            'mythic': {'health': 20, 'intelligence': 7},
-            'blacksmith': True
-        },
-        'keen': {
-            'uncommon': {'defense': 2, 'health': 2, 'intelligence': 2},
-            'rare': {'defense': 3, 'health': 3, 'intelligence': 2},
-            'epic': {'defense': 4, 'health': 4, 'intelligence': 3},
-            'legendary': {'defense': 5, 'health': 5, 'intelligence': 4},
-            'mythic': {'defense': 7, 'health': 7, 'intelligence': 5},
-            'blacksmith': True
-        }
-    }
-}
+rarities = ['common', 'uncommon', 'rare', 'epic', 'legendary', 'mythic']
 
 
 def format_counts(counts):
@@ -375,7 +434,15 @@ def solve(m):
     SolverFactory('scip', executable='scip').solve(m)
     # m.pprint()
 
-rarities = ['common', 'uncommon', 'rare', 'epic', 'legendary', 'mythic']
+
+def get_stat_with_reforges(stat, reforges, counts, player):
+    value = sum(damage_reforges['talisman'][k][j].get(stat, 0) * count for (i, j, k), count in reforges.get_values().items() if i == 'talisman')
+    for equip in counts:
+        if equip != 'talisman':
+            for k in player.stats.children:
+                if k[0] == equip:
+                    value += k[1].multiplier * sum(damage_reforges[armor_check(equip)][k][j].get(stat, 0) * count for (i, j, k), count in reforges.get_values().items() if i == equip)
+    return player.stats.multiplier * (value + player.stats.get_raw_base_stats(stat))
 
 
 def create_model(counts, reforge_set, only_blacksmith_reforges):
@@ -390,6 +457,16 @@ def create_model(counts, reforge_set, only_blacksmith_reforges):
     m.reforge_counts = Var(m.reforge_set, domain=NonNegativeIntegers, initialize=0)
     m.eqn = ConstraintList()
     return m
+
+
+def create_constraint_rule(stat, m, counts, player):
+    rule = quicksum(damage_reforges['talisman'][k][j].get(stat, 0) * m.reforge_counts['talisman', j, k] for i, j, k in m.reforge_set if i == 'talisman')
+    for equip in counts:
+        if equip != 'talisman':
+            for k in player.stats.children:
+                if k[0] == equip:
+                    rule += k[1].multiplier * quicksum(damage_reforges[armor_check(equip)][k][j].get(stat, 0) * m.reforge_counts[equip, j, k] for i, j, k in m.reforge_set if i == equip)
+    return rule
 
 
 def armor_check(armor):
@@ -435,48 +512,68 @@ def damage_optimizer(player, *, perfect_crit_chance, include_attack_speed, only_
 
     # for stat in ['strength', 'crit damage'] + ['crit chance'] * perfect_crit_chance + ['attack speed'] * include_attack_speed:
     #     player.stats.modifiers[stat].insert(0,
-    #                                         lambda stat: stat + sum(
+    #                                         lambda stat: stat + quicksum(
     #                                             damage_reforges[armor_check(i)][k][j].get(stat, 0) * m.reforge_counts[
     #                                                 i, j, k] for i, j, k in m.reforge_set))
 
-    # print(player.stats.get_stats_with_base('strength'))
-    # print(player.stats['crit chance'])
-
+    # --- crit chance ---
     if perfect_crit_chance:
         m.cc = Var(domain=Reals, initialize=100)
         # m.eqn.add(m.cc == player.stats.get_stats_with_base('crit chance'))
-        m.eqn.add(m.cc == quicksum(
-            damage_reforges[armor_check(i)][k][j].get('crit chance', 0) * m.reforge_counts[
-                i, j, k] for i, j, k in m.reforge_set)
-                  + player.stats.get_stats_with_base('crit chance'))
+        # m.eqn.add(m.cc == quicksum(
+        #     damage_reforges[armor_check(i)][k][j].get('crit chance', 0) * m.reforge_counts[
+        #         i, j, k] for i, j, k in m.reforge_set)
+        #           + player.stats.get_stats_with_base('crit chance'))
+
+        cc_rule = create_constraint_rule('crit chance', m, counts, player)
+        m.eqn.add(m.cc == player.stats.multiplier * (cc_rule + player.stats.get_raw_base_stats('crit chance')))
         m.eqn.add(100 <= m.cc)
+    # ---
+
+    # --- attack speed ---
     if include_attack_speed:
         m.a = Var(domain=Reals, initialize=50)
         # m.eqn.add(m.a == player.stats.get_stats_with_base('attack speed'))
-        m.eqn.add(m.a == quicksum(
-            damage_reforges[armor_check(i)][k][j].get('attack speed', 0) * m.reforge_counts[
-                i, j, k] for i, j, k in m.reforge_set)
-                  + player.stats.get_stats_with_base('attack speed'))
-        m.eqn.add(100 >= m.a)
+        # m.eqn.add(m.a == quicksum(
+        #     damage_reforges[armor_check(i)][k][j].get('attack speed', 0) * m.reforge_counts[
+        #         i, j, k] for i, j, k in m.reforge_set)
+        #           + player.stats.get_stats_with_base('attack speed'))
 
+        a_rule = create_constraint_rule('attack speed', m, counts, player)
+        m.eqn.add(m.a == player.stats.multiplier * (a_rule + player.stats.get_raw_base_stats('attack speed')))
+        m.eqn.add(100 >= m.a)
+    # ---
+
+    # --- strength ---
     m.s = Var(domain=Reals, initialize=400)
     # m.eqn.add(m.s == player.stats['strength'])
-    m.eqn.add(m.s == quicksum(
-        damage_reforges[armor_check(i)][k][j].get('strength', 0) * m.reforge_counts[
-            i, j, k] for i, j, k in m.reforge_set)
-              + player.stats.get_stats_with_base('strength'))
+    # m.eqn.add(m.s == player.stats.multiplier * quicksum(
+    #     damage_reforges[armor_check(i)][k][j].get('strength', 0) * m.reforge_counts[
+    #         i, j, k] for i, j, k in m.reforge_set)
+    #           + player.stats.get_stats_with_base('strength'))
+
+    strength_rule = create_constraint_rule('strength', m, counts, player)
+    m.eqn.add(m.s == player.stats.multiplier * (strength_rule + player.stats.get_raw_base_stats('strength')))
+    # ---
+
+    # --- crit damage ---
     m.cd = Var(domain=Reals, initialize=400)
     # m.eqn.add(m.cd == player.stats['crit damage'])
-    m.eqn.add(m.cd == quicksum(
-        damage_reforges[armor_check(i)][k][j].get('crit damage', 0) * m.reforge_counts[
-            i, j, k] for i, j, k in m.reforge_set)
-              + player.stats.get_stats_with_base('crit damage'))
+    # m.eqn.add(m.cd == quicksum(
+    #     damage_reforges[armor_check(i)][k][j].get('crit damage', 0) * m.reforge_counts[
+    #         i, j, k] for i, j, k in m.reforge_set)
+    #           + player.stats.get_stats_with_base('crit damage'))
+
+    cd_rule = create_constraint_rule('crit damage', m, counts, player)
+    m.eqn.add(m.cd == player.stats.multiplier * (cd_rule + player.stats.get_raw_base_stats('crit damage')))
+    # ---
 
     m.damage = Var(domain=Reals, initialize=10000)
     m.floored_strength = Var(domain=NonNegativeIntegers, initialize=60)
     m.eqn.add(m.floored_strength >= m.s / 5 - 0.9999)
     m.eqn.add(m.floored_strength <= m.s / 5)
     m.eqn.add(m.damage == (5 + player.weapon.stats['damage'] + m.floored_strength) * (1 + m.s / 100) * (1 + m.cd / 100))
+    # weapon damage doesn't affect by global multiplier?
 
     m.objective = Objective(expr=m.damage * m.a / 100 if include_attack_speed else m.damage, sense=maximize)
     solve(m)
@@ -486,8 +583,8 @@ def damage_optimizer(player, *, perfect_crit_chance, include_attack_speed, only_
 
     result = {'strength': m.s(),
               'crit damage': m.cd(),
-              'crit chance': sum(damage_reforges[armor_check(i)][k][j].get('crit chance', 0) * count for (i, j, k), count in m.reforge_counts.get_values().items()) + player.stats.get_stats_with_base('crit chance'),
-              'attack speed': sum(damage_reforges[armor_check(i)][k][j].get('attack speed', 0) * count for (i, j, k), count in m.reforge_counts.get_values().items()) + player.stats.get_stats_with_base('attack speed')}
+              'crit chance': get_stat_with_reforges('crit chance', m.reforge_counts, counts, player),
+              'attack speed': get_stat_with_reforges('attack speed', m.reforge_counts, counts, player)}
     if perfect_crit_chance:
         result['crit chance'] = m.cc()
     if include_attack_speed:
@@ -520,48 +617,58 @@ def damage_optimizer(player, *, perfect_crit_chance, include_attack_speed, only_
     #
     # return {'ehp': m.objective(), 'health': m.hp(), 'defense': m.d()}, format_counts(m.reforge_counts)
 
+
+# def mastiff_ehp_optimizer(only_blacksmith_reforges):
+#     if only_blacksmith_reforges:
+#         return '''Reforge all your armor to fierce
+# Reforge all your talismans to hurtful
+# Reforge your sword/fishing rod to spicy
+# Reforge your bow to rapid'''
+#     else:
+#         return '''Reforge all your armor to fierce
+# Reforge all your talismans to hurtful
+# Reforge your sword/fishing rod to spicy or fabled
+# Reforge your bow to rapid'''
+#
+#
+# def intelligence_optimizer(only_blacksmith_reforges):
+#     if only_blacksmith_reforges:
+#         return '''Reforge all your armor to wise
+# Reforge all your common talismans to demonic
+# Reforge all your other talismans to bizzare
+# Reforge your sword/fishing rod to heroic
+# Reforge your bow to deadly'''
+#     else:
+#         return '''Reforge all your armor to necrotic
+# Reforge all your common talismans to demonic
+# Reforge all your other talismans to bizzare
+# Reforge your sword/fishing rod to heroic
+# Reforge your bow to deadly'''
+#
+#
+# def speed_optimizer(only_blacksmith_reforges):
+#     if only_blacksmith_reforges:
+#         return '''Reforge your common talismans to simple
+# Reforge your other talismans to vivid
+# Reforge your common and uncommon armor to mythic
+# Reforge your other armor to light
+# Sword/bow/fishing rod reforges don't matter'''
+#     else:
+#         return '''Reforge your common talismans to simple
+# Reforge your other talismans to vivid
+# Reforge your common and uncommon armor to renowned or spiked
+# Reforge your other armor to light
+# Sword/bow/fishing rod reforges don't matter'''
+
+
 def ehp_optimizer(only_blacksmith_reforges):
     return '''Unavailable for now'''
 
 
-def mastiff_ehp_optimizer(only_blacksmith_reforges):
-    if only_blacksmith_reforges:
-        return '''Reforge all your armor to fierce
-Reforge all your talismans to hurtful
-Reforge your sword/fishing rod to spicy
-Reforge your bow to rapid'''
-    else:
-        return '''Reforge all your armor to fierce
-Reforge all your talismans to hurtful
-Reforge your sword/fishing rod to spicy or fabled
-Reforge your bow to rapid'''
-
-
 def intelligence_optimizer(only_blacksmith_reforges):
-    if only_blacksmith_reforges:
-        return '''Reforge all your armor to wise
-Reforge all your common talismans to demonic
-Reforge all your other talismans to bizzare
-Reforge your sword/fishing rod to heroic
-Reforge your bow to deadly'''
-    else:
-        return '''Reforge all your armor to necrotic
-Reforge all your common talismans to demonic
-Reforge all your other talismans to bizzare
-Reforge your sword/fishing rod to heroic
-Reforge your bow to deadly'''
+    return '''Unavailable for now'''
 
 
 def speed_optimizer(only_blacksmith_reforges):
-    if only_blacksmith_reforges:
-        return '''Reforge your common talismans to simple
-Reforge your other talismans to vivid
-Reforge your common and uncommon armor to mythic
-Reforge your other armor to light
-Sword/bow/fishing rod reforges don't matter'''
-    else:
-        return '''Reforge your common talismans to simple
-Reforge your other talismans to vivid
-Reforge your common and uncommon armor to renowned or spiked
-Reforge your other armor to light
-Sword/bow/fishing rod reforges don't matter'''
+    return '''Unavailable for now'''
+
