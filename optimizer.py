@@ -301,22 +301,22 @@ damage_reforges = {
         #                'intelligence': 15, 'attack speed': 6},
         #     'blacksmith': False
         # },
-        # 'renowned': {
-        #     # Increases all your stats by 1% (similar to Superior passive)
-        #     'common': {'strength': 3, 'defense': 3, 'speed': 2, 'health': 3, 'crit chance': 3, 'crit damage': 3,
-        #                'intelligence': 3, 'attack speed': 1},
-        #     'uncommon': {'strength': 5, 'defense': 5, 'speed': 2, 'health': 5, 'crit chance': 5, 'crit damage': 5,
-        #                  'intelligence': 5, 'attack speed': 2},
-        #     'rare': {'strength': 7, 'defense': 7, 'speed': 2, 'health': 7, 'crit chance': 7, 'crit damage': 7,
-        #              'intelligence': 7, 'attack speed': 3},
-        #     'epic': {'strength': 9, 'defense': 9, 'speed': 2, 'health': 9, 'crit chance': 9, 'crit damage': 9,
-        #              'intelligence': 9, 'attack speed': 4},
-        #     'legendary': {'strength': 12, 'defense': 12, 'speed': 2, 'health': 12, 'crit chance': 12, 'crit damage': 12,
-        #                   'intelligence': 12, 'attack speed': 5},
-        #     'mythic': {'strength': 15, 'defense': 15, 'speed': 2, 'health': 15, 'crit chance': 15, 'crit damage': 15,
-        #                'intelligence': 15, 'attack speed': 6},
-        #     'blacksmith': False
-        # }
+        'renowned': {
+            # Increases all your stats by 1% (similar to Superior passive)
+            'common': {'strength': 3, 'defense': 3, 'speed': 2, 'health': 3, 'crit chance': 3, 'crit damage': 3,
+                       'intelligence': 3, 'attack speed': 1},
+            'uncommon': {'strength': 5, 'defense': 5, 'speed': 2, 'health': 5, 'crit chance': 5, 'crit damage': 5,
+                         'intelligence': 5, 'attack speed': 2},
+            'rare': {'strength': 7, 'defense': 7, 'speed': 2, 'health': 7, 'crit chance': 7, 'crit damage': 7,
+                     'intelligence': 7, 'attack speed': 3},
+            'epic': {'strength': 9, 'defense': 9, 'speed': 2, 'health': 9, 'crit chance': 9, 'crit damage': 9,
+                     'intelligence': 9, 'attack speed': 4},
+            'legendary': {'strength': 12, 'defense': 12, 'speed': 2, 'health': 12, 'crit chance': 12, 'crit damage': 12,
+                          'intelligence': 12, 'attack speed': 5},
+            'mythic': {'strength': 15, 'defense': 15, 'speed': 2, 'health': 15, 'crit chance': 15, 'crit damage': 15,
+                       'intelligence': 15, 'attack speed': 6},
+            'blacksmith': False
+        }
     },
     'talisman': {
 		'bizarre': {
@@ -469,12 +469,12 @@ def create_model(counts, reforge_set, only_blacksmith_reforges):
 
 
 def create_constraint_rule(stat, m, counts, player):
-    rule = quicksum(damage_reforges['talisman'][k][j].get(stat, 0) * m.reforge_counts['talisman', j, k] for i, j, k in m.reforge_set if i == 'talisman')
+    rule = quicksum((damage_reforges['talisman'][k][j].get(stat, 0) * m.reforge_counts['talisman', j, k] for i, j, k in m.reforge_set if i == 'talisman'), linear=False)
     for equip in counts:
         if equip != 'talisman':
             for k in player.stats.children:
                 if k[0] == equip:
-                    rule += k[1].multiplier * quicksum(damage_reforges[armor_check(equip)][k][j].get(stat, 0) * m.reforge_counts[equip, j, k] for i, j, k in m.reforge_set if i == equip)
+                    rule += k[1].multiplier * quicksum((damage_reforges[armor_check(equip)][k][j].get(stat, 0) * m.reforge_counts[equip, j, k] for i, j, k in m.reforge_set if i == equip), linear=False)
     return rule
 
 
@@ -513,7 +513,7 @@ def damage_optimizer(player, *, perfect_crit_chance, include_attack_speed, only_
                         sums[rarity].append(m.reforge_counts[equipment_type, rarity, reforge])
         for rarity in rarities:
             if counts[equipment_type][rarity] > 0:
-                m.eqn.add(quicksum(sums[rarity]) == counts[equipment_type][rarity])
+                m.eqn.add(quicksum(sums[rarity], linear=False) == counts[equipment_type][rarity])
 
     # for stat in ['strength', 'crit damage'] + ['crit chance'] * perfect_crit_chance + ['attack speed'] * include_attack_speed:
     #     player.stats.modifiers[stat].insert(0,
@@ -530,17 +530,16 @@ def damage_optimizer(player, *, perfect_crit_chance, include_attack_speed, only_
     m.cd = Var(domain=Reals, initialize=400)
     m.damage = Var(domain=Reals, initialize=10000)
     m.floored_strength = Var(domain=Integers, initialize=60)
-    # m.m = Var(domain=Reals, initialize=1)
+    m.m = Var(domain=Reals, initialize=1)
     # ---
 
-    # --- modifiers ---
+    # --- modifiers ---0-
     # manually add it here now, will find a better way to do it
     cd_tara_helm = m.s / 10 if player.armor['helmet'] == 'TARANTULA_HELMET' else 0
     # ---
 
     # --- multiplier --- doesnt work yet
-    # m.eqn.add(m.m == player.stats.multiplier + (quicksum(m.reforge_counts[i, j, k]*0.01 for i, j, k in m.reforge_set if i in armor_types and k == 'renowned') if not only_blacksmith_reforges else 0))
-    # ---
+    m.eqn.add(m.m == player.stats.multiplier + (quicksum((m.reforge_counts[i, j, k]*0.01 for i, j, k in m.reforge_set if i in armor_types and k == 'renowned'), linear=False) if not only_blacksmith_reforges else 0))
 
     # --- crit chance ---
     if perfect_crit_chance:
@@ -551,7 +550,7 @@ def damage_optimizer(player, *, perfect_crit_chance, include_attack_speed, only_
         #           + player.stats.get_stats_with_base('crit chance'))
 
         cc_rule = create_constraint_rule('crit chance', m, counts, player)
-        m.eqn.add(m.cc == player.stats.multiplier * (cc_rule + player.stats.get_raw_base_stats('crit chance')))
+        m.eqn.add(m.cc == prod([m.m, cc_rule + player.stats.get_raw_base_stats('crit chance')]))
         m.eqn.add(100 <= m.cc)  # m.cc => 100 is actually m.cc > 100 for some reason, need double check, but if m.cc => 99 then it's actually => 99
     # ---
 
@@ -564,7 +563,7 @@ def damage_optimizer(player, *, perfect_crit_chance, include_attack_speed, only_
         #           + player.stats.get_stats_with_base('attack speed'))
 
         a_rule = create_constraint_rule('attack speed', m, counts, player)
-        m.eqn.add(m.a == player.stats.multiplier * (a_rule + player.stats.get_raw_base_stats('attack speed')))
+        m.eqn.add(m.a == prod([m.m, a_rule + player.stats.get_raw_base_stats('attack speed')]))
         m.eqn.add(200 >= m.a)
     # ---
 
@@ -576,7 +575,7 @@ def damage_optimizer(player, *, perfect_crit_chance, include_attack_speed, only_
     #           + player.stats.get_stats_with_base('strength'))
 
     strength_rule = create_constraint_rule('strength', m, counts, player)
-    m.eqn.add(m.s == player.stats.multiplier * (strength_rule + player.stats.get_raw_base_stats('strength')))
+    m.eqn.add(m.s == prod([m.m, strength_rule + player.stats.get_raw_base_stats('strength')]))
     # ---
 
     # --- crit damage ---
@@ -587,7 +586,7 @@ def damage_optimizer(player, *, perfect_crit_chance, include_attack_speed, only_
     #           + player.stats.get_stats_with_base('crit damage'))
 
     cd_rule = create_constraint_rule('crit damage', m, counts, player)
-    m.eqn.add(m.cd == player.stats.multiplier * (cd_rule + player.stats.get_raw_base_stats('crit damage') + cd_tara_helm))
+    m.eqn.add(m.cd == prod([m.m, cd_rule + player.stats.get_raw_base_stats('crit damage') + cd_tara_helm]))
     # ---
 
     m.eqn.add(m.floored_strength >= m.s / 5 - 0.9999)
