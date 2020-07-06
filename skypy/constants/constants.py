@@ -276,12 +276,12 @@ tiered_talismans = {
 # 		},
 # 		'fabled': {
 # 			# Your Critical hits have a chance to deal up to 20% extra damage (from 100% to 120%, randomly)
-# 			'common': {'strength': 30, 'crit damage': 35},
-# 			'uncommon': {'strength': 35, 'crit damage': 40},
-# 			'rare': {'strength': 40, 'crit damage': 45},
-# 			'epic': {'strength': 50, 'crit damage': 52},
-# 			'legendary': {'strength': 60, 'crit damage': 60},
-# 			'mythic': {'strength': 75, 'crit damage': 80},
+# 			'common': {'strength': 30, 'crit damage': 15},
+# 			'uncommon': {'strength': 35, 'crit damage': 20},
+# 			'rare': {'strength': 40, 'crit damage': 25},
+# 			'epic': {'strength': 50, 'crit damage': 32},
+# 			'legendary': {'strength': 60, 'crit damage': 40},
+# 			'mythic': {'strength': 75, 'crit damage': 60},
 # 			'blacksmith': False
 # 		}
 # 	},

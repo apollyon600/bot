@@ -127,10 +127,13 @@ class Item:
 		if self.description_clean:
 			rarity_type = self.description_clean[-1].split()
 			self.rarity = rarity_type[0].lower()
-			self.type = rarity_type[1].lower() if len(rarity_type) > 1 else None
+			self.type = rarity_type[1].lower() if len(rarity_type) > 1 and rarity_type[1].lower() != 'bait' else None
 
 			if self != 'ENCHANTED_BOOK':
 				for type, list in {'sword': sword_enchants, 'bow': bow_enchants, 'fishing rod': rod_enchants}.items():
+					if len(self.enchantments) == 1 and (self.enchantments[0] == 'looting' or self.enchantments[0] == 'dragon_hunter'):
+						self.type = 'sword'
+						break
 					for e in list:
 						if e != 'looting' and e != 'dragon_hunter' and e in self.enchantments:
 							self.type = type
@@ -143,7 +146,7 @@ class Item:
 
 		#Parse items from cake bag and backpacks
 		self.contents = None
-		if self == 'NEW_YEAR_CAKE_BAG' or name.endswith('_BACKBACK'):
+		if name == 'NEW_YEAR_CAKE_BAG' or name.endswith('_BACKBACK'):
 			for k, v in extras.items():
 				if k == 'new_year_cake_bag_data' or k.endswith('_backpack_data'):
 					self.contents = decode_inventory_data(v, player, backpack=True)
@@ -192,11 +195,11 @@ class Item:
 			elif re.match('SNOW_SUIT_(HELMET|CHESTPLATE|LEGGINGS|BOOTS)', name) and self.player.armor == {'helmet': 'SNOW_SUIT_HELMET', 'chestplate': 'SNOW_SUIT_CHESTPLATE', 'leggings': 'SNOW_SUIT_LEGGINGS', 'boots': 'SNOW_SUIT_BOOTS'}:
 				self.stats.multiplier *= 2
 
-		if self.reforge == 'renowned' and self.player:
-			self.player.stats.multiplier += 0.01
+		if self.reforge == 'renowned' and player:
+			player.stats.multiplier += 0.01
 
+		r = re.compile('([\w ]+): \+(\d+.\d+)(.*)')
 		r_r = re.compile('.*\(([\w ]+) \+(\d+)')
-		r = re.compile('([\w ]+): \+(\d+)(.*)')
 
 		for line in self.description_clean:
 			match = r.match(line)

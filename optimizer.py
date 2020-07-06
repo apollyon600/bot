@@ -88,12 +88,12 @@ damage_reforges = {
 		},
         'fabled': {
             # Your Critical hits have a chance to deal up to 20% extra damage (from 100% to 120%, randomly)
-            'common': {'strength': 30, 'crit damage': 35},
-            'uncommon': {'strength': 35, 'crit damage': 40},
-            'rare': {'strength': 40, 'crit damage': 45},
-            'epic': {'strength': 50, 'crit damage': 52},
-            'legendary': {'strength': 60, 'crit damage': 60},
-            'mythic': {'strength': 75, 'crit damage': 80},
+            'common': {'strength': 30, 'crit damage': 15},
+            'uncommon': {'strength': 35, 'crit damage': 20},
+            'rare': {'strength': 40, 'crit damage': 25},
+            'epic': {'strength': 50, 'crit damage': 32},
+            'legendary': {'strength': 60, 'crit damage': 40},
+            'mythic': {'strength': 75, 'crit damage': 60},
             'blacksmith': False
         }
     },
@@ -473,6 +473,19 @@ def create_model(counts, reforge_set, only_blacksmith_reforges):
     return m
 
 
+def get_stat_with_reforges(stat, reforges, counts, player, only_blacksmith_reforges, m):
+    value = sum(damage_reforges['talisman'][k][j].get(stat, 0) * count for (i, j, k), count in reforges.get_values().items() if i == 'talisman')
+    for equip in counts:
+        if equip != 'talisman':
+            for k in player.stats.children:
+                if k[0] == equip:
+                    value += k[1].multiplier * sum(damage_reforges[armor_check(equip)][k][j].get(stat, 0) * count for (i, j, k), count in reforges.get_values().items() if i == equip)
+    if only_blacksmith_reforges:
+        return m * (value + player.stats.get_raw_base_stats(stat))
+    else:
+        return m() * (value + player.stats.get_raw_base_stats(stat))
+
+
 def create_constraint_rule(stat, m, counts, player):
     rule = quicksum((damage_reforges['talisman'][k][j].get(stat, 0) * m.reforge_counts['talisman', j, k] for i, j, k in m.reforge_set if i == 'talisman'), linear=False)
     for equip in counts:
@@ -486,7 +499,9 @@ def create_constraint_rule(stat, m, counts, player):
 def armor_check(armor):
     return 'armor' if armor in ('helmet', 'chestplate', 'leggings', 'boots') else armor
 
-
+# TODO: Add gap limit = 0.10%
+# TODO: Add solver time
+# TODO: optimize the performance, possibly a thread limit = 4?
 def damage_optimizer(player, *, perfect_crit_chance, include_attack_speed, only_blacksmith_reforges):
     armor_types = [type for type, piece in player.armor.items() if piece]
     equipment_types = ['talisman', player.weapon.type] + armor_types
@@ -525,12 +540,12 @@ def damage_optimizer(player, *, perfect_crit_chance, include_attack_speed, only_
     #                                                 i, j, k] for i, j, k in m.reforge_set))
 
     # --- variables ---
-    m.cc = Var(domain=Reals, initialize=100)
-    m.a = Var(domain=Reals, initialize=50)
     m.s = Var(domain=Reals, initialize=400)
     m.cd = Var(domain=Reals, initialize=400)
     m.damage = Var(domain=Reals, initialize=10000)
     m.floored_strength = Var(domain=Integers, initialize=60)
+    m.cc = Var(domain=Reals, initialize=100)
+    m.a = Var(domain=Reals, initialize=50)
     if only_blacksmith_reforges:
         m.m = player.stats.multiplier
     else:
@@ -549,26 +564,26 @@ def damage_optimizer(player, *, perfect_crit_chance, include_attack_speed, only_
 
     # --- crit chance ---
     cc_rule = create_constraint_rule('crit chance', m, counts, player)
-    m.eqn.add(m.cc == prod([m.m, cc_rule + player.stats.get_raw_base_stats('crit chance')]))
+    m.eqn.add(m.cc == m.m * (cc_rule + player.stats.get_raw_base_stats('crit chance')))
     if perfect_crit_chance:
         m.eqn.add(100 <= m.cc)  # m.cc => 100 is actually m.cc > 100 for some reason, need double check, but if m.cc => 99 then it's actually => 99
     # ---
 
     # --- attack speed ---
     a_rule = create_constraint_rule('attack speed', m, counts, player)
-    m.eqn.add(m.a == prod([m.m, a_rule + player.stats.get_raw_base_stats('attack speed')]))
+    m.eqn.add(m.a == m.m * (a_rule + player.stats.get_raw_base_stats('attack speed')))
     if include_attack_speed:
         m.eqn.add(200 >= m.a)
     # ---
 
     # --- strength ---
     strength_rule = create_constraint_rule('strength', m, counts, player)
-    m.eqn.add(m.s == prod([m.m, strength_rule + player.stats.get_raw_base_stats('strength')]))
+    m.eqn.add(m.s == m.m * (strength_rule + player.stats.get_raw_base_stats('strength')))
     # ---
 
     # --- crit damage ---
     cd_rule = create_constraint_rule('crit damage', m, counts, player)
-    m.eqn.add(m.cd == prod([m.m, cd_rule + player.stats.get_raw_base_stats('crit damage') + cd_tara_helm]))
+    m.eqn.add(m.cd == m.m * (cd_rule + player.stats.get_raw_base_stats('crit damage') + cd_tara_helm))
     # ---
 
     m.eqn.add(m.floored_strength >= m.s / 5 - 0.9999)
@@ -586,6 +601,10 @@ def damage_optimizer(player, *, perfect_crit_chance, include_attack_speed, only_
               'crit chance': m.cc(),
               'attack speed': m.a() - 100,
               'is optimized': optimized}
+    # if perfect_crit_chance:
+    #     result['crit chance'] = m.cc()
+    # if include_attack_speed:
+    #     result['attack speed'] = m.a() - 100
     return result, format_counts(m.reforge_counts)
 
 

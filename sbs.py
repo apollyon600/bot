@@ -576,7 +576,7 @@ class Bot(discord.AutoShardedClient):
             await Embed(
                 channel,
                 user=user,
-                title=f'What is your Minecraft Username?'
+                title=f'What is your Minecraft Username?\nPlayer needs to be online to get the corrected stats!!!'
             ).send()
             msg = await self.respond(user, channel)
 
@@ -787,7 +787,7 @@ class Bot(discord.AutoShardedClient):
             embed = Embed(
                 channel,
                 user=user,
-                title='{s}'.format(s='Success!' if optimized else 'Fail!')
+                title='{s}'.format(s='Successful!' if optimized else 'Unsuccessful!')
             ).set_footer(
             text='Player\'s stats include pots'
         )
@@ -852,8 +852,7 @@ class Bot(discord.AutoShardedClient):
                 embed.add_field(
                     name='**Warning**',
                     value='The bot took too long to optimize your gear so it gave up'
-                          '\nThe result is the best it could do for the short amount of time'
-                          '\nBut it is not guaranteed 100% the best result!',
+                          '\nThe result is the best it could do for this short amount of time',
                     inline=False
                 )
             await embed.send()
@@ -868,7 +867,7 @@ class Bot(discord.AutoShardedClient):
 
         player = await self.args_to_player(user, channel, *args)
 
-        if player.enabled_api['inventory'] is False:
+        if not player.enabled_api['inventory'] or player.enabled_api['inventory'] is False:
             await self.api_disabled(f'{player.uname}, your inventory API is disabled on {player.profile_name.title()}!',
                                     channel, user)
             return

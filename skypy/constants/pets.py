@@ -144,11 +144,12 @@ def _parrot(player):
 def _blaze(player):
 	# Upgrades Blaze Armor stats and ability by (Pet lvl * 0.4%). (All)
 	# Double effects of Hot Potato Books. (Legendary)
-	if player.armor == {'helmet': 'BLAZE_HELMET', 'chestplate': 'BLAZE_CHESTPLATE', 'leggings': 'BLAZE_LEGGINGS', 'boots': 'BLAZE_BOOTS'} \
-			or player.armor == {'helmet': 'FROZEN_BLAZE_HELMET', 'chestplate': 'FROZEN_BLAZE_CHESTPLATE', 'leggings': 'FROZEN_BLAZE_LEGGINGS', 'boots': 'FROZEN_BLAZE_BOOTS'}:
-		for piece in player.armor.values():
-			if piece:
-				piece.stats.multiplier *= 1 + player.pet.level * 0.004
+	# Blaze stats scale with pet level is already applied to item's description text when player is online
+	# if player.armor == {'helmet': 'BLAZE_HELMET', 'chestplate': 'BLAZE_CHESTPLATE', 'leggings': 'BLAZE_LEGGINGS', 'boots': 'BLAZE_BOOTS'} \
+	# 		or player.armor == {'helmet': 'FROZEN_BLAZE_HELMET', 'chestplate': 'FROZEN_BLAZE_CHESTPLATE', 'leggings': 'FROZEN_BLAZE_LEGGINGS', 'boots': 'FROZEN_BLAZE_BOOTS'}:
+	# 	for piece in player.armor.values():
+	# 		if piece:
+	# 			piece.stats.multiplier *= 1 + player.pet.level * 0.004
 	if player.pet.rarity == 'legendary':
 		for piece in player.armor.values():
 			if piece:
