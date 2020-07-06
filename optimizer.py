@@ -524,7 +524,10 @@ def damage_optimizer(player, *, perfect_crit_chance, include_attack_speed, only_
     m.cd = Var(domain=Reals, initialize=400)
     m.damage = Var(domain=Reals, initialize=10000)
     m.floored_strength = Var(domain=Integers, initialize=60)
-    m.m = Var(domain=Reals, initialize=1)
+    if only_blacksmith_reforges:
+        m.m = player.stats.multiplier
+    else:
+        m.m = Var(domain=Reals, initialize=1)
     # ---
 
     # --- modifiers ---
@@ -533,7 +536,8 @@ def damage_optimizer(player, *, perfect_crit_chance, include_attack_speed, only_
     # ---
 
     # --- multiplier ---
-    m.eqn.add(m.m == player.stats.multiplier + (quicksum((m.reforge_counts[i, j, k]*0.01 for i, j, k in m.reforge_set if i in armor_types and k == 'renowned'), linear=False) if not only_blacksmith_reforges else 0))
+    if not only_blacksmith_reforges:
+        m.eqn.add(m.m == player.stats.multiplier + (quicksum((m.reforge_counts[i, j, k]*0.01 for i, j, k in m.reforge_set if i in armor_types and k == 'renowned'), linear=False) if not only_blacksmith_reforges else 0))
     # ---
 
     # --- crit chance ---
