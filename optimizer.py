@@ -452,16 +452,6 @@ def solve(m):
     # m.pprint()
 
 
-def get_stat_with_reforges(stat, reforges, counts, player):
-    value = sum(damage_reforges['talisman'][k][j].get(stat, 0) * count for (i, j, k), count in reforges.get_values().items() if i == 'talisman')
-    for equip in counts:
-        if equip != 'talisman':
-            for k in player.stats.children:
-                if k[0] == equip:
-                    value += k[1].multiplier * sum(damage_reforges[armor_check(equip)][k][j].get(stat, 0) * count for (i, j, k), count in reforges.get_values().items() if i == equip)
-    return player.stats.multiplier * (value + player.stats.get_raw_base_stats(stat))
-
-
 def create_model(counts, reforge_set, only_blacksmith_reforges):
     m = ConcreteModel()
     m.reforge_set = Set(
@@ -505,8 +495,6 @@ def damage_optimizer(player, *, perfect_crit_chance, include_attack_speed, only_
         'boots': {rarity: int(player.armor['boots'].rarity == rarity) for rarity in rarities} if player.armor[
             'boots'] else {rarity: 0 for rarity in rarities},
     }
-    for name in player.armor.keys():
-        counts[name] = {rarity: int(player.armor[name].rarity == rarity) for rarity in rarities}
 
     m = create_model(counts, damage_reforges, only_blacksmith_reforges)
 
@@ -530,10 +518,8 @@ def damage_optimizer(player, *, perfect_crit_chance, include_attack_speed, only_
     #                                                 i, j, k] for i, j, k in m.reforge_set))
 
     # --- variables ---
-    if perfect_crit_chance:
-        m.cc = Var(domain=Reals, initialize=100)
-    if include_attack_speed:
-        m.a = Var(domain=Reals, initialize=50)
+    m.cc = Var(domain=Reals, initialize=100)
+    m.a = Var(domain=Reals, initialize=50)
     m.s = Var(domain=Reals, initialize=400)
     m.cd = Var(domain=Reals, initialize=400)
     m.damage = Var(domain=Reals, initialize=10000)
@@ -541,58 +527,35 @@ def damage_optimizer(player, *, perfect_crit_chance, include_attack_speed, only_
     m.m = Var(domain=Reals, initialize=1)
     # ---
 
-    # --- modifiers ---0-
+    # --- modifiers ---
     # manually add it here now, will find a better way to do it
     cd_tara_helm = m.s / 10 if player.armor['helmet'] == 'TARANTULA_HELMET' else 0
     # ---
 
-    # --- multiplier --- doesnt work yet
+    # --- multiplier ---
     m.eqn.add(m.m == player.stats.multiplier + (quicksum((m.reforge_counts[i, j, k]*0.01 for i, j, k in m.reforge_set if i in armor_types and k == 'renowned'), linear=False) if not only_blacksmith_reforges else 0))
+    # ---
 
     # --- crit chance ---
+    cc_rule = create_constraint_rule('crit chance', m, counts, player)
+    m.eqn.add(m.cc == prod([m.m, cc_rule + player.stats.get_raw_base_stats('crit chance')]))
     if perfect_crit_chance:
-        # m.eqn.add(m.cc == player.stats.get_stats_with_base('crit chance'))
-        # m.eqn.add(m.cc == quicksum(
-        #     damage_reforges[armor_check(i)][k][j].get('crit chance', 0) * m.reforge_counts[
-        #         i, j, k] for i, j, k in m.reforge_set)
-        #           + player.stats.get_stats_with_base('crit chance'))
-
-        cc_rule = create_constraint_rule('crit chance', m, counts, player)
-        m.eqn.add(m.cc == prod([m.m, cc_rule + player.stats.get_raw_base_stats('crit chance')]))
         m.eqn.add(100 <= m.cc)  # m.cc => 100 is actually m.cc > 100 for some reason, need double check, but if m.cc => 99 then it's actually => 99
     # ---
 
     # --- attack speed ---
+    a_rule = create_constraint_rule('attack speed', m, counts, player)
+    m.eqn.add(m.a == prod([m.m, a_rule + player.stats.get_raw_base_stats('attack speed')]))
     if include_attack_speed:
-        # m.eqn.add(m.a == player.stats.get_stats_with_base('attack speed'))
-        # m.eqn.add(m.a == quicksum(
-        #     damage_reforges[armor_check(i)][k][j].get('attack speed', 0) * m.reforge_counts[
-        #         i, j, k] for i, j, k in m.reforge_set)
-        #           + player.stats.get_stats_with_base('attack speed'))
-
-        a_rule = create_constraint_rule('attack speed', m, counts, player)
-        m.eqn.add(m.a == prod([m.m, a_rule + player.stats.get_raw_base_stats('attack speed')]))
         m.eqn.add(200 >= m.a)
     # ---
 
     # --- strength ---
-    # m.eqn.add(m.s == player.stats['strength'])
-    # m.eqn.add(m.s == player.stats.multiplier * quicksum(
-    #     damage_reforges[armor_check(i)][k][j].get('strength', 0) * m.reforge_counts[
-    #         i, j, k] for i, j, k in m.reforge_set)
-    #           + player.stats.get_stats_with_base('strength'))
-
     strength_rule = create_constraint_rule('strength', m, counts, player)
     m.eqn.add(m.s == prod([m.m, strength_rule + player.stats.get_raw_base_stats('strength')]))
     # ---
 
     # --- crit damage ---
-    # m.eqn.add(m.cd == player.stats['crit damage'])
-    # m.eqn.add(m.cd == quicksum(
-    #     damage_reforges[armor_check(i)][k][j].get('crit damage', 0) * m.reforge_counts[
-    #         i, j, k] for i, j, k in m.reforge_set)
-    #           + player.stats.get_stats_with_base('crit damage'))
-
     cd_rule = create_constraint_rule('crit damage', m, counts, player)
     m.eqn.add(m.cd == prod([m.m, cd_rule + player.stats.get_raw_base_stats('crit damage') + cd_tara_helm]))
     # ---
@@ -600,7 +563,6 @@ def damage_optimizer(player, *, perfect_crit_chance, include_attack_speed, only_
     m.eqn.add(m.floored_strength >= m.s / 5 - 0.9999)
     m.eqn.add(m.floored_strength <= m.s / 5)
     m.eqn.add(m.damage == (5 + player.weapon.stats['damage'] + m.floored_strength) * (1 + m.s / 100) * (1 + m.cd / 100))
-    # weapon damage doesn't affect by global multiplier?
 
     m.objective = Objective(expr=m.damage * ((m.a / 100) / 0.5) if include_attack_speed else m.damage, sense=maximize)
     solve(m)
@@ -610,12 +572,8 @@ def damage_optimizer(player, *, perfect_crit_chance, include_attack_speed, only_
 
     result = {'strength': m.s(),
               'crit damage': m.cd(),
-              'crit chance': get_stat_with_reforges('crit chance', m.reforge_counts, counts, player),
-              'attack speed': get_stat_with_reforges('attack speed', m.reforge_counts, counts, player) - 100}
-    if perfect_crit_chance:
-        result['crit chance'] = m.cc()
-    if include_attack_speed:
-        result['attack speed'] = m.a() - 100
+              'crit chance': m.cc(),
+              'attack speed': m.a() - 100}
     return result, format_counts(m.reforge_counts)
 
 

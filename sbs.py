@@ -17,7 +17,7 @@ if os.environ.get('API_KEY') is None:
     dotenv.load_dotenv()
 
 keys = os.getenv('API_KEY').split()
-prefix = os.getenv('TOKEN', 'sbs')
+prefix = os.getenv('TOKEN', 'exp')
 
 
 class EndSession(Exception):
@@ -512,7 +512,7 @@ class Bot(discord.AutoShardedClient):
 
     async def no_args(self, command, user, channel):
         data = self.callables[command]
-        usage = f'sbs {command} {data["args"]}' if 'args' in data else command
+        usage = f'exp {command} {data["args"]}' if 'args' in data else command
 
         await Embed(
             channel,
@@ -787,7 +787,9 @@ class Bot(discord.AutoShardedClient):
                 channel,
                 user=user,
                 title='Success!'
-            )
+            ).set_footer(
+            text='Player\'s stats include pots'
+        )
 
             for equipment in best_equip:
                 for rarity in best_equip[equipment]:
