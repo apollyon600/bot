@@ -1,4 +1,7 @@
 from pyomo.environ import *
+from pyomo.opt import *
+
+SCIP_TIMELIMIT = 4
 
 damage_reforges = {
     'sword': {
@@ -448,8 +451,12 @@ def format_counts(counts):
 
 
 def solve(m):
-    SolverFactory('scip', executable='scip').solve(m)
-    # m.pprint()
+    solver = SolverFactory('scip', executable='scip')
+    solver.options['limits/time'] = SCIP_TIMELIMIT
+    result = solver.solve(m)
+    if result.solver.status == SolverStatus.aborted and result.solver.termination_condition == TerminationCondition.maxTimeLimit:
+        return False
+    return True
 
 
 def create_model(counts, reforge_set, only_blacksmith_reforges):
@@ -569,7 +576,7 @@ def damage_optimizer(player, *, perfect_crit_chance, include_attack_speed, only_
     m.eqn.add(m.damage == (5 + player.weapon.stats['damage'] + m.floored_strength) * (1 + m.s / 100) * (1 + m.cd / 100))
 
     m.objective = Objective(expr=m.damage * ((m.a / 100) / 0.5) if include_attack_speed else m.damage, sense=maximize)
-    solve(m)
+    optimized = solve(m)
 
     # from pyomo.util.infeasible import log_infeasible_constraints
     # log_infeasible_constraints(m, log_expression=True, log_variables=True)
@@ -577,7 +584,8 @@ def damage_optimizer(player, *, perfect_crit_chance, include_attack_speed, only_
     result = {'strength': m.s(),
               'crit damage': m.cd(),
               'crit chance': m.cc(),
-              'attack speed': m.a() - 100}
+              'attack speed': m.a() - 100,
+              'is optimized': optimized}
     return result, format_counts(m.reforge_counts)
 
 

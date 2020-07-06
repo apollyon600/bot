@@ -559,15 +559,6 @@ class Bot(discord.AutoShardedClient):
             value='> 🔨\n`only optimize with reforges`\n`from the blacksmith`\n\n> 🌈\n`include all reforges`'
         ).send(), user, {'🔨': True, '🌈': False})
 
-        # temporarily disabled due to optimizer performance
-        if not blacksmith:
-            await Embed(
-                channel,
-                user=user,
-                title=f'Include all reforges is unavailable at the moment'
-            ).send()
-            return
-
         if 'text' in optimizer:
             split = '``````'.join(optimizer['text'](blacksmith).split('\n'))
             await Embed(
@@ -782,6 +773,7 @@ class Bot(discord.AutoShardedClient):
 
             best_stats = best_route[0] or {}
             best_equip = best_route[1] or {}
+            optimized = best_route[0]['is optimized']
 
             if not best_equip:
                 await Embed(
@@ -795,7 +787,7 @@ class Bot(discord.AutoShardedClient):
             embed = Embed(
                 channel,
                 user=user,
-                title='Success!'
+                title='{s}'.format(s='Success!' if optimized else 'Fail!')
             ).set_footer(
             text='Player\'s stats include pots'
         )
@@ -856,6 +848,14 @@ class Bot(discord.AutoShardedClient):
                       f'```{zealot_damage_after:,.0f} to zealots\n{slayer_damage_after:,.0f} to slayers```'
             )
 
+            if not optimized:
+                embed.add_field(
+                    name='**Warning**',
+                    value='The bot took too long to optimize your gear so it gave up'
+                          '\nThe result is the best it could do for the short amount of time'
+                          '\nBut it is not guaranteed 100% the best result!',
+                    inline=False
+                )
             await embed.send()
 
     async def view_missing(self, message, *args):
