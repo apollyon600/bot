@@ -867,7 +867,7 @@ class Bot(discord.AutoShardedClient):
 
         player = await self.args_to_player(user, channel, *args)
 
-        if not player.enabled_api['inventory'] or player.enabled_api['inventory'] is False:
+        if not player.enabled_api or player.enabled_api['inventory'] is False:
             await self.api_disabled(f'{player.uname}, your inventory API is disabled on {player.profile_name.title()}!',
                                     channel, user)
             return

@@ -569,8 +569,12 @@ class Player(ApiInterface):
 				for key in path:
 					result = result[key]
 				return decode_inventory_data(result, self)
-			except KeyError:
+			except KeyError as e:
+				print(e)
 				return []
+
+		#Loads a player's numeric stats
+		self.stats = Stats(base_player_stats.copy())
 
 		#Loads all of a player's inventories
 		self.armor = {'helmet': None, 'chestplate': None, 'leggings': None, 'boots': None}
@@ -698,9 +702,6 @@ class Player(ApiInterface):
 		#Loads a player's misc stats
 		self.join_date = datetime.fromtimestamp(v.get('first_join', 0) / 1000.0)
 		self.fairy_souls = v.get('fairy_souls_collected', 0)
-
-		#Loads a player's numeric stats
-		self.stats = Stats(base_player_stats.copy())
 
 		for slayer, level in self.slayers.items():
 			self.stats += Stats(slayer_rewards[slayer][level])
