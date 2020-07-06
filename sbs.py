@@ -559,6 +559,15 @@ class Bot(discord.AutoShardedClient):
             value='> 🔨\n`only optimize with reforges`\n`from the blacksmith`\n\n> 🌈\n`include all reforges`'
         ).send(), user, {'🔨': True, '🌈': False})
 
+        # temporarily disabled due to optimizer performance
+        if not blacksmith:
+            await Embed(
+                channel,
+                user=user,
+                title=f'Include all reforges is unavailable at the moment'
+            ).send()
+            return
+
         if 'text' in optimizer:
             split = '``````'.join(optimizer['text'](blacksmith).split('\n'))
             await Embed(
