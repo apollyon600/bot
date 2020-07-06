@@ -1,7 +1,8 @@
+import os
 from pyomo.environ import *
 from pyomo.opt import *
 
-SCIP_TIMELIMIT = 4
+SCIP_TIMELIMIT = os.getenv('SCIP_TIMELIMIT', 4)
 
 damage_reforges = {
     'sword': {
@@ -590,7 +591,6 @@ def damage_optimizer(player, *, perfect_crit_chance, include_attack_speed, only_
     m.eqn.add(m.floored_strength <= m.s / 5)
     m.eqn.add(m.damage == (5 + player.weapon.stats['damage'] + m.floored_strength) * (1 + m.s / 100) * (1 + m.cd / 100))
 
-    print(player.stats['attack speed'])
     m.objective = Objective(expr=m.damage * (((m.a+100) / 100) / 0.5) if include_attack_speed else m.damage, sense=maximize)
     optimized = solve(m)
 
