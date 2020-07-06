@@ -839,7 +839,7 @@ class Bot(discord.AutoShardedClient):
 
             embed.add_field(
                 name='**Before**',
-                value=f'```{player.stats["strength"]:.0f} strength\n{player.stats["crit damage"]:.0f} crit damage\n{player.stats["crit chance"]:.0f} crit chance\n{player.stats["attack speed"]-100:.0f} attack speed```'
+                value=f'```{player.stats["strength"]:.0f} strength\n{player.stats["crit damage"]:.0f} crit damage\n{player.stats["crit chance"]:.0f} crit chance\n{player.stats["attack speed"]:.0f} attack speed```'
                       f'```{zealot_damage:,.0f} to zealots\n{slayer_damage:,.0f} to slayers```'
             )
             embed.add_field(

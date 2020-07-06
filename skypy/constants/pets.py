@@ -107,9 +107,9 @@ def _enderdragon(player):
 	# Deal (Pet lvl * 0.25%) more damage to end mobs. (All)
 	# Buffs the Aspect of the Dragon sword by (Pet lvl * 0.5) damage and (Pet lvl * 0.3) strength. (All)
 	# Increases all stats by (Pet lvl * 0.1%). (Legendary)
-	if player.weapon == 'ASPECT_OF_THE_DRAGON':
-		player.weapon.stats.__iadd__('damage', player.pet.level * 0.5)
-		player.weapon.stats.__iadd__('strength', player.pet.level * 0.3)
+	# if player.weapon == 'ASPECT_OF_THE_DRAGON':
+	# 	player.weapon.stats.__iadd__('damage', player.pet.level * 0.5)
+	# 	player.weapon.stats.__iadd__('strength', player.pet.level * 0.3)
 	if player.pet.rarity == 'legendary':
 		player.stats.multiplier += player.pet.level * 0.001
 

@@ -204,12 +204,12 @@ class Item:
 		for line in self.description_clean:
 			match = r.match(line)
 			if match:
-				self.stats['attack speed' if match[1].lower() == 'bonus attack speed' else match[1].lower()] = int(match[2])
+				self.stats['attack speed' if match[1].lower() == 'bonus attack speed' else match[1].lower()] = float(match[2])
 				match_r = r_r.match(match.group(3))
-				reforge_stat = int(match_r[2]) if match_r else 0
-				if int(match[2]) - reforge_stat == 0:
+				reforge_stat = float(match_r[2]) if match_r else 0
+				if float(match[2]) - reforge_stat == 0:
 					continue
-				self.base_stats['attack speed' if match[1].lower() == 'bonus attack speed' else match[1].lower()] = int(match[2]) - reforge_stat
+				self.base_stats['attack speed' if match[1].lower() == 'bonus attack speed' else match[1].lower()] = float(match[2]) - reforge_stat
 
 	def __getitem__(self, name):
 		return self._nbt[name]

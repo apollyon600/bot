@@ -573,7 +573,7 @@ def damage_optimizer(player, *, perfect_crit_chance, include_attack_speed, only_
     a_rule = create_constraint_rule('attack speed', m, counts, player)
     m.eqn.add(m.a == m.m * (a_rule + player.stats.get_raw_base_stats('attack speed')))
     if include_attack_speed:
-        m.eqn.add(200 >= m.a)
+        m.eqn.add(100 >= m.a)
     # ---
 
     # --- strength ---
@@ -590,7 +590,8 @@ def damage_optimizer(player, *, perfect_crit_chance, include_attack_speed, only_
     m.eqn.add(m.floored_strength <= m.s / 5)
     m.eqn.add(m.damage == (5 + player.weapon.stats['damage'] + m.floored_strength) * (1 + m.s / 100) * (1 + m.cd / 100))
 
-    m.objective = Objective(expr=m.damage * ((m.a / 100) / 0.5) if include_attack_speed else m.damage, sense=maximize)
+    print(player.stats['attack speed'])
+    m.objective = Objective(expr=m.damage * (((m.a+100) / 100) / 0.5) if include_attack_speed else m.damage, sense=maximize)
     optimized = solve(m)
 
     # from pyomo.util.infeasible import log_infeasible_constraints
@@ -599,7 +600,7 @@ def damage_optimizer(player, *, perfect_crit_chance, include_attack_speed, only_
     result = {'strength': m.s(),
               'crit damage': m.cd(),
               'crit chance': m.cc(),
-              'attack speed': m.a() - 100,
+              'attack speed': m.a(),
               'is optimized': optimized}
     # if perfect_crit_chance:
     #     result['crit chance'] = m.cc()
