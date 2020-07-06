@@ -198,8 +198,8 @@ class Item:
 		if self.reforge == 'renowned' and player:
 			player.stats.multiplier += 0.01
 
-		r = re.compile('([\w ]+): \+(\d+.\d+)(.*)')
-		r_r = re.compile('.*\(([\w ]+) \+(\d+)')
+		r = re.compile('([\w ]*): \+(\d*\.?\d*)(.*)')
+		r_r = re.compile('.*\(([\w ]*) \+(\d*)')
 
 		for line in self.description_clean:
 			match = r.match(line)
