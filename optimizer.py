@@ -36,7 +36,7 @@ damage_reforges = {
         'odd': {
             'common': {'crit chance': 12, 'crit damage': 10, 'intelligence': -5},
             'uncommon': {'crit chance': 15, 'crit damage': 15, 'intelligence': -10},
-            'rare': {'crit chance': 20, 'crit damage': 22, 'intelligence': -16},
+            'rare': {'crit chance': 15, 'crit damage': 15, 'intelligence': -18},
             'epic': {'crit chance': 25, 'crit damage': 30, 'intelligence': -24},
             'legendary': {'crit chance': 30, 'crit damage': 40, 'intelligence': -36},
             'mythic': {'crit chance': 35, 'crit damage': 50, 'intelligence': -50},
@@ -576,14 +576,14 @@ def damage_optimizer(player, *, perfect_crit_chance, include_attack_speed, only_
     cc_rule = create_constraint_rule('crit chance', m, counts, player)
     m.eqn.add(m.cc == m.m * (cc_rule + player.stats.get_raw_base_stats('crit chance')))
     if perfect_crit_chance:
-        m.eqn.add(100 <= m.cc)  # m.cc => 100 is actually m.cc > 100 for some reason, need double check, but if m.cc => 99 then it's actually => 99
+        m.eqn.add(99.5 <= m.cc)  # may need to change to 100 instead of 99.5, idk how hypixel round it
     # ---
 
     # --- attack speed ---
     a_rule = create_constraint_rule('attack speed', m, counts, player)
     m.eqn.add(m.a == m.m * (a_rule + player.stats.get_raw_base_stats('attack speed')))
     if include_attack_speed:
-        m.eqn.add(100 >= m.a)
+        m.eqn.add(100.5 >= m.a)
     # ---
 
     # --- strength ---

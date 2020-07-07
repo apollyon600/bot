@@ -223,7 +223,7 @@ tiered_talismans = {
 # 		'odd': {
 # 			'common': {'crit chance': 12, 'crit damage': 10, 'intelligence': -5},
 # 			'uncommon': {'crit chance': 15, 'crit damage': 15, 'intelligence': -10},
-# 			'rare': {'crit chance': 20, 'crit damage': 22, 'intelligence': -16},
+# 			'rare': {'crit chance': 15, 'crit damage': 15, 'intelligence': -18},
 # 			'epic': {'crit chance': 25, 'crit damage': 30, 'intelligence': -24},
 # 			'legendary': {'crit chance': 30, 'crit damage': 40, 'intelligence': -36},
 # 			'mythic': {'crit chance': 35, 'crit damage': 50, 'intelligence': -50},
