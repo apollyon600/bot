@@ -123,19 +123,18 @@ class Item:
 		self.runes = extras.get('runes', {}) # 'runes': {'ZOMBIE_SLAYER': 3},
 		self.enchantments = extras.get('enchantments', {})
 		self.reforge = extras.get('modifier', None)
+		self.dungeon = False
 
 		if self.description_clean:
 			rarity_type = self.description_clean[-1].split()
 			self.rarity = rarity_type[0].lower()
-			self.type = rarity_type[1].lower() if len(rarity_type) > 1 and rarity_type[1].lower() != 'bait' else None
+			self.type = rarity_type[2].lower() if len(rarity_type) > 2 else rarity_type[1].lower() if len(rarity_type) > 1 else None
+			self.dungeon = True if len(rarity_type) > 2 and rarity_type[1].lower() == 'dungeon' else False
 
 			if self != 'ENCHANTED_BOOK':
-				for type, list in {'sword': sword_enchants, 'bow': bow_enchants, 'fishing rod': rod_enchants}.items():
-					if len(self.enchantments) == 1 and (self.enchantments[0] == 'looting' or self.enchantments[0] == 'dragon_hunter'):
-						self.type = 'sword'
-						break
+				for type, list in {'fishing rod': rod_enchants, 'bow': bow_enchants, 'sword': sword_enchants}.items():
 					for e in list:
-						if e != 'looting' and e != 'dragon_hunter' and e in self.enchantments:
+						if (e != 'looting' or e != 'dragon_hunter') and e in self.enchantments:
 							self.type = type
 							break
 		else:
@@ -146,7 +145,7 @@ class Item:
 
 		#Parse items from cake bag and backpacks
 		self.contents = None
-		if name == 'NEW_YEAR_CAKE_BAG' or name.endswith('_BACKBACK'):
+		if name and (name == 'NEW_YEAR_CAKE_BAG' or name.endswith('_BACKBACK')):
 			for k, v in extras.items():
 				if k == 'new_year_cake_bag_data' or k.endswith('_backpack_data'):
 					self.contents = decode_inventory_data(v, player, backpack=True)
@@ -390,17 +389,17 @@ class ApiInterface:
 		except asyncio.TimeoutError:
 			return await self.__call_api__(api, **kwargs)
 
-		except aiohttp.client_exceptions.ClientResponseError as e:
-			if e.code == 403:
+		except aiohttp.ClientResponseError as e:
+			if e.status == 403:
 				raise HypixelError(f'Your request to {url} was not granted')
 
-			elif e.code == 429:
+			elif e.status == 429:
 				raise HypixelError('You are being ratelimited')
 
-			elif e.code == 500:
+			elif e.status == 500:
 				raise HypixelError('Hypixel\'s servers could not complete your request')
 
-			elif e.code == 502:
+			elif e.status == 502:
 				raise HypixelError('Hypixel\'s API is currently not working. Please try again in a few minutes.')
 
 			else:
@@ -569,8 +568,7 @@ class Player(ApiInterface):
 				for key in path:
 					result = result[key]
 				return decode_inventory_data(result, self)
-			except KeyError as e:
-				print(e)
+			except KeyError:
 				return []
 
 		#Loads a player's numeric stats

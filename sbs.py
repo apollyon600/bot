@@ -550,17 +550,8 @@ class Bot(discord.AutoShardedClient):
 
         optimizer = await self.reaction_menu(await embed.send(), user, {o['emoji']: o for o in optimizers})
 
-        blacksmith = await self.reaction_menu(await Embed(
-            channel,
-            user=user,
-            title='Select Reforge Prices'
-        ).add_field(
-            name=None,
-            value='> 🔨\n`only optimize with reforges`\n`from the blacksmith`\n\n> 🌈\n`include all reforges`'
-        ).send(), user, {'🔨': True, '🌈': False})
-
         if 'text' in optimizer:
-            split = '``````'.join(optimizer['text'](blacksmith).split('\n'))
+            split = '``````'.join(optimizer['text']().split('\n'))
             await Embed(
                 channel,
                 user=user,
@@ -570,6 +561,15 @@ class Bot(discord.AutoShardedClient):
                 value=f'```{split}```'
             ).send()
             return
+
+        blacksmith = await self.reaction_menu(await Embed(
+            channel,
+            user=user,
+            title='Select Reforge Prices'
+        ).add_field(
+            name=None,
+            value='> 🔨\n`only optimize with reforges`\n`from the blacksmith`\n\n> 🌈\n`include all reforges`'
+        ).send(), user, {'🔨': True, '🌈': False})
 
         valid = False
         while valid is False:
@@ -657,7 +657,7 @@ class Bot(discord.AutoShardedClient):
                     text='You may use either the weapon name or the weapon number'
                 ).add_field(
                     name=None,
-                    value=''.join([f'```{i + 1} > ' + weapon.name + '```' for i, weapon in enumerate(player.weapons)])
+                    value=''.join([f'```{i + 1} > ' + weapon.name + '```' for i, weapon in enumerate(player.weapons) if weapon.type != 'fishing rod'])
                 ).send()
 
                 msg = (await self.respond(user, channel)).content.lower()
@@ -867,7 +867,11 @@ class Bot(discord.AutoShardedClient):
 
         player = await self.args_to_player(user, channel, *args)
 
-        if not player.enabled_api or player.enabled_api['inventory'] is False:
+        if not player:
+            await channel.send('Invalid player\'s name, if you think it is corrected, DM the devs to report bugs')
+            return
+
+        if player.enabled_api['inventory'] is False:
             await self.api_disabled(f'{player.uname}, your inventory API is disabled on {player.profile_name.title()}!',
                                     channel, user)
             return

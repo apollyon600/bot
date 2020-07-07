@@ -301,12 +301,12 @@ damage_reforges = {
         },
         'renowned': {
             # Increases all your stats by 1% (similar to Superior passive)
-            'common': {'strength': 3, 'defense': 2, 'speed': 1, 'health': 2, 'crit chance': 2, 'crit damage': 3, 'intelligence': 3, 'attack speed': 1},
-            'uncommon': {'strength': 4, 'defense': 3, 'speed': 1, 'health': 3, 'crit chance': 4, 'crit damage': 4, 'intelligence': 4, 'attack speed': 1},
-            'rare': {'strength': 6, 'defense': 4, 'speed': 1, 'health': 4, 'crit chance': 6, 'crit damage': 6, 'intelligence': 6, 'attack speed': 2},
-            'epic': {'strength': 8, 'defense': 6, 'speed': 1, 'health': 6, 'crit chance': 8, 'crit damage': 8, 'intelligence': 8, 'attack speed': 3},
-            'legendary': {'strength': 10, 'defense': 8, 'speed': 1, 'health': 8, 'crit chance': 10, 'crit damage': 10, 'intelligence': 10, 'attack speed': 4},
-            'mythic': {'strength': 12, 'defense': 10, 'speed': 1, 'health': 10, 'crit chance': 12, 'crit damage': 12, 'intelligence': 12, 'attack speed': 5},
+            'common': {'strength': 3, 'defense': 3, 'speed': 2, 'health': 3, 'crit chance': 3, 'crit damage': 3, 'intelligence': 3, 'attack speed': 1},
+            'uncommon': {'strength': 5, 'defense': 5, 'speed': 2, 'health': 5, 'crit chance': 5, 'crit damage': 5, 'intelligence': 5, 'attack speed': 2},
+            'rare': {'strength': 7, 'defense': 7, 'speed': 2, 'health': 7, 'crit chance': 7, 'crit damage': 7, 'intelligence': 7, 'attack speed': 3},
+            'epic': {'strength': 9, 'defense': 9, 'speed': 2, 'health': 9, 'crit chance': 9, 'crit damage': 9, 'intelligence': 9, 'attack speed': 4},
+            'legendary': {'strength': 12, 'defense': 12, 'speed': 2, 'health': 12, 'crit chance': 12, 'crit damage': 12, 'intelligence': 12, 'attack speed': 5},
+            'mythic': {'strength': 15, 'defense': 15, 'speed': 2, 'health': 15, 'crit chance': 15, 'crit damage': 15, 'intelligence': 15, 'attack speed': 6},
             'blacksmith': False
         },
         'cubic': {
@@ -430,6 +430,15 @@ damage_reforges = {
             'mythic': {'crit damage': 9, 'strength': 4, 'defense': 1, 'speed': 3, 'health': 0, 'intelligence': 11, 'attack speed': 5},
             'blacksmith': True
         },
+        'silky': {
+            'common': {'crit damage': 5},
+            'uncommon': {'crit damage': 6},
+            'rare': {'crit damage': 8},
+            'epic': {'crit damage': 10},
+            'legendary': {'crit damage': 15},
+            'mythic': {'crit damage': 20},
+            'blacksmith': False
+        },
     }
 }
 
@@ -504,7 +513,7 @@ def armor_check(armor):
 # TODO: Add solver time
 # TODO: optimize the performance, possibly a thread limit = 4?
 def damage_optimizer(player, *, perfect_crit_chance, include_attack_speed, only_blacksmith_reforges):
-    armor_types = [type for type, piece in player.armor.items() if piece]
+    armor_types = [type for type, piece in player.armor.items() if armor_check(type) == 'armor' and piece]
     equipment_types = ['talisman', player.weapon.type] + armor_types
     counts = {
         'talisman': {rarity: sum(talisman.rarity == rarity for talisman in player.talismans) for rarity in rarities},
