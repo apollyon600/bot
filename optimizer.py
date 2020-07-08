@@ -687,13 +687,13 @@ def damage_optimizer(player, *, perfect_crit_chance, include_attack_speed, only_
 # Sword/bow/fishing rod reforges don't matter'''
 
 
-def ehp_optimizer(only_blacksmith_reforges):
+def ehp_optimizer(only_blacksmith_reforges=False):
     return '''Unavailable for now'''
 
 
-def intelligence_optimizer(only_blacksmith_reforges):
+def intelligence_optimizer(only_blacksmith_reforges=False):
     return '''Unavailable for now'''
 
 
-def speed_optimizer(only_blacksmith_reforges):
+def speed_optimizer(only_blacksmith_reforges=False):
     return '''Unavailable for now'''

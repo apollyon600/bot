@@ -117,7 +117,7 @@ class Item:
 		self.description_clean = [re.sub('§.', '', line) for line in self.description]
 		self.description = '\n'.join(self.description)
 		self.internal_name = extras.get('id', None)
-		name = self.internal_name
+		name = self.internal_name if self.internal_name else None
 		self.hot_potatos = extras.get('hot_potato_count', 0)
 		self.collection_date = extras.get('timestamp', '') # 'timestamp': '2/16/20 9:24 PM',
 		self.runes = extras.get('runes', {}) # 'runes': {'ZOMBIE_SLAYER': 3},
@@ -143,56 +143,57 @@ class Item:
 
 		self.name = re.sub('§.', '', self['tag']['display']['Name'])
 
-		#Parse items from cake bag and backpacks
-		self.contents = None
-		if name and (name == 'NEW_YEAR_CAKE_BAG' or name.endswith('_BACKBACK')):
-			for k, v in extras.items():
-				if k == 'new_year_cake_bag_data' or k.endswith('_backpack_data'):
-					self.contents = decode_inventory_data(v, player, backpack=True)
-					break
-
 		#Stats
 		self.stats = Stats({})
 		self.base_stats = Stats({})
 
-		if name == 'RECLUSE_FANG':
-			self.stats.__iadd__('strength', 370)
-		elif name == 'POOCH_SWORD':
-			self.stats.__iadd__('strength', 150)
-		elif name == 'THE_SHREDDER':
-			self.stats.__iadd__('damage', 115)
-			self.stats.__iadd__('strength', 15)
-		elif name == 'NIGHT_CRYSTAL' or name == 'DAY_CRYSTAL':
-			self.stats.__iadd__('strength', 2.5)
-			self.stats.__iadd__('defense', 2.5)
-		elif name == 'NEW_YEAR_CAKE_BAG':
-			self.stats.__iadd__('health', len(self.contents) if self.contents else 0)
-		elif name == 'GRAVITY_TALISMAN':
-			self.stats.__iadd__('strength', 10)
-			self.stats.__iadd__('defense', 10)
-		elif name == 'SPEED_TALISMAN':
-			self.stats.__iadd__('speed', 1)
-		elif name == 'SPEED_RING':
-			self.stats.__iadd__('speed', 3)
-		elif name == 'SPEED_ARTIFACT':
-			self.stats.__iadd__('speed', 5)
-		elif name == 'CHEETAH_TALISMAN':
-			self.stats.__iadd__('speed', 3)
-		# elif name == 'PARTY_HAT_CRAB':
-			# Get Intelligence base on how long player played (tbd)
-		elif name == 'PIGMAN_SWORD':
-			self.stats.__iadd__('defense', 50)
-		elif self.player:
-			# if name == 'POOCH_SWORD' and self.player.weapon == 'POOCH_SWORD':
-			# 	self.stats.modifiers['damage'].insert(0, lambda stat: stat + player.stats['health'] // 50)
-			if re.match('MUSHROOM_(HELMET|CHESTPLATE|LEGGINGS|BOOTS)', name) and self.player.armor == {'helmet': 'MUSHROOM_HELMET', 'chestplate': 'MUSHROOM_CHESTPLATE', 'leggings': 'MUSHROOM_LEGGINGS', 'boots': 'MUSHROOM_BOOTS'}:
-				self.stats.multiplier *= 3
-			elif re.match('END_(HELMET|CHESTPLATE|LEGGINGS|BOOTS)', name) and self.player.armor == {'helmet': 'END_HELMET', 'chestplate': 'END_CHESTPLATE', 'leggings': 'END_LEGGINGS', 'boots': 'END_BOOTS'}:
-				self.stats.multiplier *= 2
-			elif re.match('BAT_PERSON_(HELMET|CHESTPLATE|LEGGINGS|BOOTS)', name) and self.player.armor == {'helmet': 'BAT_PERSON_HELMET', 'chestplate': 'BAT_PERSON_CHESTPLATE', 'leggings': 'BAT_PERSON_LEGGINGS', 'boots': 'BAT_PERSON_BOOTS'}:
-				self.stats.multiplier *= 3
-			elif re.match('SNOW_SUIT_(HELMET|CHESTPLATE|LEGGINGS|BOOTS)', name) and self.player.armor == {'helmet': 'SNOW_SUIT_HELMET', 'chestplate': 'SNOW_SUIT_CHESTPLATE', 'leggings': 'SNOW_SUIT_LEGGINGS', 'boots': 'SNOW_SUIT_BOOTS'}:
-				self.stats.multiplier *= 2
+		#Parse items from cake bag and backpacks
+		self.contents = None
+		if name:
+			if name == 'NEW_YEAR_CAKE_BAG' or name.endswith('_BACKBACK'):
+				for k, v in extras.items():
+					if k == 'new_year_cake_bag_data' or k.endswith('_backpack_data'):
+						self.contents = decode_inventory_data(v, player, backpack=True)
+						break
+
+			if name == 'RECLUSE_FANG':
+				self.stats.__iadd__('strength', 370)
+			elif name == 'POOCH_SWORD':
+				self.stats.__iadd__('strength', 150)
+			elif name == 'THE_SHREDDER':
+				self.stats.__iadd__('damage', 115)
+				self.stats.__iadd__('strength', 15)
+			elif name == 'NIGHT_CRYSTAL' or name == 'DAY_CRYSTAL':
+				self.stats.__iadd__('strength', 2.5)
+				self.stats.__iadd__('defense', 2.5)
+			elif name == 'NEW_YEAR_CAKE_BAG':
+				self.stats.__iadd__('health', len(self.contents) if self.contents else 0)
+			elif name == 'GRAVITY_TALISMAN':
+				self.stats.__iadd__('strength', 10)
+				self.stats.__iadd__('defense', 10)
+			elif name == 'SPEED_TALISMAN':
+				self.stats.__iadd__('speed', 1)
+			elif name == 'SPEED_RING':
+				self.stats.__iadd__('speed', 3)
+			elif name == 'SPEED_ARTIFACT':
+				self.stats.__iadd__('speed', 5)
+			elif name == 'CHEETAH_TALISMAN':
+				self.stats.__iadd__('speed', 3)
+			# elif name == 'PARTY_HAT_CRAB':
+				# Get Intelligence base on how long player played (tbd)
+			elif name == 'PIGMAN_SWORD':
+				self.stats.__iadd__('defense', 50)
+			elif self.player:
+				# if name == 'POOCH_SWORD' and self.player.weapon == 'POOCH_SWORD':
+				# 	self.stats.modifiers['damage'].insert(0, lambda stat: stat + player.stats['health'] // 50)
+				if re.match('MUSHROOM_(HELMET|CHESTPLATE|LEGGINGS|BOOTS)', name) and self.player.armor == {'helmet': 'MUSHROOM_HELMET', 'chestplate': 'MUSHROOM_CHESTPLATE', 'leggings': 'MUSHROOM_LEGGINGS', 'boots': 'MUSHROOM_BOOTS'}:
+					self.stats.multiplier *= 3
+				elif re.match('END_(HELMET|CHESTPLATE|LEGGINGS|BOOTS)', name) and self.player.armor == {'helmet': 'END_HELMET', 'chestplate': 'END_CHESTPLATE', 'leggings': 'END_LEGGINGS', 'boots': 'END_BOOTS'}:
+					self.stats.multiplier *= 2
+				elif re.match('BAT_PERSON_(HELMET|CHESTPLATE|LEGGINGS|BOOTS)', name) and self.player.armor == {'helmet': 'BAT_PERSON_HELMET', 'chestplate': 'BAT_PERSON_CHESTPLATE', 'leggings': 'BAT_PERSON_LEGGINGS', 'boots': 'BAT_PERSON_BOOTS'}:
+					self.stats.multiplier *= 3
+				elif re.match('SNOW_SUIT_(HELMET|CHESTPLATE|LEGGINGS|BOOTS)', name) and self.player.armor == {'helmet': 'SNOW_SUIT_HELMET', 'chestplate': 'SNOW_SUIT_CHESTPLATE', 'leggings': 'SNOW_SUIT_LEGGINGS', 'boots': 'SNOW_SUIT_BOOTS'}:
+					self.stats.multiplier *= 2
 
 		if self.reforge == 'renowned' and player:
 			player.stats.multiplier += 0.01
@@ -253,6 +254,16 @@ class Pet:
 		self.xp = nbt.get('exp', 0)
 		self.active = nbt.get('active', False)
 		self.rarity = nbt.get('tier', 'COMMON').lower()
+		self.item_internal_name = nbt.get('heldItem', None)
+		if self.item_internal_name:
+			self.item_name = ' '.join([
+				s.capitalize() for s in
+				re.sub('_COMMON|_UNCOMMON|_RARE|_EPIC|_LEGENDARY', '', self.item_internal_name[9:]).split('_')
+			])
+			if self.item_name == 'Tier Boost':
+				self.rarity = pet_rarity[pet_rarity.index(self.rarity) + 1]
+		else:
+			self.item_name = None
 		self.internal_name = nbt.get('type', 'BEE')
 		self.level = level_from_xp_table(self.xp, pet_xp[self.rarity])
 		self.name = pets[self.internal_name]['name']
@@ -260,13 +271,8 @@ class Pet:
 		self.xp_remaining = pet_xp[self.rarity][-1] - self.xp
 		self.candy_used = nbt.get('candyUsed', 0)
 		self.stats = Stats({stat: function(self.level) for stat, function in pets[self.internal_name]['stats'].items()})
-		self.item_internal_name = nbt.get('heldItem', None)
-		if self.item_internal_name:
-			self.item_name = ' '.join([
-				s.capitalize() for s in
-				re.sub('_COMMON|_UNCOMMON|_RARE|_EPIC|_LEGENDARY', '', self.item_internal_name[9:]).split('_')
-			])
 
+		if self.item_name:
 			if self.item_name == 'Textbook':
 				self.stats.modifiers['intelligence'].append(lambda stat: stat * 2)
 			elif self.item_name == 'Hardened Scales':
@@ -280,10 +286,6 @@ class Pet:
 				self.stats.__iadd__('crit chance', 5)
 			elif self.item_name == 'Lucky Clover':
 				self.stats.__iadd__('magic find', 7)
-			elif self.item_name == 'Tier Boost':
-				self.rarity = pet_rarity[pet_rarity.index(self.rarity) + 1]
-		else:
-			self.item_name = None
 
 	def __str__(self):
 		return self.name
@@ -557,6 +559,9 @@ class Player(ApiInterface):
 		else:
 			raise DataError('Bad profile ID!')
 
+		# Check if player is online
+		self.online = await self.is_online()
+
 		self._nbt = (await self.__call_api__('/skyblock/profile', profile=self.profile))['profile']
 		self.enabled_api = {'skills': False, 'collection': False, 'inventory': False, 'banking': False}
 
@@ -752,8 +757,8 @@ class Player(ApiInterface):
 				pet_ability(self)
 
 	async def is_online(self):
-		player_data = (await self.__call_api__('/player', name=self.uname))['player']
-		return player_data['lastLogout'] < player_data['lastLogin']
+		player_data = (await self.__call_api__('/status', uuid=self.uuid))['session']
+		return player_data['online']
 
 	async def auctions(self):
 		r = await self.__call_api__('/skyblock/auction', uuid=self.uuid, profile=self.profile)

@@ -1092,7 +1092,7 @@ class Bot(discord.AutoShardedClient):
         try:
             msg = await self.wait_for('message',
                                       check=lambda message: message.author == user and message.channel == channel,
-                                      timeout=60 * 3)
+                                      timeout=60 * 2)
         except asyncio.TimeoutError:
             raise EndSession
         if msg.content.lower() == 'exit':
@@ -1110,7 +1110,7 @@ class Bot(discord.AutoShardedClient):
         check = lambda reaction, u: u == user and reaction.message.id == message.id and str(reaction) in reactions
 
         try:
-            reaction, _ = await self.wait_for('reaction_add', check=check, timeout=45)
+            reaction, _ = await self.wait_for('reaction_add', check=check, timeout=30)
             return reactions[str(reaction)]
         except asyncio.TimeoutError:
             for reaction in reactions.keys():
