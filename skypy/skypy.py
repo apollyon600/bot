@@ -295,7 +295,7 @@ class Pet:
 
 class Stats:
 	# A list of stats that are unaffected by global multipliers
-	statics = ['speed cap', 'enchantment modifier', 'ability damage']
+	statics = ['speed cap', 'enchantment modifier', 'ability damage', 'gear score']
 
 	def __init__(self, args={}):
 		self._dict = args

@@ -576,7 +576,7 @@ class Bot(discord.AutoShardedClient):
             await Embed(
                 channel,
                 user=user,
-                title=f'What is your Minecraft Username?\nPlayer needs to be online to get the corrected stats!!!'
+                title=f'What is your Minecraft Username?'
             ).send()
             msg = await self.respond(user, channel)
 
@@ -789,7 +789,7 @@ class Bot(discord.AutoShardedClient):
                 user=user,
                 title='{s}'.format(s='Successful!' if optimized else 'Unsuccessful!')
             ).set_footer(
-            text='Player\'s stats include pots'
+            text='Player\'s stats include pots\nPlease double check your stats before and in game before reforge\nIf it is wrong by a lot please post the result in bugs channel'
         )
 
             for equipment in best_equip:
