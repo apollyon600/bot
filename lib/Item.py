@@ -42,7 +42,7 @@ class Item:
                 for type, enchant_list in {'fishing rod': rod_enchants, 'bow': bow_enchants,
                                            'sword': sword_enchants}.items():
                     for e in enchant_list:
-                        if (e != 'looting' or e != 'dragon_hunter') and e in self.enchantments:
+                        if e in self.enchantments and e != 'looting' and e != 'dragon_hunter':
                             self.type = type
                             break
         else:
