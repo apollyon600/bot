@@ -1,8 +1,10 @@
 import os
-from sbs import Bot
+from bot import Bot
+# from sbs import Bot
 
 if not os.environ.get('DISCORD_TOKEN'):
     import dotenv
+
     dotenv.load_dotenv()
 
 client = Bot()
