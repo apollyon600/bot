@@ -36,5 +36,7 @@ class Bot(commands.AutoShardedBot):
     async def on_command_error(self, ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
             await ctx.send(f'This command requires arguments!: {error.param.name}')
+        elif isinstance(error, commands.CommandOnCooldown):
+            await ctx.send(f'This command is on cooldown for you! Please try again after {error.retry_after:.0f}s')
         else:
             print(error)

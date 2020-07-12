@@ -17,6 +17,11 @@ class Missing(commands.Cog):
         self.bot = bot
 
     @commands.command()
+    async def ping(self, ctx):
+        await ctx.send('Pong!')
+
+    @commands.command()
+    @commands.cooldown(1, 20.0, commands.BucketType.user)
     async def missing(self, ctx, player, profile):
         user = ctx.author
         channel = ctx.channel
