@@ -1,13 +1,9 @@
-from config import keys
+from discord.ext import commands
+
 from lib import Player
 
 
-async def args_to_player(player, profile):
-    player = await Player(keys, uname=player)
-
-    if not profile:
-        await player.set_profile_automatically()
-    else:
-        await player.set_profile(player.profiles[profile.capitalize()])
-
-    return player
+class PlayerConverter(commands.Converter):
+    async def convert(self, ctx, arg):
+        api_keys = ctx.bot.config.keys
+        return await Player(api_keys, uname=arg)

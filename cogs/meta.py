@@ -1,23 +1,35 @@
 from discord.ext import commands
-from utils import Embed
+
+from utils import Embed, PaginatedHelpCommand
 
 
-class Meta(commands.Cog):
+class Meta(commands.Cog, name='Bot'):
+    """
+    Commands for utilities related to the Bot itself.
+    """
+
+    emoji = '🤖'
+
     def __init__(self, bot):
         self.bot = bot
+        self._original_help_command = bot.help_command
+        bot.help_command = PaginatedHelpCommand(dm_help=True)
+        bot.help_command.cog = self
+
+    def cog_unload(self):
+        self.bot.help_command = self._original_help_command
 
     @commands.command()
     async def stats(self, ctx):
-        channel = ctx.channel
-        user = ctx.author
-
+        """
+        Displays stats about the bot including number of servers and users.
+        """
         server_rankings = sorted(self.bot.guilds, key=lambda guild: len(guild.members), reverse=True)[:10]
         server_rankings = f'{"Top Servers".ljust(28)} | Users\n' + '\n'.join(
             [f'{guild.name[:28].ljust(28)} | {len(guild.members)}' for guild in server_rankings])
 
-        _embed = Embed(
-            channel,
-            user=user,
+        embed = Embed(
+            ctx=ctx,
             title='Discord Stats',
             description=f'This Command was run on shard {(ctx.guild.shard_id if ctx.guild else 0) + 1} / {self.bot.shard_count}\n```{server_rankings}```'
         ).add_field(
@@ -37,17 +49,17 @@ class Meta(commands.Cog):
             shards[x.shard_id][2] += len(x.members)
 
         for x in range(self.bot.shard_count):
-            _embed.add_field(
+            embed.add_field(
                 name=f'Shard {x + 1}',
                 value=f'{shards[x][0]} servers\n{shards[x][1]} channels\n{shards[x][2]} members',
                 inline=True
             )
-        _embed.add_field(
+        embed.add_field(
             name='Latency',
             value=f'This message was delivered in {self.bot.latency * 1000:.0f} milliseconds',
             inline=False
         )
-        await _embed.send()
+        await embed.send()
 
 
 def setup(bot):

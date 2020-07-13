@@ -8,12 +8,20 @@ if os.environ.get('API_KEY') is None:
 keys = os.getenv('API_KEY')
 
 extensions = [
-    'cogs.missing',
-    'cogs.meta'
+    # Bot commands
+    'cogs.meta',
+    # Combat commands
+    'cogs.missing'
 ]
 
 prefix = 'sbs' + ' '
 
+dev_ids = [
+    # yuerino
+    148460858438057985
+]
+
 admin_ids = [
+    # yuerino
     148460858438057985
 ]
