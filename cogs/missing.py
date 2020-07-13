@@ -1,49 +1,20 @@
-import os
-
 from discord.ext import commands
 from constants import general as constants
-from lib import Player, Embed
-
-if os.environ.get('API_KEY') is None:
-    import dotenv
-
-    dotenv.load_dotenv()
-
-keys = os.getenv('API_KEY')
+from utils import args_to_player, Embed, CommandWithCooldown
 
 
 class Missing(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command()
-    async def ping(self, ctx):
-        await ctx.send('Pong!')
-
-    @commands.command()
-    @commands.cooldown(1, 20.0, commands.BucketType.user)
-    async def missing(self, ctx, player, profile):
+    @commands.command(cls=CommandWithCooldown, cooldown_after_parsing=True)
+    @commands.cooldown(1, 10.0, commands.BucketType.user)
+    # @commands.max_concurrency(1, per=commands.BucketType.channel, wait=False)
+    async def missing(self, ctx, player: str, profile: str = ''):
         user = ctx.author
         channel = ctx.channel
 
-        player = await Player(keys, uname=player)
-
-        # try:
-        await player.set_profile(player.profiles[profile.capitalize()])
-        # except KeyError:
-        #     await channel.send(f'{user.mention} invalid profile!')
-        #     return None
-
-        # player = await self.args_to_player(user, channel, *args)
-
-        if not player:
-            await channel.send('Invalid player\'s name, if you think it is corrected, DM the devs to report bugs')
-            return
-
-        # if player.enabled_api['inventory'] is False:
-        #     await self.api_disabled(f'{player.uname}, your inventory API is disabled on {player.profile_name.title()}!',
-        #                             channel, user)
-        #     return
+        player = await args_to_player(player, profile)
 
         talismans = constants.talismans.copy()
         for talisman in player.talismans:

@@ -1,5 +1,5 @@
-import discord
 import sys
+import discord
 import traceback
 
 from discord.ext import commands
@@ -29,14 +29,21 @@ class Bot(commands.AutoShardedBot):
         self.ready = True
 
     async def on_message(self, message):
-        if message.author.bot:
+        if message.author.bot or not self.ready:
             return
         await self.process_commands(message)
 
     async def on_command_error(self, ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
-            await ctx.send(f'This command requires arguments!: {error.param.name}')
+            await ctx.send(f'This command requires arguments: {error.param.name}')
         elif isinstance(error, commands.CommandOnCooldown):
             await ctx.send(f'This command is on cooldown for you! Please try again after {error.retry_after:.0f}s')
+        elif isinstance(error, commands.MaxConcurrencyReached):
+            await ctx.send(
+                f'{ctx.author.mention}, someone is already using this command in this channel, please try again later or DM me directly!')
+        elif isinstance(error, commands.CommandNotFound):
+            pass
         else:
+            await ctx.send(error)
             print(error)
+            ctx.command.reset_cooldown(ctx)
