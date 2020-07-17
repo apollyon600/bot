@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 
-from constants import general as constants
+from constants import skyblock as constants
 from utils import PlayerConverter, Embed, CommandWithCooldown
 
 
