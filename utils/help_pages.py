@@ -5,14 +5,11 @@ from . import Embed
 from constants.bot import timeout_emoji
 
 
-class CannotPaginate(Exception):
-    pass
-
-
 class HelpPages:
     def __init__(self, help_command, ctx, entries, *, dm_help=False):
         self.bot = ctx.bot
-        self.message = ctx.message
+        self.ctx = ctx
+        self.message = None
         self.channel = ctx.channel
         self.author = ctx.author
         self.entries = entries
@@ -23,24 +20,7 @@ class HelpPages:
         self.current_page = None
         self.previous_page = None
 
-        if ctx.guild is not None:
-            self.permissions = self.channel.permissions_for(ctx.guild.me)
-        else:
-            self.permissions = self.channel.permissions_for(ctx.bot.user)
-
-        if not self.permissions.embed_links:
-            raise CannotPaginate('Bot does not have embed links permission.')
-
-        if not self.permissions.send_messages:
-            raise CannotPaginate('Bot cannot send messages.')
-
         if self.paginating:
-            if not self.permissions.add_reactions:
-                raise CannotPaginate('Bot does not have add reactions permission.')
-
-            if not self.permissions.read_message_history:
-                raise CannotPaginate('Bot does not have Read Message History permission.')
-
             self.entries.append(('default', 'default', 'ℹ️', 'default'))
 
     # noinspection PyAttributeOutsideInit
@@ -147,12 +127,16 @@ class HelpPages:
             await first_page
         else:
             # allow us to react to reactions right away if we're paginating
-            self.bot.loop.create_task(first_page)
+            task = self.bot.loop.create_task(first_page)
+            # Very sketchy way to handle task exception here...
+            task.add_done_callback(self.exception_catching_callback)
 
         while self.paginating:
             try:
                 payload = await self.bot.wait_for('raw_reaction_add', check=self.react_check, timeout=120.0)
             except asyncio.TimeoutError:
+                if not self.paginating:
+                    pass
                 self.paginating = False
                 try:
                     for (cog, description, cog_emoji, commands) in self.entries:
@@ -170,3 +154,19 @@ class HelpPages:
                 pass  # can't remove it so don't bother doing so
 
             await self.show_page(self.current_page)
+
+    def exception_catching_callback(self, task):
+        if task.exception():
+            self.paginating = False
+            self.bot.loop.create_task(self.error_handler(task.exception()))
+            # pass
+
+    async def error_handler(self, error):
+        if isinstance(error, discord.errors.Forbidden):
+            self.paginating = False
+            try:
+                await self.ctx.send(
+                    f'{self.ctx.author.mention}, Sorry, it looks like I don\'t have the permissions or roles to do that.\n'
+                    f'Try enabling your DMS or contract the server owner to give me more permissions.')
+            except:
+                pass

@@ -24,8 +24,10 @@ class PaginatedHelpCommand(commands.HelpCommand):
                 continue
 
             actual_cog = bot.get_cog(cog)
-            description = (actual_cog and actual_cog.description) or '\u200b'
-            cog_emoji = (actual_cog and actual_cog.emoji) or 'ℹ️'
+            if not actual_cog or not hasattr(actual_cog, 'emoji'):
+                continue
+            description = actual_cog.description or '\u200b'
+            cog_emoji = actual_cog.emoji
             pages.append((cog, description, cog_emoji, commands))
 
         help_pages = HelpPages(self, self.context, pages, dm_help=self.dm_help)

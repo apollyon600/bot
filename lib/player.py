@@ -1,7 +1,7 @@
 import asyncio
 from datetime import datetime
 
-from . import Pet, Stats, HypixelApiInterface, HypixelError, DataError, NeverPlayedSkyblockError, \
+from . import Pet, Stats, HypixelApiInterface, HypixelAPIError, DataError, NeverPlayedSkyblockError, \
     decode_inventory_data, fetch_uuid_uname, level_from_xp_table
 from constants import *
 
@@ -46,7 +46,7 @@ class Player(HypixelApiInterface):
             except (KeyError, TypeError):
                 raise NeverPlayedSkyblockError(self.uname) from None
             if not self.profiles:
-                raise NeverPlayedSkyblockError(self.uname)
+                raise NeverPlayedSkyblockError(self.uname) from None
 
         if guild:
             guild_id = (await self.__call_api__('/findGuild', byUuid=self.uuid))['guild']
@@ -89,7 +89,7 @@ class Player(HypixelApiInterface):
             for profile in reversed(profile_ids):
                 try:
                     canidate = await self._create_canadate(self, profile)
-                except HypixelError:
+                except HypixelAPIError:
                     continue
 
                 if attribute(canidate) >= threshold:
@@ -103,7 +103,7 @@ class Player(HypixelApiInterface):
                     if best is None or current > max_value:
                         max_value = current
                         best = canidate.profile
-                except HypixelError:
+                except HypixelAPIError:
                     pass
 
         await self.set_profile(best)
@@ -129,7 +129,7 @@ class Player(HypixelApiInterface):
         # Get player's inventories nbt data
         self._nbt = (await self.__call_api__('/skyblock/profile', profile=self.profile))['profile']
         if not self._nbt:
-            raise DataError('Something\'s wrong with player\'s items data')
+            raise DataError('Something\'s wrong with player\'s items nbt data')
         v = self._nbt['members'][self.uuid]
 
         self.enabled_api = {'skills': False, 'collection': False, 'inventory': False, 'banking': False}

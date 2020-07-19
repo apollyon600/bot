@@ -8,6 +8,9 @@ if os.environ.get('API_KEY') is None:
 keys = os.getenv('API_KEY')
 
 extensions = [
+    # Event/Error handler
+    'cogs.event_handler',
+    'cogs.error_handler',
     # Bot commands
     'cogs.meta',
     # Combat commands

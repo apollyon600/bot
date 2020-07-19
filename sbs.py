@@ -202,7 +202,7 @@ pet_emojis = {
     'ENDER_DRAGON': '🐲',
     'GUARDIAN': '🛡️',
     'ENDERMAN': '😈',
-    'blue_WHALE': '🐳',
+    'BLUE_WHALE': '🐳',
     'GIRAFFE': '🦒',
     'PHOENIX': '🐦',
     'BEE': '🐝',

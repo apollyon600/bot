@@ -1,7 +1,7 @@
 import aiohttp
 import asyncio
 
-from . import APIKeyError, ExternalAPIError, HypixelError, session
+from . import APIKeyError, HypixelAPIError, session
 
 
 class HypixelApiInterface:
@@ -21,29 +21,23 @@ class HypixelApiInterface:
 
                 if data['success']:
                     return data
-
                 elif data['cause'] == 'Invalid API key!':
-                    raise APIKeyError(kwargs["key"], f'Invalid API key!')
-
+                    raise APIKeyError(kwargs["key"], f'Invalid API key')
                 else:
-                    raise ExternalAPIError(data['cause'])
+                    raise HypixelAPIError(data['cause'])
 
         except asyncio.TimeoutError:
             return await self.__call_api__(api, **kwargs)
 
         except aiohttp.ClientResponseError as e:
             if e.status == 403:
-                raise HypixelError(f'Your request to {url} was not granted')
-
+                raise HypixelAPIError(f'Your request to {url} was not granted')
             elif e.status == 429:
-                raise HypixelError('You are being ratelimited')
-
+                raise HypixelAPIError('You are being ratelimited')
             elif e.status == 500:
-                raise HypixelError('Hypixel\'s servers could not complete your request')
-
+                raise HypixelAPIError('Hypixel\'s servers could not complete your request')
             elif e.status == 502:
-                raise HypixelError('Hypixel\'s API is currently not working. Please try again in a few minutes.')
-
+                raise HypixelAPIError('Hypixel\'s API is currently not working. Please try again in a few minutes.')
             else:
                 raise e from None
 

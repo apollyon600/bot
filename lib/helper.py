@@ -25,8 +25,9 @@ async def fetch_uuid_uname(uname_or_uuid):
 
                 async with s.get(f'https://api.mojang.com/user/profiles/{uname_or_uuid}/names') as r:
                     json = await r.json(content_type=None)
-                    if json is None:
-                        raise BadNameError(uname_or_uuid, 'Malformed uuid or username') from None
+
+                    if not json:
+                        raise BadNameError(uname_or_uuid) from None
 
                     return json[-1]['name'], uname_or_uuid
 
@@ -34,7 +35,7 @@ async def fetch_uuid_uname(uname_or_uuid):
     except asyncio.TimeoutError:
         raise ExternalAPIError('Could not connect to https://api.mojang.com') from None
     except aiohttp.ClientResponseError:
-        raise BadNameError(uname_or_uuid, 'Can\'t get player name or uuid')
+        raise BadNameError(uname_or_uuid) from None
 
 
 # noinspection PyUnboundLocalVariable

@@ -24,7 +24,7 @@ class Stats:
             raise TypeError
 
     def __iadd__(self, other, value=None):
-        if isinstance(other, Stats):
+        if isinstance(other, Stats) and not value:
             for k, v in other:
                 self[k] += v
         elif isinstance(other, str) and isinstance(value, (int, float)):
@@ -33,7 +33,7 @@ class Stats:
             else:
                 self._dict[other] = value
         else:
-            raise NotImplementedError
+            raise TypeError
         return self
 
     def __setitem__(self, key, value):
