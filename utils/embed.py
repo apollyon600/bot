@@ -33,7 +33,10 @@ class Embed(discord.Embed):
     def set_image(self, url):
         return super().set_image(url=url)
 
-    async def send(self, *, dm=False):
-        if dm:
-            return await self.user.send(self.user.mention, embed=self)
+    async def send(self, *, dm=False, dm_extra=False):
+        if dm and not isinstance(self.channel, discord.DMChannel):
+            msg = await self.user.send(self.user.mention, embed=self)
+            if dm_extra:
+                await self.channel.send(f'{self.user.mention}, I have sent you a DM with the information!')
+            return msg
         return await self.channel.send(self.user.mention if self.user else None, embed=self)

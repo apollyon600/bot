@@ -14,6 +14,7 @@ extensions = [
     # Bot commands
     'cogs.meta',
     # Combat commands
+    'cogs.optimizer',
     'cogs.missing'
 ]
 

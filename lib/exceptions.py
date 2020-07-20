@@ -8,11 +8,15 @@ class SkyblockCommandError(UserInputError):
 class BadNameError(SkyblockCommandError):
     """This uuid or username is invalid"""
 
-    def __init__(self, uname_or_uuid, reason='', *args):
-        if not reason:
-            super().__init__(f'Invalid player\'s name/uuid: {uname_or_uuid}', *args)
-        else:
-            super().__init__(f'{reason}: {uname_or_uuid}', *args)
+    def __init__(self, uname_or_uuid, *args):
+        super().__init__(f'Invalid player\'s name/uuid: {uname_or_uuid}', *args)
+
+
+class BadProfileError(SkyblockCommandError):
+    """This profile name is invalid"""
+
+    def __init__(self, profile_name, *args):
+        super().__init__(f'Invalid profile\'s name: {profile_name}', *args)
 
 
 class NeverPlayedSkyblockError(SkyblockCommandError):
@@ -22,11 +26,23 @@ class NeverPlayedSkyblockError(SkyblockCommandError):
         super().__init__(f'This player {uname_or_uuid} has never played skyblock before.', *args)
 
 
+class APIDisabledError(SkyblockCommandError):
+    """This user has never played skyblock before"""
+
+    def __init__(self, uname_or_uuid, profile_name, *args):
+        super().__init__(f'This player {uname_or_uuid} has disabled API on {profile_name} profile.\n'
+                         f'Re-enable them with [skyblock menu > settings > api settings]', *args)
+
+
 class BadGuildError(SkyblockCommandError):
     """This guild name is invalid"""
 
     def __init__(self, guild, *args):
         super().__init__(f'Invalid guild\'s name: {guild}', *args)
+
+
+class SessionTimeout(Exception):
+    pass
 
 
 class SkyblockLibError(Exception):
@@ -48,6 +64,7 @@ class APIError(Exception):
 
     def __str__(self):
         return self.reason
+
 
 class ExternalAPIError(APIError):
     """There was an issue connecting to the API"""

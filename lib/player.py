@@ -2,7 +2,7 @@ import asyncio
 from datetime import datetime
 
 from . import Pet, Stats, HypixelApiInterface, HypixelAPIError, DataError, NeverPlayedSkyblockError, \
-    decode_inventory_data, fetch_uuid_uname, level_from_xp_table
+    decode_inventory_data, fetch_uuid_uname, level_from_xp_table, BadProfileError
 from constants import *
 
 
@@ -82,11 +82,11 @@ class Player(HypixelApiInterface):
         best = None
         max_value = 0
 
-        profile_ids = list(self.profiles.values())
+        profile_names = list(self.profiles.keys())
 
         if threshold:
-            best = profile_ids[0]
-            for profile in reversed(profile_ids):
+            best = profile_names[0]
+            for profile in reversed(profile_names):
                 try:
                     canidate = await self._create_canadate(self, profile)
                 except HypixelAPIError:
@@ -96,20 +96,20 @@ class Player(HypixelApiInterface):
                     best = profile
                     break
         else:
-            for canidate in asyncio.as_completed([self._create_canadate(self, profile) for profile in profile_ids]):
+            for canidate in asyncio.as_completed([self._create_canadate(self, profile) for profile in profile_names]):
                 try:
                     canidate = await canidate
                     current = attribute(canidate)
                     if best is None or current > max_value:
                         max_value = current
-                        best = canidate.profile
+                        best = canidate.profile_name
                 except HypixelAPIError:
                     pass
 
         await self.set_profile(best)
 
     # noinspection PyAttributeOutsideInit
-    async def set_profile(self, profile):
+    async def set_profile(self, profile_name):
         """
         Sets a player's profile based on the provided profile ID
         """
@@ -118,17 +118,15 @@ class Player(HypixelApiInterface):
             raise DataError('This player already has their profile set!')
         self._profile_set = True
 
-        self.profile = profile
-        for cute_name, profile_id in self.profiles.items():
-            if profile_id == profile:
-                self.profile_name = cute_name
-                break
-        else:
-            raise DataError('Bad profile ID!')
+        try:
+            self.profile = self.profiles[profile_name.capitalize()]
+        except KeyError:
+            raise BadProfileError(profile_name)
+        self.profile_name = profile_name.capitalize()
 
         # Get player's inventories nbt data
         self._nbt = (await self.__call_api__('/skyblock/profile', profile=self.profile))['profile']
-        if not self._nbt:
+        if not self._nbt or not self._nbt['members'][self.uuid]:
             raise DataError('Something\'s wrong with player\'s items nbt data')
         v = self._nbt['members'][self.uuid]
 

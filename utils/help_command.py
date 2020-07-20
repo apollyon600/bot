@@ -52,17 +52,11 @@ class PaginatedHelpCommand(commands.HelpCommand):
     async def send_command_help(self, command):
         embed = Embed(ctx=self.context)
         self.common_command_formatting(embed, command)
-        await embed.send(dm=self.dm_help)
+        await embed.send()
 
     async def get_all_commands(self):
         bot = self.context.bot
         return await self.filter_commands(bot.commands, sort=True, key=self.key)
-
-    async def prepare_help_command(self, ctx, command=None):
-        if not self.dm_help or isinstance(ctx.channel, discord.DMChannel):
-            return
-        user = ctx.author
-        await ctx.send(f'{user.mention}, I have sent you a DM with the information!')
 
     def get_destination(self):
         ctx = self.context

@@ -3,6 +3,7 @@ import traceback
 import discord
 
 from discord.ext import commands
+from utils import Context
 import config
 
 
@@ -17,6 +18,13 @@ class Bot(commands.AutoShardedBot):
             except Exception:
                 print(f'Failed to load extension {extension}.', file=sys.stderr)
                 traceback.print_exc()
+
+    async def process_commands(self, message):
+        if message.author.bot:
+            return
+
+        ctx = await self.get_context(message, cls=Context)
+        await self.invoke(ctx)
 
     async def on_message(self, message):
         if message.author.bot or not self.is_ready():

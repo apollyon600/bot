@@ -1,8 +1,8 @@
-import traceback
+import asyncio
 import discord
 from discord.ext import commands
 
-from lib import SkyblockCommandError, APIError, ExternalAPIError
+from lib import SkyblockCommandError, APIError, ExternalAPIError, HypixelAPIError, SessionTimeout
 
 
 class ErrorHandler(commands.Cog):
@@ -38,6 +38,8 @@ class ErrorHandler(commands.Cog):
                     pass
             elif isinstance(original, APIError):
                 await self.handle_api_error(ctx, original)
+            elif isinstance(original, (asyncio.TimeoutError, SessionTimeout)):
+                await ctx.send(f'{ctx.author.mention}, Session closed!')
             else:
                 await self.handle_unexpected_error(ctx, original)
         else:
@@ -114,6 +116,9 @@ class ErrorHandler(commands.Cog):
     async def handle_api_error(self, ctx: commands.Context, error: APIError):
         if isinstance(error, ExternalAPIError):
             await ctx.send(f'{ctx.author.mention}, {error}')
+        elif isinstance(error, HypixelAPIError):
+            await ctx.send(f'{ctx.author.mention}, The Hypixel API did not respond to your command.\n'
+                           f'This error usually goes away after about a minute. If not, the Hypixel API is down.')
         else:
             await self.handle_unexpected_error(ctx, error)
 

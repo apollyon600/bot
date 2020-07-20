@@ -1,8 +1,8 @@
-import discord
 from discord.ext import commands
 
 from constants import skyblock as constants
 from utils import PlayerConverter, Embed, CommandWithCooldown
+from lib import APIDisabledError
 
 
 class Missing(commands.Cog, name='Combat'):
@@ -25,13 +25,13 @@ class Missing(commands.Cog, name='Combat'):
         Displays a list of player's missing talismans.
         Also displays inactive/unnecessary talismans if player have them.
         """
-
-        user = ctx.author
-
         if not profile:
             await player.set_profile_automatically()
         else:
-            await player.set_profile(player.profiles[profile.capitalize()])
+            await player.set_profile(profile)
+
+        if not player.enabled_api['skills'] or not player.enabled_api['inventory']:
+            raise APIDisabledError(player.uname, player.profile_name)
 
         talismans = constants.talismans.copy()
         for talisman in player.talismans:
@@ -42,7 +42,7 @@ class Missing(commands.Cog, name='Combat'):
 
         embed = Embed(
             ctx=ctx,
-            title=f'{user.name}, you are missing {len(talismans)}/{len(constants.talismans)} talisman{"" if len(talismans) == 1 else "s"}!',
+            title=f'{ctx.author.name}, you are missing {len(talismans)}/{len(constants.talismans)} talisman{"" if len(talismans) == 1 else "s"}!',
             description='Only counting talismans in your bag or inventory'
         )
 

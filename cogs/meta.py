@@ -19,6 +19,25 @@ class Meta(commands.Cog, name='Bot'):
     def cog_unload(self):
         self.bot.help_command = self._original_help_command
 
+    async def bot_check(self, ctx):
+        perms = {
+            'embed_links': True,
+            'send_messages': True,
+            'read_messages': True,
+            'add_reactions': True,
+            'read_message_history': True
+        }
+        guild = ctx.guild
+        me = guild.me if guild is not None else ctx.bot.user
+        permissions = ctx.channel.permissions_for(me)
+
+        missing = [perm for perm, value in perms.items() if getattr(permissions, perm) != value]
+
+        if not missing:
+            return True
+
+        raise commands.BotMissingPermissions(missing)
+
     @commands.command()
     async def stats(self, ctx):
         """

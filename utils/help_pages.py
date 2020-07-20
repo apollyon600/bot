@@ -78,32 +78,41 @@ class HelpPages:
 
     # noinspection PyAttributeOutsideInit
     async def show_page(self, page_name, *, first=False):
-        entries = self.get_page(page_name)
-        embed = self.get_embed(entries)
+        try:
+            entries = self.get_page(page_name)
+            embed = self.get_embed(entries)
 
-        if not self.paginating:
-            return await self.embed.send(dm=self.dm_help)
+            if not self.paginating:
+                return await self.embed.send(dm=self.dm_help, dm_extra=True)
 
-        if first:
-            self.get_embed(default=True)
-            self.message = await self.embed.send(dm=self.dm_help)
-            self.current_page = 'default'
+            if first:
+                self.get_embed(default=True)
+                self.message = await self.embed.send(dm=self.dm_help, dm_extra=True)
+                self.current_page = 'default'
+                for (cog, description, cog_emoji, commands) in self.entries:
+                    if cog == 'default':
+                        continue
+                    await self.message.add_reaction(cog_emoji)
+                return
+
+            if page_name == 'default':
+                embed = self.get_embed(default=True)
+                await self.message.edit(embed=embed)
+            else:
+                await self.message.edit(embed=embed)
             for (cog, description, cog_emoji, commands) in self.entries:
-                if cog == 'default':
-                    continue
-                await self.message.add_reaction(cog_emoji)
-            return
-
-        if page_name == 'default':
-            embed = self.get_embed(default=True)
-            await self.message.edit(embed=embed)
-        else:
-            await self.message.edit(embed=embed)
-        for (cog, description, cog_emoji, commands) in self.entries:
-            if cog == self.current_page:
-                await self.message.remove_reaction(cog_emoji, self.bot.user)
-            if cog == self.previous_page:
-                await self.message.add_reaction(cog_emoji)
+                if cog == self.current_page:
+                    await self.message.remove_reaction(cog_emoji, self.bot.user)
+                if cog == self.previous_page:
+                    await self.message.add_reaction(cog_emoji)
+        except discord.errors.Forbidden:
+            self.paginating = False
+            try:
+                await self.ctx.send(
+                    f'{self.ctx.author.mention}, Sorry, it looks like I don\'t have the permissions or roles to do that.\n'
+                    f'Try enabling your DMS or contract the server owner to give me more permissions.')
+            except:
+                pass
 
     def react_check(self, payload):
         if payload.user_id != self.author.id:
@@ -127,9 +136,7 @@ class HelpPages:
             await first_page
         else:
             # allow us to react to reactions right away if we're paginating
-            task = self.bot.loop.create_task(first_page)
-            # Very sketchy way to handle task exception here...
-            task.add_done_callback(self.exception_catching_callback)
+            self.bot.loop.create_task(first_page)
 
         while self.paginating:
             try:
@@ -154,19 +161,3 @@ class HelpPages:
                 pass  # can't remove it so don't bother doing so
 
             await self.show_page(self.current_page)
-
-    def exception_catching_callback(self, task):
-        if task.exception():
-            self.paginating = False
-            self.bot.loop.create_task(self.error_handler(task.exception()))
-            # pass
-
-    async def error_handler(self, error):
-        if isinstance(error, discord.errors.Forbidden):
-            self.paginating = False
-            try:
-                await self.ctx.send(
-                    f'{self.ctx.author.mention}, Sorry, it looks like I don\'t have the permissions or roles to do that.\n'
-                    f'Try enabling your DMS or contract the server owner to give me more permissions.')
-            except:
-                pass

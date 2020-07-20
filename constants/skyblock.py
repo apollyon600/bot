@@ -220,7 +220,7 @@ base_player_stats = {
     'speed cap': 400
 }
 
-profile_names = [
+all_profile_names = [
     'Apple',
     'Banana',
     'Blueberry',
@@ -297,6 +297,55 @@ tiered_talismans = {
     'LYNX_TALISMAN': ['CHEETAH_TALISMAN'],
     'SCARF_STUDIES': ['SCARF_THESIS', 'SCARF_GRIMOIRE'],
     'SCARF_THESIS': ['SCARF_GRIMOIRE']
+}
+
+enchantment_effects = {
+    # sword always
+    'sharpness': 5,
+    'giant_killer': lambda level: 25 if level > 0 else 0,
+    # sword sometimes
+    'smite': 8,
+    'bane_of_arthropods': 8,
+    'first_strike': 25,
+    'ender_slayer': 12,
+    'cubism': 10,
+    'execute': 10,
+    'impaling': 12.5,
+    # bow always
+    'power': 8,
+    # bow sometimes
+    'dragon_hunter': 8,
+    'snipe': 5,  # Would be lower except I only use this for drags and magma bosses
+    # rod always
+    'spiked_hook': 5
+}
+
+# list of relevant enchants for common mobs
+relavant_enchants = {
+    'slayer bosses': [
+        'giant_killer',
+        'sharpness',
+        'power',
+        'spiked_hook',
+        'smite',
+        'bane_of_arthropods',
+        'execute'
+    ],
+    'zealots': [
+        'giant_killer',
+        'sharpness',
+        'power',
+        'spiked_hook',
+        'ender_slayer',
+        'first_strike'
+    ],
+    'base': [
+        'giant_killer',
+        'sharpness',
+        'first_strike',
+        'power',
+        'spiked_hook'
+    ]
 }
 
 # reforges = {
