@@ -89,10 +89,9 @@ pet_xp = {
 def _pigman(player):
     # Buffs the Pigman sword by (Pet lvl * 0.4) damage and (Pet lvl * 0.25) strength. (All)
     # Deal (Pet lvl * 0.2%) extra damage to monsters level 100 and up. (Legendary)
-    if not player.online:
-        if player.weapon == 'PIGMAN_SWORD':
-            player.weapon.stats.__iadd__('damage', player.pet.level * 0.4)
-            player.weapon.stats.__iadd__('strength', player.pet.level * 0.25)
+    if player.weapon == 'PIGMAN_SWORD':
+        player.weapon.stats.__iadd__('damage', player.pet.level * 0.4)
+        player.weapon.stats.__iadd__('strength', player.pet.level * 0.25)
 
 
 def _elephant(player):  # (tbd)
@@ -116,10 +115,9 @@ def _enderdragon(player):
     # Deal (Pet lvl * 0.25%) more damage to end mobs. (All)
     # Buffs the Aspect of the Dragon sword by (Pet lvl * 0.5) damage and (Pet lvl * 0.3) strength. (All)
     # Increases all stats by (Pet lvl * 0.1%). (Legendary)
-    if not player.online:
-        if player.weapon == 'ASPECT_OF_THE_DRAGON':
-            player.weapon.stats.__iadd__('damage', player.pet.level * 0.5)
-            player.weapon.stats.__iadd__('strength', player.pet.level * 0.3)
+    if player.weapon == 'ASPECT_OF_THE_DRAGON':
+        player.weapon.stats.__iadd__('damage', player.pet.level * 0.5)
+        player.weapon.stats.__iadd__('strength', player.pet.level * 0.3)
     if player.pet.rarity == 'legendary':
         player.stats.multiplier += player.pet.level * 0.001
 
@@ -146,12 +144,11 @@ def _bee(player):
 
 def _squid(player):
     # Buffs the Ink Wand by (Pet lvl * 0.3) damage and (Pet lvl * 0.1) strength. (Rare) (0.4 DMG and 0.2 STR on Epic, Legendary)
-    if not player.online:
-        if player.pet.rarity not in ('common', 'uncommon') and player.weapon == 'INK_WAND':
-            player.weapon.stats.__iadd__('damage', player.pet.level * {'rare': 0.3, 'epic': 0.4, 'legendary': 0.4}[
-                player.pet.rarity])
-            player.weapon.stats.__iadd__('strength', player.pet.level * {'rare': 0.1, 'epic': 0.2, 'legendary': 0.2}[
-                player.pet.rarity])
+    if player.pet.rarity not in ('common', 'uncommon') and player.weapon == 'INK_WAND':
+        player.weapon.stats.__iadd__('damage', player.pet.level * {'rare': 0.3, 'epic': 0.4, 'legendary': 0.4}[
+            player.pet.rarity])
+        player.weapon.stats.__iadd__('strength', player.pet.level * {'rare': 0.1, 'epic': 0.2, 'legendary': 0.2}[
+            player.pet.rarity])
 
 
 def _parrot(player):
@@ -163,23 +160,21 @@ def _parrot(player):
 def _blaze(player):
     # Upgrades Blaze Armor stats and ability by (Pet lvl * 0.4%). (All)
     # Double effects of Hot Potato Books. (Legendary)
-    # Blaze stats scale with pet level is already applied to item's description text when player is online
-    if not player.online:
-        if player.armor == {'helmet': 'BLAZE_HELMET', 'chestplate': 'BLAZE_CHESTPLATE', 'leggings': 'BLAZE_LEGGINGS',
-                            'boots': 'BLAZE_BOOTS'} \
-                or player.armor == {'helmet': 'FROZEN_BLAZE_HELMET', 'chestplate': 'FROZEN_BLAZE_CHESTPLATE',
-                                    'leggings': 'FROZEN_BLAZE_LEGGINGS', 'boots': 'FROZEN_BLAZE_BOOTS'}:
-            for piece in player.armor.values():
-                if piece:
-                    piece.stats.multiplier += player.pet.level * 0.004
-        if player.pet.rarity == 'legendary':
-            for piece in player.armor.values():
-                if piece:
-                    piece.stats.__iadd__('health', piece.hot_potatos * 4)
-                    piece.stats.__iadd__('defense', piece.hot_potatos * 2)
-            if player.weapon:
-                player.weapon.stats.__iadd__('damage', player.weapon.hot_potatos * 2)
-                player.weapon.stats.__iadd__('strength', player.weapon.hot_potatos * 2)
+    if player.armor == {'helmet': 'BLAZE_HELMET', 'chestplate': 'BLAZE_CHESTPLATE', 'leggings': 'BLAZE_LEGGINGS',
+                        'boots': 'BLAZE_BOOTS'} \
+            or player.armor == {'helmet': 'FROZEN_BLAZE_HELMET', 'chestplate': 'FROZEN_BLAZE_CHESTPLATE',
+                                'leggings': 'FROZEN_BLAZE_LEGGINGS', 'boots': 'FROZEN_BLAZE_BOOTS'}:
+        for piece in player.armor.values():
+            if piece:
+                piece.stats.multiplier += player.pet.level * 0.004
+    if player.pet.rarity == 'legendary':
+        for piece in player.armor.values():
+            if piece:
+                piece.stats.__iadd__('health', piece.hot_potatos * 4)
+                piece.stats.__iadd__('defense', piece.hot_potatos * 2)
+        if player.weapon:
+            player.weapon.stats.__iadd__('damage', player.weapon.hot_potatos * 2)
+            player.weapon.stats.__iadd__('strength', player.weapon.hot_potatos * 2)
 
 
 def _blackcat(player):  # (tbd)
@@ -192,29 +187,26 @@ def _blackcat(player):  # (tbd)
 def _flyingfish(player):
     # Gives (Pet lvl * 0.4) strength when near water. (Rare) (0.5 on Epic, Legendary)
     # Increases the stats of Diver's Armor by (Pet lvl * 0.3%). (Legendary)
-    if not player.online:
-        if player.pet.rarity == 'legendary' and player.armor == {'helmet': 'DIVER_HELMET',
-                                                                 'chestplate': 'DIVER_CHESTPLATE',
-                                                                 'leggings': 'DIVER_LEGGINGS', 'boots': 'DIVER_BOOTS'}:
-            for piece in player.armor.values():
-                piece.stats.multiplier += player.pet.level * 0.003
+    if player.pet.rarity == 'legendary' and player.armor == {'helmet': 'DIVER_HELMET',
+                                                             'chestplate': 'DIVER_CHESTPLATE',
+                                                             'leggings': 'DIVER_LEGGINGS', 'boots': 'DIVER_BOOTS'}:
+        for piece in player.armor.values():
+            piece.stats.multiplier += player.pet.level * 0.003
 
 
 def _magmacube(player):
     # Deal (Pet lvl * 0.25%) more damage to slimes. (Rare, Epic, Legendary)
     # Buffs the stats of Ember Armor by (Pet lvl * 1%). (Legendary)
-    if not player.online:
-        if player.pet.rarity == 'legendary' and player.armor == {'helmet': 'BLAZE_HELMET',
-                                                                 'chestplate': 'BLAZE_CHESTPLATE',
-                                                                 'leggings': 'BLAZE_LEGGINGS', 'boots': 'BLAZE_BOOTS'}:
-            for piece in player.armor.values():
-                piece.stats.multiplier += player.pet.level * 0.01
+    if player.pet.rarity == 'legendary' and player.armor == {'helmet': 'BLAZE_HELMET',
+                                                             'chestplate': 'BLAZE_CHESTPLATE',
+                                                             'leggings': 'BLAZE_LEGGINGS', 'boots': 'BLAZE_BOOTS'}:
+        for piece in player.armor.values():
+            piece.stats.multiplier += player.pet.level * 0.01
 
 
 def _jerry(player):
-    if not player.online:
-        if player.pet.rarity == 'legendary' and player.weapon == 'ASPECT_OF_THE_JERRY':
-            player.weapon.stats.__iadd__('damage', player.pet.level * 0.1)
+    if player.pet.rarity == 'legendary' and player.weapon == 'ASPECT_OF_THE_JERRY':
+        player.weapon.stats.__iadd__('damage', player.pet.level * 0.1)
 
 
 def _silverfish(player):  # (tbd)
@@ -242,19 +234,17 @@ def _lion(player):
     # Adds (Pet lvl * 0.03) damage to your weapons. (Common) (0.05 on Uncommon) (0.1 on Rare) (0.15 on Epic) (0.2 on Legendary)
     # Increases damage dealt by (Pet lvl * 0.3%) on your first hit on a mob. (Rare) (0.4% on Epic) (0.5% on Legendary)
     # Deal (Pet lvl * 0.3%) weapon damage against mobs below level 80. (Legendary)
-    if not player.online:
-        if player.weapon:
-            player.weapon.stats.__iadd__('damage', player.pet.level *
-                                         {'common': 0.03, 'uncommon': 0.05, 'rare': 0.1, 'epic': 0.15,
-                                          'legendary': 0.2}[player.pet.rarity])
+    if player.weapon:
+        player.weapon.stats.__iadd__('damage', player.pet.level *
+                                     {'common': 0.03, 'uncommon': 0.05, 'rare': 0.1, 'epic': 0.15,
+                                      'legendary': 0.2}[player.pet.rarity])
 
 
 def _yeti(player):
     player.stats.modifiers['defense'].insert(0, lambda stat: stat + player.stats['strength'] / 100)
-    if not player.online:
-        if player.pet.rarity == 'legendary' and player.weapon == 'YETI_SWORD':
-            player.weapon.stats.__iadd__('damage', 100)
-            player.weapon.stats.__iadd__('intelligence', 100)
+    if player.pet.rarity == 'legendary' and player.weapon == 'YETI_SWORD':
+        player.weapon.stats.__iadd__('damage', 100)
+        player.weapon.stats.__iadd__('intelligence', 100)
 
 
 def _bluewhale(player):  # (tbd)

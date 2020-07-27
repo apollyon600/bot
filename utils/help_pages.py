@@ -1,8 +1,7 @@
 import discord
 import asyncio
 
-from . import Embed
-from constants.bot import timeout_emoji
+from . import Embed, embed_timeout_handler
 
 
 class HelpPages:
@@ -47,15 +46,15 @@ class HelpPages:
         self.embed.description = self.description
 
         self.embed.add_field(
-            value='For more help, join the official bot support server: https://discord.gg/sbs',
+            value='For more help, join the official bot support server: https://discord.gg/sbs.',
             inline=False
         )
 
-        self.embed.set_footer(text=f'Use "{self.prefix}help command" for more info on a command.')
+        self.embed.set_footer(text=f'Use "{self.prefix}help [command]" for more info on a command.')
 
         for entry in entries:
             signature = f'{entry.qualified_name} {entry.signature}'
-            self.embed.add_field(name=signature, value=entry.short_doc or "No help given", inline=False)
+            self.embed.add_field(name=signature, value=entry.short_doc or "No help found...", inline=False)
 
     def prepare_default_embed(self):
         self.embed.clear_fields()
@@ -64,7 +63,7 @@ class HelpPages:
 
         self.embed.add_field(
             name='React to this message with any of the emojis to view commands.',
-            value='```<> signifies a required argument, while [] signifies an optional argument```',
+            value='```<> signifies a required argument, while [] signifies an optional argument.```',
             inline=False
         )
 
@@ -73,7 +72,8 @@ class HelpPages:
                 continue
             self.embed.add_field(
                 name=f'{cog_emoji} {cog}',
-                value=f'```{description}```'
+                value=f'```{description}```',
+                inline=False
             )
 
     # noinspection PyAttributeOutsideInit
@@ -110,7 +110,7 @@ class HelpPages:
             try:
                 await self.ctx.send(
                     f'{self.ctx.author.mention}, Sorry, it looks like I don\'t have the permissions or roles to do that.\n'
-                    f'Try enabling your DMS or contract the server owner to give me more permissions.')
+                    f'Try enabling your DM or contract the server owner to give me more permissions.')
             except:
                 pass
 
@@ -141,19 +141,15 @@ class HelpPages:
         while self.paginating:
             try:
                 payload = await self.bot.wait_for('raw_reaction_add', check=self.react_check, timeout=120.0)
-            except asyncio.TimeoutError:
+            except asyncio.TimeoutError as e:
                 if not self.paginating:
                     pass
                 self.paginating = False
-                try:
-                    for (cog, description, cog_emoji, commands) in self.entries:
-                        await self.message.remove_reaction(cog_emoji, self.bot.user)
-                    for emoji in timeout_emoji:
-                        await self.message.add_reaction(emoji)
-                except:
-                    pass
-                finally:
-                    break
+                self.bot.loop.create_task(embed_timeout_handler(self.ctx,
+                                                                [(cog_emoji, None) for
+                                                                 (cog, description, cog_emoji, commands)
+                                                                 in self.entries], message=self.message))
+                raise e from None
 
             try:
                 await self.message.remove_reaction(payload.emoji, discord.Object(id=payload.user_id))

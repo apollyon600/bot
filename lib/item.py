@@ -143,7 +143,7 @@ class Item:
         return f"'{self.internal_name}'"
 
 
-def decode_inventory_data(raw, player=None, backpack=False):
+def decode_inventory_data(raw, player=None, backpack=False, *, index_empty=False):
     """
 	Takes a raw string representing inventory data.
 	Returns a json object with the inventory's contents
@@ -207,4 +207,11 @@ def decode_inventory_data(raw, player=None, backpack=False):
     root = {}
     parse_next_tag(root)
 
-    return [Item(x, i, player) for i, x in enumerate(root['i']) if x and 'tag' in x and 'ExtraAttributes' in x['tag']]
+    items = []
+    for i, x in enumerate(root['i']):
+        if x and 'tag' in x and 'ExtraAttributes' in x['tag']:
+            items.append(Item(x, i, player))
+        elif index_empty:
+            items.append(None)
+
+    return items

@@ -1,28 +1,33 @@
 import asyncio
+import copy
 from datetime import datetime
 
 from . import Pet, Stats, HypixelApiInterface, HypixelAPIError, DataError, NeverPlayedSkyblockError, \
-    decode_inventory_data, fetch_uuid_uname, level_from_xp_table, BadProfileError
+    decode_inventory_data, fetch_uuid_uname, level_from_xp_table, BadProfileError, safe_list_get
 from constants import *
 
 
-# noinspection PyUnusedLocal
+# noinspection PyUnusedLocal,PyShadowingNames
 class Player(HypixelApiInterface):
     """
     A class representing a Skyblock player.
     Instantiate the class with Player(api_key, username) or Player(api_key, uuid)
     Use set_profile() to define the profile data.
     Use set_weapon() to set the player's weapon.
+    Use set_pet() to set the player's pet.
+    Use set_armor() to set the player's armor.
     """
 
-    async def __init__(self, api_keys, *, uname=None, uuid=None, guild=False, _profiles=None, _achivements=None):
+    async def __init__(self, api_keys, *, uname=None, uuid=None, guild=False, _profiles=None, _achivements=None,
+                       session=None):
+        self.session = session
         if uname and uuid:
             self.uname = uname
             self.uuid = uuid
         elif uname and not uuid:
-            self.uname, self.uuid = await fetch_uuid_uname(uname)
+            self.uname, self.uuid = await fetch_uuid_uname(uname, self.session)
         elif uuid and not uname:
-            self.uname, self.uuid = await fetch_uuid_uname(uuid)
+            self.uname, self.uuid = await fetch_uuid_uname(uuid, self.session)
         else:
             raise DataError('You need to provide either a minecraft username or uuid!')
         self.online = False
@@ -33,7 +38,7 @@ class Player(HypixelApiInterface):
         else:
             try:
                 self.profiles = {}
-                player = await self.__call_api__('/player', uuid=self.uuid)
+                player = await self.__call_api__('/player', self.session, uuid=self.uuid)
                 player_data = player['player']
                 profile_ids = player_data['stats']['SkyBlock']['profiles']
 
@@ -49,10 +54,10 @@ class Player(HypixelApiInterface):
                 raise NeverPlayedSkyblockError(self.uname) from None
 
         if guild:
-            guild_id = (await self.__call_api__('/findGuild', byUuid=self.uuid))['guild']
+            guild_id = (await self.__call_api__('/findGuild', self.session, byUuid=self.uuid))['guild']
             if guild_id:
                 self.guild_id = guild_id
-                self.guild_info = (await self.__call_api__('/guild', id=self.guild_id))['guild']
+                self.guild_info = (await self.__call_api__('/guild', self.session, id=self.guild_id))['guild']
                 self.guild = self.guild_info['name']
             else:
                 self.guild_id = None
@@ -73,6 +78,7 @@ class Player(HypixelApiInterface):
         else:
             return f'https://mc-heads.net/avatar/{self.uuid}'
 
+    # TODO: set profile automatically is kinda api expensive, need a revise
     async def set_profile_automatically(self, attribute=lambda player: player.total_slayer_xp, threshold=None):
         """
         Sets a player profile automatically
@@ -125,7 +131,7 @@ class Player(HypixelApiInterface):
         self.profile_name = profile_name.capitalize()
 
         # Get player's inventories nbt data
-        self._nbt = (await self.__call_api__('/skyblock/profile', profile=self.profile))['profile']
+        self._nbt = (await self.__call_api__('/skyblock/profile', self.session, profile=self.profile))['profile']
         if not self._nbt or not self._nbt['members'][self.uuid]:
             raise DataError('Something\'s wrong with player\'s items nbt data')
         v = self._nbt['members'][self.uuid]
@@ -134,37 +140,55 @@ class Player(HypixelApiInterface):
         self.armor = {'helmet': None, 'chestplate': None, 'leggings': None, 'boots': None}
 
         # Loads a player's numeric stats
-        self.stats = Stats(base_player_stats.copy())
+        self.stats = Stats(copy.deepcopy(base_player_stats))
 
-        # Check for special armor type
-        for armor in self._parse_inventory(self, v, 'inv_armor', 'data'):
+        self.current_armor = {'helmet': None, 'chestplate': None, 'leggings': None, 'boots': None}
+        for armor in self._parse_inventory(self, v, path=['inv_armor', 'data']):
             if armor.type == 'hatccessory':
-                self.armor['helmet'] = armor
+                self.current_armor['helmet'] = armor
             else:
-                self.armor[armor.type] = armor
+                self.current_armor[armor.type] = armor
 
         # Loads all of a player's inventories
-        self.inventory = self._parse_inventory(self, v, 'inv_contents', 'data')
-        self.echest = self._parse_inventory(self, v, 'ender_chest_contents', 'data')
+        self.inventory = self._parse_inventory(self, v, path=['inv_contents', 'data'])
+        self.echest = self._parse_inventory(self, v, path=['ender_chest_contents', 'data'])
         self.weapons = [item for item in self.inventory + self.echest if item.type in ('sword', 'bow', 'fishing rod')]
-        self.candy_bag = self._parse_inventory(self, v, 'candy_inventory_contents', 'data')
-        self.talisman_bag = self._parse_inventory(self, v, 'talisman_bag', 'data')
-        self.potion_bag = self._parse_inventory(self, v, 'potion_bag', 'data')
-        self.fish_bag = self._parse_inventory(self, v, 'fishing_bag', 'data')
-        self.quiver = self._parse_inventory(self, v, 'quiver', 'data')
-        self.wardrobe = self._parse_inventory(self, v, 'wardrobe_contents', 'data')
+        self.candy_bag = self._parse_inventory(self, v, path=['candy_inventory_contents', 'data'])
+        self.talisman_bag = self._parse_inventory(self, v, path=['talisman_bag', 'data'])
+        self.potion_bag = self._parse_inventory(self, v, path=['potion_bag', 'data'])
+        self.fish_bag = self._parse_inventory(self, v, path=['fishing_bag', 'data'])
+        self.quiver = self._parse_inventory(self, v, path=['quiver', 'data'])
+        wardrobe = self._parse_inventory(self, v, index_empty=True, path=['wardrobe_contents', 'data'])
+        self.wardrobe = []
+        for wardrobe_page in range(0, 2 * 36, 36):
+            for i in range(wardrobe_page, wardrobe_page + 9):
+                armor_set = {
+                    'helmet': safe_list_get(wardrobe, i),
+                    'chestplate': safe_list_get(wardrobe, i + 9),
+                    'leggings': safe_list_get(wardrobe, i + 18),
+                    'boots': safe_list_get(wardrobe, i + 27)
+                }
+                if all(item is None for item in armor_set.values()):
+                    continue
+                self.wardrobe.append(armor_set)
 
         if self.inventory or self.echest or self.talisman_bag:
             self.enabled_api['inventory'] = True
 
+        # Loads player's talismans
         self.talismans = [talisman for talisman in self.inventory + self.talisman_bag if
                           talisman.type in ('accessory', 'hatccessory')]
+
+        self.talisman_counts = {'common': 0, 'uncommon': 0, 'rare': 0, 'epic': 0, 'legendary': 0, 'mythic': 0}
+        talismans_dup = []
 
         for talisman in self.talismans:
             talisman.active = True
             # Check for duplicate talismans
             if self.talismans.count(talisman) > 1:
                 talisman.active = False
+                if not talisman in talismans_dup:
+                    talismans_dup.append(talisman)
                 continue
 
             # Check for talisman families
@@ -173,6 +197,13 @@ class Player(HypixelApiInterface):
                     if other in self.talismans:
                         talisman.active = False
                         break
+
+        for talisman in talismans_dup:
+            talisman.active = True
+
+        for tali in self.talismans:
+            if tali.active:
+                self.talisman_counts[tali.rarity] += 1
 
         # Loads a player's minion slots and collections
         try:
@@ -275,54 +306,62 @@ class Player(HypixelApiInterface):
         self.stats.__iadd__('strength', self.fairy_souls // 5 + self.fairy_souls // 25)
         self.stats.__iadd__('speed', self.fairy_souls // 50)
 
-        self.stats.children = [(p.type, p.stats) for p in self.armor.values() if p] + [(t.type, t.stats) for t in
-                                                                                       self.talismans if t.active]
-        self.stats.base_children = [(p.type, p.base_stats) for p in self.armor.values() if p] \
-                                   + [(t.type, t.base_stats) for t in self.talismans if t.active]
-
-        # Set Bonuses
-        if self.armor == {'helmet': 'SUPERIOR_DRAGON_HELMET', 'chestplate': 'SUPERIOR_DRAGON_CHESTPLATE',
-                          'leggings': 'SUPERIOR_DRAGON_LEGGINGS', 'boots': 'SUPERIOR_DRAGON_BOOTS'}:
-            self.stats.multiplier += 0.05
-        # elif self.armor == {'helmet': 'YOUNG_HELMET', 'chestplate': 'YOUNG_CHESTPLATE', 'leggings': 'YOUNG_LEGGINGS', 'boots': 'YOUNG_BOOTS'}: #name maybe wrong check later
-        # 	self.stats.__iadd__('speed cap', 100)
-        # elif self.armor == {'helmet': 'MASTIFF_HELMET', 'chestplate': 'MASTIFF_CHESTPLATE', 'leggings': 'MASTIFF_LEGGINGS', 'boots': 'MASTIFF_BOOTS'}:
-        # 	self.stats.modifiers['crit damage'].append(lambda stat: stat / 2)
-        # 	self.stats.modifiers['health'].append(lambda stat: stat + self.stats['crit damage'] * 50)
-        elif self.armor['helmet'] == 'TARANTULA_HELMET':
-            self.stats.modifiers['crit damage'].insert(0, lambda stat: stat + self.stats['strength'] / 10)
-
         # Loads all of a player's pets
         self.pets = []
-        self.pet = None
         if 'pets' in v:
             for data in v['pets']:
                 pet = Pet(data)
                 self.pets.append(pet)
-                if pet.active:
-                    self.pet = pet
+
+    # noinspection PyAttributeOutsideInit
+    def set_armor(self, armor=None):
+        self.armor = armor
+
+        if self.armor:
+            self.stats.children.extend(
+                [(p.type, p.stats) for p in self.armor.values() if p] + [(t.type, t.stats) for t in
+                                                                         self.talismans if t.active])
+            self.stats.base_children.extend([(p.type, p.base_stats) for p in self.armor.values() if p] \
+                                            + [(t.type, t.base_stats) for t in self.talismans if t.active])
+
+            # Set Bonuses
+            if self.armor == {'helmet': 'SUPERIOR_DRAGON_HELMET', 'chestplate': 'SUPERIOR_DRAGON_CHESTPLATE',
+                              'leggings': 'SUPERIOR_DRAGON_LEGGINGS', 'boots': 'SUPERIOR_DRAGON_BOOTS'}:
+                self.stats.multiplier += 0.05
+            # elif self.armor == {'helmet': 'YOUNG_HELMET', 'chestplate': 'YOUNG_CHESTPLATE', 'leggings': 'YOUNG_LEGGINGS', 'boots': 'YOUNG_BOOTS'}: #name maybe wrong check later
+            # 	self.stats.__iadd__('speed cap', 100)
+            # elif self.armor == {'helmet': 'MASTIFF_HELMET', 'chestplate': 'MASTIFF_CHESTPLATE', 'leggings': 'MASTIFF_LEGGINGS', 'boots': 'MASTIFF_BOOTS'}:
+            # 	self.stats.modifiers['crit damage'].append(lambda stat: stat / 2)
+            # 	self.stats.modifiers['health'].append(lambda stat: stat + self.stats['crit damage'] * 50)
+            elif self.armor['helmet'] == 'TARANTULA_HELMET':
+                self.stats.modifiers['crit damage'].insert(0, lambda stat: stat + self.stats['strength'] / 10)
+
+    # noinspection PyAttributeOutsideInit
+    def set_weapon(self, weapon=None):
+        self.weapon = weapon
+
+        if self.weapon:
+            self.stats.children.append((self.weapon.type, self.weapon.stats))
+            self.stats.base_children.append((self.weapon.type, self.weapon.base_stats))
+
+    # noinspection PyAttributeOutsideInit
+    def set_pet(self, pet=None):
+        self.pet = pet
 
         if self.pet:
             self.stats.children.append((self.pet.internal_name, self.pet.stats))
             self.stats.base_children.append((self.pet.internal_name, self.pet.stats))
 
-    # noinspection PyAttributeOutsideInit
-    def set_weapon(self, weapon):
-        self.weapon = weapon
-        self.stats.children.append((weapon.type, weapon.stats))
-        self.stats.base_children.append((weapon.type, weapon.base_stats))
-
-        if self.pet:
             pet_ability = pets[self.pet.internal_name]['ability']
             if callable(pet_ability):
                 pet_ability(self)
 
     async def is_online(self):
-        player_data = (await self.__call_api__('/status', uuid=self.uuid))['session']
+        player_data = (await self.__call_api__('/status', self.session, uuid=self.uuid))['session']
         return player_data['online']
 
     async def auctions(self):
-        r = await self.__call_api__('/skyblock/auction', uuid=self.uuid, profile=self.profile)
+        r = await self.__call_api__('/skyblock/auction', self.session, uuid=self.uuid, profile=self.profile)
 
         return [
             {
@@ -345,7 +384,8 @@ class Player(HypixelApiInterface):
             uname=self.uname,
             uuid=self.uuid,
             _profiles=self.profiles,
-            _achivements=self.achievements
+            _achivements=self.achievements,
+            session=self.session
         )
         await player.set_profile(profile)
         return player
@@ -371,11 +411,11 @@ class Player(HypixelApiInterface):
             return {}
 
     @staticmethod
-    def _parse_inventory(self, v, *path):
+    def _parse_inventory(self, v, *, index_empty=False, path):
         try:
             result = v
             for key in path:
                 result = result[key]
-            return decode_inventory_data(result, self)
+            return decode_inventory_data(result, self, index_empty=index_empty)
         except KeyError:
             return []

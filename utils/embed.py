@@ -12,10 +12,7 @@ class Embed(discord.Embed):
             self.channel = channel
             self.user = user
 
-        super().__init__(
-            color=self.color(channel),
-            **kwargs
-        )
+        super().__init__(color=self.color(channel), **kwargs)
 
     @staticmethod
     def color(channel):
@@ -29,9 +26,6 @@ class Embed(discord.Embed):
 
     def add_field(self, *, name=None, value=nbst, inline=True):
         return super().add_field(name=f'**{name}**' if name else self.nbst, value=value, inline=inline)
-
-    def set_image(self, url):
-        return super().set_image(url=url)
 
     async def send(self, *, dm=False, dm_extra=False):
         if dm and not isinstance(self.channel, discord.DMChannel):

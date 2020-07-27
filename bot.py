@@ -1,6 +1,7 @@
 import sys
 import traceback
 import discord
+import aiohttp
 
 from discord.ext import commands
 from utils import Context
@@ -10,8 +11,10 @@ import config
 class Bot(commands.AutoShardedBot):
     def __init__(self, *args, **kwargs):
         self.config = config
-
-        super().__init__(command_prefix=self.config.prefix, description='Test Bot', *args, **kwargs)
+        super().__init__(command_prefix=self.config.prefix, description='Skyblock Simplified',
+                         owner_ids=self.config.owner_ids, *args, **kwargs)
+        self.session = aiohttp.ClientSession(loop=self.loop, timeout=aiohttp.ClientTimeout(total=3),
+                                             raise_for_status=True)
         for extension in self.config.extensions:
             try:
                 self.load_extension(extension)
@@ -43,4 +46,4 @@ class Bot(commands.AutoShardedBot):
 
     def add_cog(self, cog: commands.Cog):
         super().add_cog(cog)
-        print(f"Cog loaded: {type(cog).__name__} ({cog.qualified_name})")
+        print(f"Cog loaded: {type(cog).__name__} ({cog.qualified_name}).")

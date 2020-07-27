@@ -2,86 +2,114 @@ from discord.ext.commands import UserInputError
 
 
 class SkyblockCommandError(UserInputError):
+    """
+    The base exception type for errors regarding user wrong skyblock-related input.
+    """
     pass
 
 
 class BadNameError(SkyblockCommandError):
-    """This uuid or username is invalid"""
+    """
+    Exception raised when a user enters invalid player name/uuid.
+    """
 
-    def __init__(self, uname_or_uuid, *args):
-        super().__init__(f'Invalid player\'s name/uuid: {uname_or_uuid}', *args)
+    def __init__(self, uname_or_uuid):
+        self.uname = uname_or_uuid
 
 
 class BadProfileError(SkyblockCommandError):
-    """This profile name is invalid"""
+    """
+    Exception raised when a user enters invalid profile name.
+    """
 
-    def __init__(self, profile_name, *args):
-        super().__init__(f'Invalid profile\'s name: {profile_name}', *args)
+    def __init__(self, profile_name):
+        self.profile_name = profile_name
 
 
 class NeverPlayedSkyblockError(SkyblockCommandError):
-    """This user has never played skyblock before"""
+    """
+    Exception raised when a user enters a player name/uuid that has never played skyblock before.
+    """
 
-    def __init__(self, uname_or_uuid, *args):
-        super().__init__(f'This player {uname_or_uuid} has never played skyblock before.', *args)
+    def __init__(self, uname_or_uuid):
+        self.uname = uname_or_uuid
 
 
 class APIDisabledError(SkyblockCommandError):
-    """This user has never played skyblock before"""
+    """
+    Exception raised when a user enters a player name/uuid that has their api disabled.
+    """
 
-    def __init__(self, uname_or_uuid, profile_name, *args):
-        super().__init__(f'This player {uname_or_uuid} has disabled API on {profile_name} profile.\n'
-                         f'Re-enable them with [skyblock menu > settings > api settings]', *args)
+    def __init__(self, uname_or_uuid, profile_name):
+        self.uname = uname_or_uuid
+        self.profile_name = profile_name
 
 
 class BadGuildError(SkyblockCommandError):
-    """This guild name is invalid"""
+    """
+    Exception raised when a user enters invalid guild name.
+    """
 
-    def __init__(self, guild, *args):
-        super().__init__(f'Invalid guild\'s name: {guild}', *args)
+    def __init__(self, guild_name):
+        self.guild_name = guild_name
 
 
 class SessionTimeout(Exception):
+    """
+    Exception raised when the current message session timed out.
+    """
     pass
 
 
 class SkyblockLibError(Exception):
-    """A general exception from the skyblock library"""
+    """
+    The base exception type for errors regarding skyblock library.
+    """
 
     def __str__(self):
         return self.reason
 
 
 class DataError(SkyblockLibError):
-    """You entered wrong data"""
+    """
+    Exception raised when something is wrong while processing the data.
+    """
 
     def __init__(self, reason=''):
         self.reason = reason
 
 
 class APIError(Exception):
-    """A general exception from the skyblock library"""
+    """
+    The base exception type for errors regarding API.
+    """
 
     def __str__(self):
         return self.reason
 
 
 class ExternalAPIError(APIError):
-    """There was an issue connecting to the API"""
+    """
+    Exception raised when something is wrong while calling API.
+    """
 
     def __init__(self, reason=''):
         self.reason = reason
 
 
 class HypixelAPIError(APIError):
-    """The Hypixel API had some error"""
+    """
+    Exception raised when something is wrong while calling Hypixel API.
+    """
 
     def __init__(self, reason=''):
         self.reason = reason
 
 
 class APIKeyError(APIError):
-    """You used an invalid API key"""
+    """
+    Exception raised when the API key is invalid.
+    """
 
     def __init__(self, key, reason=''):
         self.key = key

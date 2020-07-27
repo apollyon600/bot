@@ -1,3 +1,4 @@
+import psutil
 from discord.ext import commands
 
 from utils import Embed, PaginatedHelpCommand
@@ -12,6 +13,7 @@ class Meta(commands.Cog, name='Bot'):
 
     def __init__(self, bot):
         self.bot = bot
+        self.process = psutil.Process()
         self._original_help_command = bot.help_command
         bot.help_command = PaginatedHelpCommand(dm_help=True)
         bot.help_command.cog = self
@@ -50,14 +52,14 @@ class Meta(commands.Cog, name='Bot'):
         embed = Embed(
             ctx=ctx,
             title='Discord Stats',
-            description=f'This Command was run on shard {(ctx.guild.shard_id if ctx.guild else 0) + 1} / {self.bot.shard_count}\n```{server_rankings}```'
+            description=f'This command was run on shard {(ctx.guild.shard_id if ctx.guild else 0) + 1} / {self.bot.shard_count}.\n```{server_rankings}```'
         ).add_field(
             name='Servers',
-            value=f'{self.bot.user.name} is running in {len(self.bot.guilds)} servers with {sum(len(guild.text_channels) for guild in self.bot.guilds)} channels',
+            value=f'{self.bot.user.name} is running in {len(self.bot.guilds)} servers with {sum(len(guild.text_channels) for guild in self.bot.guilds)} channels.',
             inline=False
         ).add_field(
             name='Users',
-            value=f'There are currently {sum(len(guild.members) for guild in self.bot.guilds)} users with access to the bot',
+            value=f'There are currently {sum(len(guild.members) for guild in self.bot.guilds)} users with access to the bot.',
             inline=False
         )
 
@@ -73,12 +75,42 @@ class Meta(commands.Cog, name='Bot'):
                 value=f'{shards[x][0]} servers\n{shards[x][1]} channels\n{shards[x][2]} members',
                 inline=True
             )
+
+        memory_usage = self.process.memory_full_info().uss / 1024**2
+        cpu_usage = self.process.cpu_percent() / psutil.cpu_count()
         embed.add_field(
-            name='Latency',
-            value=f'This message was delivered in {self.bot.latency * 1000:.0f} milliseconds',
+            name='Process',
+            value=f'{memory_usage:.2f} MiB\n{cpu_usage:.2f}% CPU',
             inline=False
         )
+
+        embed.set_footer(text=f'This message was delivered in {self.bot.latency * 1000:.0f} milliseconds.')
+
         await embed.send()
+
+    @commands.command()
+    async def invite(self, ctx):
+        """
+        Want to invite the bot to your server? Use this command to generate an invite link.
+        """
+        await Embed(
+            ctx=ctx,
+            title='Here\'s an invite link',
+            description='[Click me to invite the bot](https://tinyurl.com/add-sbs)'
+        ).send()
+
+    @commands.command()
+    async def support(self, ctx):
+        """
+        Have a question about the bot? Use this command to join the official server to ask.
+        """
+        await Embed(
+            ctx=ctx,
+            title='Here\'s a link to my support server',
+            description='[https://discord.gg/sbs]'
+        ).set_footer(
+            text='(ﾉ◕ヮ◕)ﾉ*:･ﾟ✧'
+        ).send()
 
 
 def setup(bot):

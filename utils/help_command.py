@@ -1,5 +1,4 @@
 import itertools
-import discord
 from discord.ext import commands
 
 from . import Embed, HelpPages

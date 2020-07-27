@@ -1,7 +1,7 @@
 import aiohttp
 import asyncio
 
-from . import APIKeyError, HypixelAPIError, session
+from . import APIKeyError, HypixelAPIError
 
 
 class HypixelApiInterface:
@@ -11,12 +11,12 @@ class HypixelApiInterface:
             self.__key_id__ = 0
         return self._api_keys[self.__key_id__]
 
-    async def __call_api__(self, api, **kwargs):
+    async def __call_api__(self, api, session, **kwargs):
         kwargs['key'] = self.__next_key__()
         url = f'https://api.hypixel.net{api}'
 
         try:
-            async with (await session()).get(url, params=kwargs) as data:
+            async with session.get(url, params=kwargs) as data:
                 data = await data.json(content_type=None)
 
                 if data['success']:
@@ -27,7 +27,7 @@ class HypixelApiInterface:
                     raise HypixelAPIError(data['cause'])
 
         except asyncio.TimeoutError:
-            return await self.__call_api__(api, **kwargs)
+            return await self.__call_api__(api, session, **kwargs)
 
         except aiohttp.ClientResponseError as e:
             if e.status == 403:

@@ -17,7 +17,7 @@ class EventHandler(commands.Cog):
         filtered_args = ctx.message.clean_content.split()[2:] or []
         print(f'{ctx.author} used {ctx.command} {filtered_args} in '
               f'{"a DM" if isinstance(ctx.channel, discord.DMChannel) else ctx.channel.guild.name} '
-              f'at {ctx.message.created_at}')
+              f'at {ctx.message.created_at}.')
 
 
 def setup(bot):

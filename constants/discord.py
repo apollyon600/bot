@@ -1,8 +1,8 @@
 timeout_emoji = ['🇹', '🇮', '🇲', '🇪', '🇴', '🇺', '✝️']
 
 optimizers = [
-    {'emoji': '💯', 'name': 'perfect crit chance'},
-    {'emoji': '💥', 'name': 'maximum damage'}
+    {'emoji': '💯', 'name': 'Perfect crit chance'},
+    {'emoji': '💥', 'name': 'Maximum damage'}
 ]
 
 white = ('', '')

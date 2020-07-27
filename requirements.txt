@@ -10,3 +10,4 @@ motor
 python-dotenv
 cloudscraper
 pyomo
+psutil
