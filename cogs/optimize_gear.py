@@ -223,7 +223,7 @@ class OptimizeGear(commands.Cog, name='Damage'):
             return player.pets[0]
         else:
             pet_index = await ctx.prompt_with_list(
-                entries=[pet for pet in player.pets],
+                entries=[format_pet(pet) for pet in player.pets],
                 title='Which pet would you like to use?',
                 footer='You may enter the corresponding pet number.'
             )
