@@ -13,8 +13,7 @@ class Bot(commands.AutoShardedBot):
         self.config = config
         super().__init__(command_prefix=self.config.prefix, description='Skyblock Simplified',
                          owner_ids=self.config.owner_ids, *args, **kwargs)
-        self.session = aiohttp.ClientSession(loop=self.loop, timeout=aiohttp.ClientTimeout(total=5),
-                                             raise_for_status=True)
+        self.session = aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=5), raise_for_status=True)
         for extension in self.config.extensions:
             try:
                 self.load_extension(extension)

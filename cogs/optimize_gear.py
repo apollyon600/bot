@@ -206,7 +206,7 @@ class OptimizeGear(commands.Cog, name='Damage'):
                 entries=entries,
                 title='Which armor set would you like to use?',
                 footer='You may enter the corresponding armor set number.',
-                per_page=2
+                per_page=3
             )
             return player.wardrobe[armor_index - 1]
         else:

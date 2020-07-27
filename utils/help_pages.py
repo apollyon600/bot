@@ -8,7 +8,7 @@ class HelpPages:
     def __init__(self, help_command, ctx, entries, *, dm_help=False):
         self.bot = ctx.bot
         self.ctx = ctx
-        self.message = None
+        self.message = ctx.message
         self.channel = ctx.channel
         self.author = ctx.author
         self.entries = entries
@@ -50,7 +50,7 @@ class HelpPages:
             inline=False
         )
 
-        self.embed.set_footer(text=f'Use "{self.prefix}help [command]" for more info on a command.')
+        self.embed.set_footer(text=f'Use "{self.prefix[-1]}help [command]" for more info on a command.')
 
         for entry in entries:
             signature = f'{entry.qualified_name} {entry.signature}'

@@ -22,7 +22,10 @@ extensions = [
     'cogs.auction_price'
 ]
 
-prefix = 'exp' + ' '
+prefix = [
+    'Exp' + ' ',
+    'exp' + ' ',
+]
 
 # to use high level commands
 owner_ids = [
