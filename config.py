@@ -29,7 +29,7 @@ owner_ids = [
     148460858438057985,  # yuerino
 ]
 
-# to get error and feedback DM
+# to get error DM from bot
 dev_ids = [
     148460858438057985,  # yuerino
 ]

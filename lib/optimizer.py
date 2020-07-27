@@ -154,8 +154,8 @@ def damage_optimizer(player, *, perfect_crit_chance, attack_speed_limit, only_bl
     # --- weapon damage ---
     if player.weapon == 'MIDAS_SWORD' and not only_blacksmith_reforges:
         m.eqn.add(m.wd == player.weapon.stats['damage'] + quicksum(
-            reforges_set['sword'][k][j].get('damage', 0) * m.reforge_counts['sword', j, k] for i, j, k in
-            m.reforge_set if i == 'sword'), linear=False)
+            (reforges_set['sword'][k][j].get('damage', 0) * m.reforge_counts['sword', j, k] for i, j, k in
+             m.reforge_set if i == 'sword'), linear=False))
     # ---
 
     # --- multiplier ---
