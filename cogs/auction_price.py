@@ -16,7 +16,7 @@ class AuctionPrice(commands.Cog, name='Auction'):
         self.session = bot.session
 
     @commands.command()
-    async def price(self, ctx, *item_name):
+    async def price(self, ctx, *, item_name):
         """
         Displays the average price for any item on the auction.
         """

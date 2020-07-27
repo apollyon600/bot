@@ -54,6 +54,27 @@ class BadGuildError(SkyblockCommandError):
         self.guild_name = guild_name
 
 
+class PlayerOnlineError(SkyblockCommandError):
+    """
+    Exception raised when the player is online in hypixel.
+    """
+    pass
+
+
+class NoArmorError(SkyblockCommandError):
+    """
+    Exception raised when the player doesn't have any armors
+    """
+    pass
+
+
+class NoWeaponError(SkyblockCommandError):
+    """
+    Exception raised when the player doesn't have any weapon
+    """
+    pass
+
+
 class SessionTimeout(Exception):
     """
     Exception raised when the current message session timed out.

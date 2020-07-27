@@ -78,14 +78,14 @@ class DamageCalculator(commands.Cog, name='Damage'):
         ).send()
 
         def check(m):
-            if m.clean_content == 'exit':
+            if m.clean_content.lower() == 'exit':
                 raise SessionTimeout
             return m.author.id == ctx.author.id and m.channel.id == ctx.channel.id and not m.clean_content.isdigit()
 
         while True:
             msg = await ctx.bot.wait_for('message', timeout=60.0, check=check)
-            if msg.clean_content in relavant_enchants:
-                return msg.clean_content
+            if msg.clean_content.lower() in relavant_enchants:
+                return msg.clean_content.lower()
             else:
                 await ctx.send(f'{ctx.author.mention}, Invalid mob! Please choose one of the listed mobs.')
 
@@ -94,7 +94,7 @@ class DamageCalculator(commands.Cog, name='Damage'):
         await ctx.send(f'{message}')
 
         def check(m):
-            if m.clean_content == 'exit':
+            if m.clean_content.lower() == 'exit':
                 raise SessionTimeout
             return m.author.id == ctx.author.id and m.channel.id == ctx.channel.id and m.clean_content.isdigit()
 

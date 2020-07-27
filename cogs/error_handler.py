@@ -123,6 +123,7 @@ class ErrorHandler(commands.Cog):
 
     @staticmethod
     async def handle_skyblock_input_error(ctx: commands.Context, error: SkyblockCommandError):
+        ctx.command.reset_cooldown(ctx)
         if isinstance(error, BadNameError):
             await ctx.send(f'{ctx.author.mention}, Invalid player\'s name/uuid: {error.uname}.')
         elif isinstance(error, BadProfileError):
@@ -135,6 +136,12 @@ class ErrorHandler(commands.Cog):
                 f'Please re-enable them with [skyblock menu > settings > api settings].')
         elif isinstance(error, BadGuildError):
             await ctx.send(f'{ctx.author.mention}, Invalid guild\'s name: {error.guild_name}.')
+        elif isinstance(error, PlayerOnlineError):
+            await ctx.send(f'{ctx.author.mention}, You need to be offline in hypixel to use the optimizer!')
+        elif isinstance(error, NoWeaponError):
+            await ctx.send(f'{ctx.author.mention}, You have no weapons in your inventory.')
+        elif isinstance(error, NoArmorError):
+            await ctx.send(f'{ctx.author.mention}, You have no armors equipped or in wardrobe.')
 
 
 def setup(bot):

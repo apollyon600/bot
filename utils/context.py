@@ -34,7 +34,7 @@ class Context(commands.Context):
             return False
 
         def message_check(m):
-            if m.author.id == self.author.id and m.channel.id == self.channel.id and m.clean_content == 'exit':
+            if m.author.id == self.author.id and m.channel.id == self.channel.id and m.clean_content.lower() == 'exit':
                 raise SessionTimeout
             return False
 
@@ -63,7 +63,7 @@ class Context(commands.Context):
         pages_task = self.bot.loop.create_task(pages.paginate())
 
         def check(m):
-            if m.clean_content == 'exit':
+            if m.clean_content.lower() == 'exit':
                 raise SessionTimeout
             return m.clean_content.isdigit() and m.author.id == self.author.id and m.channel.id == self.channel.id
 
@@ -82,7 +82,7 @@ class Context(commands.Context):
                     if int(stuff.clean_content) in valid_index:
                         for future in pending:
                             future.cancel()
-                        return stuff.clean_content
+                        return int(stuff.clean_content)
                     else:
                         tasks = [self.bot.wait_for('message', check=check, timeout=timeout)]
                         for future in pending:

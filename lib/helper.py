@@ -67,7 +67,7 @@ async def get_item_price_stats(item_id, *, session):
 
 
 async def get_item_id(item_name, *, session):
-    item_name = '%20'.join(item_name)
+    item_name = item_name.replace(' ', '%20')
     try:
         async with session.get(f'https://auctions.craftlink.xyz/api/items/search?name={item_name}') as response:
             json = await response.json(content_type=None)

@@ -4,7 +4,8 @@ from discord.ext import commands
 from utils import CommandWithCooldown, PlayerConverter, Embed, colorize, format_pet, emod
 from constants.discord import optimizers, rarity_colors, pet_emojis, damage_potions, number_emojis, support_items
 from constants import damage_reforges
-from lib import APIDisabledError, SessionTimeout, damage, damage_optimizer
+from lib import APIDisabledError, SessionTimeout, damage, damage_optimizer, PlayerOnlineError, NoArmorError, \
+    NoWeaponError
 
 
 class OptimizeGear(commands.Cog, name='Damage'):
@@ -25,19 +26,19 @@ class OptimizeGear(commands.Cog, name='Damage'):
             await player.set_profile(profile)
 
         if player.online:
-            return await ctx.send(f'{ctx.author.mention}, You need to be offline in hypixel to use the optimizer!')
+            raise PlayerOnlineError from None
 
         if not player.enabled_api['skills'] or not player.enabled_api['inventory']:
             raise APIDisabledError(player.uname, player.profile_name)
 
         armor = await self.prompt_for_armor(ctx, player)
         if not armor:
-            return await ctx.send(f'{ctx.author.mention}, You have no armors equipped or in wardrobe.')
+            raise NoArmorError from None
         player.set_armor(armor)
 
         weapon = await self.prompt_for_weapon(ctx, player)
         if not weapon:
-            return await ctx.send(f'{ctx.author.mention}, You have no weapons in your inventory.')
+            raise NoWeaponError from None
         player.set_weapon(weapon)
 
         pet = await self.prompt_for_pet(ctx, player)
@@ -165,7 +166,7 @@ class OptimizeGear(commands.Cog, name='Damage'):
         def check(m):
             if m.author.id != ctx.author.id or m.channel.id != ctx.channel.id:
                 return False
-            if m.clean_content == 'exit':
+            if m.clean_content.lower() == 'exit':
                 raise SessionTimeout
             elif m.clean_content.isdigit():
                 return True
@@ -190,7 +191,7 @@ class OptimizeGear(commands.Cog, name='Damage'):
                 title='Which weapon would you like to use?',
                 footer='You may enter the corresponding weapon number.'
             )
-            return player.weapons[int(weapon_index) - 1]
+            return player.weapons[weapon_index - 1]
 
     @staticmethod
     async def prompt_for_armor(ctx, player):
@@ -207,7 +208,7 @@ class OptimizeGear(commands.Cog, name='Damage'):
                 footer='You may enter the corresponding armor set number.',
                 per_page=2
             )
-            return player.wardrobe[int(armor_index) - 1]
+            return player.wardrobe[armor_index - 1]
         else:
             if player.current_armor:
                 return player.current_armor
@@ -226,7 +227,7 @@ class OptimizeGear(commands.Cog, name='Damage'):
                 title='Which pet would you like to use?',
                 footer='You may enter the corresponding pet number.'
             )
-            return player.pets[int(pet_index) - 1]
+            return player.pets[pet_index - 1]
 
     @staticmethod
     async def confirm_equipment(ctx, player):
@@ -355,13 +356,13 @@ class OptimizeGear(commands.Cog, name='Damage'):
         ).send()
 
         def check(m):
-            if m.clean_content == 'exit':
+            if m.clean_content.lower() == 'exit':
                 raise SessionTimeout
             return m.author.id == ctx.author.id and m.channel.id == ctx.channel.id and not m.clean_content.isdigit()
 
         while True:
             msg = await ctx.bot.wait_for('message', timeout=60.0, check=check)
-            msg_list = msg.clean_content.split(' ')
+            msg_list = msg.clean_content.lower().split(' ')
             filtered_msg = self.check_reforge_message(msg_list)
             if filtered_msg:
                 if isinstance(filtered_msg, list):
