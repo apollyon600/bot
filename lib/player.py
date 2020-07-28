@@ -48,10 +48,11 @@ class Player(HypixelApiInterface):
                 for k, v in profile_ids.items():
                     self.profiles[v['cute_name']] = k
 
+                if not self.profiles:
+                    raise NeverPlayedSkyblockError(self.uname) from None
             except (KeyError, TypeError):
                 raise NeverPlayedSkyblockError(self.uname) from None
-            if not self.profiles:
-                raise NeverPlayedSkyblockError(self.uname) from None
+
 
         if guild:
             guild_id = (await self.__call_api__('/findGuild', self.session, byUuid=self.uuid))['guild']
