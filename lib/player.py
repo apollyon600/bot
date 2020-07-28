@@ -152,7 +152,7 @@ class Player(HypixelApiInterface):
         # Loads all of a player's inventories
         self.inventory = self._parse_inventory(self, v, path=['inv_contents', 'data'])
         self.echest = self._parse_inventory(self, v, path=['ender_chest_contents', 'data'])
-        self.weapons = [item for item in self.inventory + self.echest if item.type in ('sword', 'bow', 'fishing rod')]
+        self.weapons = [item for item in self.inventory + self.echest if item.type in ('sword', 'bow')]
         self.candy_bag = self._parse_inventory(self, v, path=['candy_inventory_contents', 'data'])
         self.talisman_bag = self._parse_inventory(self, v, path=['talisman_bag', 'data'])
         self.potion_bag = self._parse_inventory(self, v, path=['potion_bag', 'data'])
