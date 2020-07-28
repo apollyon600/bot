@@ -8,9 +8,9 @@ def xp_slice(start):
 pet_xp = {'common': xp_slice(1), 'uncommon': xp_slice(7), 'rare': xp_slice(12), 'epic': xp_slice(17), 'legendary': xp_slice(21)}
 """
 
-pet_rarity = ['common', 'uncommon', 'rare', 'epic', 'legendary', 'mythic']
+PET_RARITIES = ['common', 'uncommon', 'rare', 'epic', 'legendary']
 
-pet_xp = {
+PET_XP = {
     'common': [
         0, 100, 210, 330, 460, 605, 765, 940, 1130, 1340, 1570, 1820, 2095,
         2395, 2725, 3085, 3485, 3925, 4415, 4955, 5555, 6215, 6945, 7745,
@@ -122,7 +122,7 @@ def _enderdragon(player):
         player.stats.multiplier += player.pet.level * 0.001
 
 
-affdef _bee(player):
+def _bee(player):
     # Gain (1 + (Pet lvl * 0.02)) Intelligence and (1 + (Pet lvl * 0.02)) Strength for each nearby bee. (Max 15) (Common)
     # (1+ (Pet lvl * 0.09) INT and (1 + (Pet lvl * 0.07)) STR on Rare)
     # (1+ (Pet lvl * 0.14) INT and (1 + (Pet lvl * 0.11)) STR on Epic)
@@ -248,7 +248,7 @@ def _bluewhale(player):  # (tbd)
                 player.stats['defense'] // 20))
 
 
-pets = {
+PETS = {
     'SKELETON_HORSE': {
         'name': 'Skeleton Horse',
         'stats': {

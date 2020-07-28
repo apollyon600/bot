@@ -1,7 +1,7 @@
 from discord.ext import commands
 
 from utils import Embed
-from constants import relavant_enchants, enchantment_effects, cheap_max_book_levels, max_book_levels
+from constants import MOBS_RELEVANT_ENCHANTS, ENCHANTMENT_BONUS, ENCHANTED_BOOK_5, ENCHANTED_BOOK_6
 from lib import SessionTimeout, damage
 
 
@@ -31,12 +31,12 @@ class DamageCalculator(commands.Cog, name='Damage'):
 
         enchant_levels = await ctx.prompt(
             message=f'{ctx.author.mention}, Do you want to use **level 5** or **level 6** enchantments?',
-            emoji_list=[('5️⃣', cheap_max_book_levels), ('6️⃣', max_book_levels)]
+            emoji_list=[('5️⃣', ENCHANTED_BOOK_5), ('6️⃣', ENCHANTED_BOOK_6)]
         )
 
         modifier = stats['combat level'] * 4
-        for enchantment in relavant_enchants[mob]:
-            perk = enchantment_effects[enchantment]
+        for enchantment in MOBS_RELEVANT_ENCHANTS[mob]:
+            perk = ENCHANTMENT_BONUS[enchantment]
             if callable(perk):
                 modifier += perk(enchant_levels[enchantment])
             else:
@@ -69,7 +69,7 @@ class DamageCalculator(commands.Cog, name='Damage'):
 
     @staticmethod
     async def prompt_for_mobs(ctx):
-        mobs = '\n'.join([k.capitalize() for k in relavant_enchants.keys()])
+        mobs = '\n'.join([k.capitalize() for k in MOBS_RELEVANT_ENCHANTS.keys()])
         await Embed(
             ctx=ctx,
             title='Which mob will you be targeting with this setup?'
@@ -84,7 +84,7 @@ class DamageCalculator(commands.Cog, name='Damage'):
 
         while True:
             msg = await ctx.bot.wait_for('message', timeout=60.0, check=check)
-            if msg.clean_content.lower() in relavant_enchants:
+            if msg.clean_content.lower() in MOBS_RELEVANT_ENCHANTS:
                 return msg.clean_content.lower()
             else:
                 await ctx.send(f'{ctx.author.mention}, Invalid mob! Please choose one of the listed mobs.')

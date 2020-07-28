@@ -1,21 +1,21 @@
-timeout_emoji = ['🇹', '🇮', '🇲', '🇪', '🇴', '🇺', '✝️']
+TIMEOUT_EMOJIS = ['🇹', '🇮', '🇲', '🇪', '🇴', '🇺', '✝️']
 
-optimizers = [
+OPTIMIZER_GOALS = [
     {'emoji': '💯', 'name': 'Perfect crit chance'},
     {'emoji': '💥', 'name': 'Maximum damage'}
 ]
 
-white = ('', '')
-gray = ('bf', '')
-puke = ('css', '')
-green = ('yaml', '')
-blue = ('md', '#')
-yellow = ('fix', '')
-orange = ('glsl', '#')
-red = ('diff', '-')
-rarity_colors = {'common': gray, 'uncommon': green, 'rare': blue, 'epic': orange, 'legendary': yellow, 'mythic': red}
+WHITE = ('', '')
+GRAY = ('bf', '')
+PUKE = ('css', '')
+GREEN = ('yaml', '')
+BLUE = ('md', '#')
+YELLOW = ('fix', '')
+ORANGE = ('glsl', '#')
+RED = ('diff', '-')
+RARITY_COLORS = {'common': GRAY, 'uncommon': GREEN, 'rare': BLUE, 'epic': ORANGE, 'legendary': YELLOW, 'mythic': RED}
 
-pet_emojis = {
+PET_EMOJIS = {
     'SKELETON_HORSE': '🦓',
     'SNOWMAN': '⛄',
     'BAT': '🦇',
@@ -61,7 +61,7 @@ pet_emojis = {
     'GOLEM': '🗿',
 }
 
-damage_potions = {
+DAMAGE_POTIONS = {
     'dungeon': {
         'stats': {'strength': [0, 20, 20, 20], 'crit chance': [0, 10, 10, 15], 'crit damage': [0, 10, 10, 20],
                   'speed': [0, 5, 10, 10], 'defense': [0, 5, 5, 10]},
@@ -86,7 +86,7 @@ damage_potions = {
     }
 }
 
-support_items = {
+SUPPORT_ITEMS = {
     'weird tuba': {
         'internal': 'WEIRD_TUBA',
         'stats': {'strength': 30}
@@ -101,4 +101,4 @@ support_items = {
     }
 }
 
-number_emojis = ['0️⃣', '1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟']
+NUMBER_EMOJIS = ['0️⃣', '1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟']

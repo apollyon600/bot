@@ -2,7 +2,7 @@ from pyomo.environ import *
 from pyomo.opt import *
 
 from config import SCIP_TIMELIMIT
-from constants import rarities
+from constants import RARITIES
 
 
 def format_counts(counts):
@@ -34,7 +34,7 @@ def create_model(counts, reforge_set, only_blacksmith_reforges):
     m = ConcreteModel()
     m.reforge_set = Set(
         initialize=[
-            (i, j, k) for i, count in counts.items() for j in rarities for k, stats in
+            (i, j, k) for i, count in counts.items() for j in RARITIES for k, stats in
             reforge_set[armor_check(i)].items()
             if j in stats and count[j] > 0 and (only_blacksmith_reforges is False or stats['blacksmith'] is True)
         ], ordered=True
@@ -97,29 +97,29 @@ def damage_optimizer(player, *, perfect_crit_chance, attack_speed_limit, only_bl
 
     counts = {
         'talisman': player.talisman_counts,
-        player.weapon.type: {rarity: int(player.weapon.rarity == rarity) for rarity in rarities},
-        'helmet': {rarity: int(player.armor['helmet'].rarity == rarity) for rarity in rarities} if player.armor[
-            'helmet'] else {rarity: 0 for rarity in rarities},
-        'chestplate': {rarity: int(player.armor['chestplate'].rarity == rarity) for rarity in rarities} if player.armor[
-            'chestplate'] else {rarity: 0 for rarity in rarities},
-        'leggings': {rarity: int(player.armor['leggings'].rarity == rarity) for rarity in rarities} if player.armor[
-            'leggings'] else {rarity: 0 for rarity in rarities},
-        'boots': {rarity: int(player.armor['boots'].rarity == rarity) for rarity in rarities} if player.armor[
-            'boots'] else {rarity: 0 for rarity in rarities},
+        player.weapon.type: {rarity: int(player.weapon.rarity == rarity) for rarity in RARITIES},
+        'helmet': {rarity: int(player.armor['helmet'].rarity == rarity) for rarity in RARITIES} if player.armor[
+            'helmet'] else {rarity: 0 for rarity in RARITIES},
+        'chestplate': {rarity: int(player.armor['chestplate'].rarity == rarity) for rarity in RARITIES} if player.armor[
+            'chestplate'] else {rarity: 0 for rarity in RARITIES},
+        'leggings': {rarity: int(player.armor['leggings'].rarity == rarity) for rarity in RARITIES} if player.armor[
+            'leggings'] else {rarity: 0 for rarity in RARITIES},
+        'boots': {rarity: int(player.armor['boots'].rarity == rarity) for rarity in RARITIES} if player.armor[
+            'boots'] else {rarity: 0 for rarity in RARITIES},
     }
 
     m = create_model(counts, reforges_set, only_blacksmith_reforges)
 
     for equipment_type in equipment_types:
         reforges = reforges_set[armor_check(equipment_type)]
-        sums = {rarity: [] for rarity in rarities}
+        sums = {rarity: [] for rarity in RARITIES}
         for reforge in reforges.keys():
             for rarity in reforges[reforge].keys():
                 if rarity != 'blacksmith' and (
                         only_blacksmith_reforges is False or reforges[reforge]['blacksmith'] is True):
                     if counts[equipment_type][rarity] > 0:
                         sums[rarity].append(m.reforge_counts[equipment_type, rarity, reforge])
-        for rarity in rarities:
+        for rarity in RARITIES:
             if counts[equipment_type][rarity] > 0:
                 m.eqn.add(quicksum(sums[rarity], linear=False) == counts[equipment_type][rarity])
 

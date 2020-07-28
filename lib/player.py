@@ -141,7 +141,7 @@ class Player(HypixelApiInterface):
         self.armor = {'helmet': None, 'chestplate': None, 'leggings': None, 'boots': None}
 
         # Loads a player's numeric stats
-        self.stats = Stats(copy.deepcopy(base_player_stats))
+        self.stats = Stats(copy.deepcopy(BASE_PLAYER_STATS))
 
         self.current_armor = {'helmet': None, 'chestplate': None, 'leggings': None, 'boots': None}
         for armor in self._parse_inventory(self, v, path=['inv_armor', 'data']):
@@ -193,8 +193,8 @@ class Player(HypixelApiInterface):
                 continue
 
             # Check for talisman families
-            if talisman.internal_name in tiered_talismans:
-                for other in tiered_talismans[talisman.internal_name]:
+            if talisman.internal_name in TIERED_TALISMANS:
+                for other in TIERED_TALISMANS[talisman.internal_name]:
                     if other in self.talismans:
                         talisman.active = False
                         break
@@ -224,7 +224,7 @@ class Player(HypixelApiInterface):
             sum(self.minions.values())
         )
 
-        self.minion_slots = level_from_xp_table(self.unique_minions, minion_slot_requirements)
+        self.minion_slots = level_from_xp_table(self.unique_minions, MINION_SLOT_REQUIREMENT)
 
         # Loads a player's skill and slayer data
         if 'experience_skill_farming' in v:
@@ -233,12 +233,12 @@ class Player(HypixelApiInterface):
             self.skill_xp = {}
             self.skills = {}
 
-            for skill in skills:
+            for skill in SKILLS:
                 xp = int(v.get(f'experience_skill_{skill}', 0))
                 self.skill_xp[skill] = xp
                 self.skills[skill] = level_from_xp_table(
                     xp,
-                    runecrafting_xp_requirements if skill == 'runecrafting' else skill_xp_requirements
+                    RUNECRAFTING_LEVEL_REQUIREMENT if skill == 'runecrafting' else SKILL_LEVEL_REQUIREMENT
                 )
         else:
             self.enabled_api['skills'] = False
@@ -264,17 +264,17 @@ class Player(HypixelApiInterface):
             ]:
                 level = self.achievements.get(achievement, 0)
                 self.skills[skill] = level
-                self.skill_xp[skill] = 0 if level == 0 else skill_xp_requirements[level - 1]
+                self.skill_xp[skill] = 0 if level == 0 else SKILL_LEVEL_REQUIREMENT[level - 1]
 
-        self.skill_average = sum(self.skills[skill] for skill in skills if skill not in cosmetic_skills) / (
-                len(skills) - len(cosmetic_skills))
+        self.skill_average = sum(self.skills[skill] for skill in SKILLS if skill not in COSMETIC_SKILLS) / (
+                len(SKILLS) - len(COSMETIC_SKILLS))
 
         self.slayer_xp = {}
         self.slayers = {}
-        for s in slayers:
+        for s in SLAYERS:
             xp = v.get('slayer_bosses', {}).get(s, {}).get('xp', 0)
             self.slayer_xp[s] = xp
-            self.slayers[s] = level_from_xp_table(xp, slayer_level_requirements[s])
+            self.slayers[s] = level_from_xp_table(xp, SLAYER_LEVEL_REQUIREMENT[s])
 
         self.total_slayer_xp = sum(self.slayer_xp.values())
 
@@ -300,12 +300,12 @@ class Player(HypixelApiInterface):
         self.fairy_souls = v.get('fairy_souls_collected', 0)
 
         for s, level in self.slayers.items():
-            self.stats += Stats(slayer_rewards[s][level])
+            self.stats += Stats(SLAYER_REWARDS[s][level])
 
         for skill, level in self.skills.items():
-            self.stats += Stats(skill_rewards[skill][level])
+            self.stats += Stats(SKILL_REWARDS[skill][level])
 
-        self.stats.__iadd__('health', fairy_soul_hp_bonus[self.fairy_souls // 5])
+        self.stats.__iadd__('health', FAIRY_SOUL_HP_BONUS[self.fairy_souls // 5])
         self.stats.__iadd__('defense', self.fairy_souls // 5 + self.fairy_souls // 25)
         self.stats.__iadd__('strength', self.fairy_souls // 5 + self.fairy_souls // 25)
         self.stats.__iadd__('speed', self.fairy_souls // 50)
@@ -356,7 +356,7 @@ class Player(HypixelApiInterface):
             self.stats.children.append((self.pet.internal_name, self.pet.stats))
             self.stats.base_children.append((self.pet.internal_name, self.pet.stats))
 
-            pet_ability = pets[self.pet.internal_name]['ability']
+            pet_ability = PETS[self.pet.internal_name]['ability']
             if callable(pet_ability):
                 pet_ability(self)
 

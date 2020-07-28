@@ -2,8 +2,8 @@ import copy
 from discord.ext import commands
 
 from utils import CommandWithCooldown, PlayerConverter, Embed, colorize, format_pet, emod
-from constants.discord import optimizers, rarity_colors, pet_emojis, damage_potions, number_emojis, support_items
-from constants import damage_reforges
+from constants.discord import OPTIMIZER_GOALS, RARITY_COLORS, PET_EMOJIS, DAMAGE_POTIONS, NUMBER_EMOJIS, SUPPORT_ITEMS
+from constants import DAMAGE_REFORGES
 from lib import APIDisabledError, SessionTimeout, damage, damage_optimizer, PlayerOnlineError, NoArmorError, \
     NoWeaponError
 
@@ -52,7 +52,7 @@ class OptimizeGear(commands.Cog, name='Damage'):
             ctx=ctx,
             title='What would you like to optimize for?'
         ).add_field(
-            value='\n\n'.join(f'> {o["emoji"]}\n`{o["name"]}`' for o in optimizers)
+            value='\n\n'.join(f'> {o["emoji"]}\n`{o["name"]}`' for o in OPTIMIZER_GOALS)
         ), emoji_list=[('💯', True), ('💥', False)])
 
         attack_speed_limit = await self.prompt_for_attack_speed(ctx)
@@ -99,7 +99,7 @@ class OptimizeGear(commands.Cog, name='Damage'):
         for equipment in best_equip:
             for rarity in best_equip[equipment]:
                 text = colorize(' + '.join([f'{best_equip[equipment][rarity][reforge]} {reforge.title()}' for reforge in
-                                            best_equip[equipment][rarity]]), rarity_colors[rarity])
+                                            best_equip[equipment][rarity]]), RARITY_COLORS[rarity])
                 embed.add_field(
                     name=f'**{rarity.title()} {equipment.title()}**',
                     value=text,
@@ -187,7 +187,7 @@ class OptimizeGear(commands.Cog, name='Damage'):
             return player.weapons[0]
         else:
             weapon_index = await ctx.prompt_with_list(
-                entries=[weapon for weapon in player.weapons if weapon.type != 'fishing rod'],
+                entries=[weapon for weapon in player.weapons],
                 title='Which weapon would you like to use?',
                 footer='You may enter the corresponding weapon number.'
             )
@@ -241,7 +241,7 @@ class OptimizeGear(commands.Cog, name='Damage'):
             value=f'```{weapon}```',
             inline=False
         ).add_field(
-            name=f'{pet_emojis[pet.internal_name] if pet and pet.internal_name in pet_emojis else "🐣"}\tPet',
+            name=f'{PET_EMOJIS[pet.internal_name] if pet and pet.internal_name in PET_EMOJIS else "🐣"}\tPet',
             value=f'```{format_pet(pet) if pet else None}```',
             inline=False
         ).add_field(
@@ -267,7 +267,7 @@ class OptimizeGear(commands.Cog, name='Damage'):
         ).add_field(
             name='🏺\tTalismans',
             value=''.join(
-                colorize(f'{amount} {name.capitalize()}', rarity_colors[name])
+                colorize(f'{amount} {name.capitalize()}', RARITY_COLORS[name])
                 for name, amount in player.talisman_counts.items()
             )
         ))
@@ -303,14 +303,14 @@ class OptimizeGear(commands.Cog, name='Damage'):
     async def prompt_for_potions(ctx, player):
         weapon = player.weapon
         selected_pots = []
-        for name, pot in damage_potions.items():
+        for name, pot in DAMAGE_POTIONS.items():
             buff = pot['stats']
             levels = pot['levels']
 
             if weapon.type != 'bow' and name == 'archery':
                 continue
 
-            emoji_list = [(number_emojis[level], level) for level in levels]
+            emoji_list = [(NUMBER_EMOJIS[level], level) for level in levels]
 
             selected_level = await ctx.prompt(
                 message=f'{ctx.author.mention}, What level of `{name} potion` do you want to use?' +
@@ -330,7 +330,7 @@ class OptimizeGear(commands.Cog, name='Damage'):
     @staticmethod
     async def prompt_for_support_item(ctx, player):
         selected_buffs = []
-        for name, orb in support_items.items():
+        for name, orb in SUPPORT_ITEMS.items():
             internal_name = orb['internal']
             buff = orb['stats']
 
@@ -378,7 +378,7 @@ class OptimizeGear(commands.Cog, name='Damage'):
     @staticmethod
     def check_reforge_message(m):
         reforge_options = {'blacksmith': True, 'all': False}
-        reforges = copy.deepcopy(damage_reforges)
+        reforges = copy.deepcopy(DAMAGE_REFORGES)
         ignored = []
         if m[0] in reforge_options.keys():
             only_blacksmith = reforge_options[m[0]]

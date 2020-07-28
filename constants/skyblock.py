@@ -1,6 +1,6 @@
 import re
 
-sword_enchants = [
+SWORD_ENCHANTS = [
     'sharpness',
     'critical',
     'ender_slayer',
@@ -18,7 +18,7 @@ sword_enchants = [
     'dragon_hunter'
 ]
 
-bow_enchants = [
+BOW_ENCHANTS = [
     'power',
     'aiming',
     'dragon_hunter',
@@ -30,7 +30,7 @@ bow_enchants = [
     'piercing'
 ]
 
-rod_enchants = [
+ROD_ENCHANTS = [
     'angler',
     'blessing',
     'caster',
@@ -41,7 +41,7 @@ rod_enchants = [
     'looting'
 ]
 
-skill_rewards = {
+SKILL_REWARDS = {
     'farming': [{}, {'health': 2}, {'health': 4}, {'health': 6}, {'health': 8}, {'health': 10}, {'health': 12},
                 {'health': 14}, {'health': 16}, {'health': 18}, {'health': 20}, {'health': 22}, {'health': 24},
                 {'health': 26}, {'health': 28}, {'health': 31}, {'health': 34}, {'health': 37}, {'health': 40},
@@ -148,7 +148,7 @@ skill_rewards = {
                      {}]
 }
 
-talismans = {re.compile(k): v for k, v in {
+TALISMANS = {re.compile(k): v for k, v in {
     'POTATO_TALISMAN': 'Potato Talisman',
     'FARMING_TALISMAN': 'Farming Talisman',
     'VACCINE_TALISMAN': 'Vaccine Talisman',
@@ -203,11 +203,12 @@ talismans = {re.compile(k): v for k, v in {
     'SEAL_OF_THE_FAMILY': 'Seal of the Family',
 }.items()}
 
-skills = ['farming', 'mining', 'combat', 'foraging', 'fishing', 'enchanting', 'alchemy', 'taming', 'carpentry',
+SKILLS = ['farming', 'mining', 'combat', 'foraging', 'fishing', 'enchanting', 'alchemy', 'taming', 'carpentry',
           'runecrafting']
-cosmetic_skills = ['carpentry', 'runecrafting']
 
-base_player_stats = {
+COSMETIC_SKILLS = ['carpentry', 'runecrafting']
+
+BASE_PLAYER_STATS = {
     'damage': 0,
     'strength': 0,
     'crit chance': 30,
@@ -220,7 +221,7 @@ base_player_stats = {
     'speed cap': 400
 }
 
-all_profile_names = [
+PROFILE_NAMES = [
     'Apple',
     'Banana',
     'Blueberry',
@@ -244,26 +245,26 @@ all_profile_names = [
     'Zucchini'
 ]
 
-fairy_soul_hp_bonus = [0, 3, 6, 10, 14, 19, 24, 30, 36, 43, 50, 58, 66, 75, 84, 94, 104, 115, 126, 138, 150, 163, 176,
+FAIRY_SOUL_HP_BONUS = [0, 3, 6, 10, 14, 19, 24, 30, 36, 43, 50, 58, 66, 75, 84, 94, 104, 115, 126, 138, 150, 163, 176,
                        190, 204, 219, 234, 250, 266, 283, 300, 318, 336, 355, 374, 394, 414, 435, 456, 478, 500, 523]
 
-skill_xp_requirements = [50, 175, 375, 675, 1175, 1925, 2925, 4425, 6425, 9925, 14925, 22425, 32425, 47425, 67425,
-                         97425, 147425, 222425, 322425, 522425, 822425, 1222425, 1722425, 2322425, 3022425, 3822425,
-                         4722425, 5722425, 6822425, 8022425, 9322425, 10722425, 12222425, 13822425, 15522425, 17322425,
-                         19222425, 21222425, 23322425, 25522425, 27822425, 30222425, 32722425, 35322425, 38022425,
-                         40822425, 43922425, 47322425, 51022425, 55022425]
+SKILL_LEVEL_REQUIREMENT = [50, 175, 375, 675, 1175, 1925, 2925, 4425, 6425, 9925, 14925, 22425, 32425, 47425, 67425,
+                           97425, 147425, 222425, 322425, 522425, 822425, 1222425, 1722425, 2322425, 3022425, 3822425,
+                           4722425, 5722425, 6822425, 8022425, 9322425, 10722425, 12222425, 13822425, 15522425, 17322425,
+                           19222425, 21222425, 23322425, 25522425, 27822425, 30222425, 32722425, 35322425, 38022425,
+                           40822425, 43922425, 47322425, 51022425, 55022425]
 
-runecrafting_xp_requirements = [50, 150, 275, 435, 635, 885, 1200, 1600, 2100, 2725, 3510, 4510, 5760, 7360, 9360,
-                                11825, 14950, 18950, 23950, 30150, 37950, 47750, 59950,
-                                75250]  # Shamelessly stolen from sky.lea.moe
+RUNECRAFTING_LEVEL_REQUIREMENT = [50, 150, 275, 435, 635, 885, 1200, 1600, 2100, 2725, 3510, 4510, 5760, 7360, 9360,
+                                  11825, 14950, 18950, 23950, 30150, 37950, 47750, 59950,
+                                  75250]
 
-minion_slot_requirements = [0, 0, 0, 0, 0, 5, 15, 30, 50, 75, 100, 125, 150, 175, 200, 225, 250, 275, 300, 350, 400,
-                            450, 500, 550]
+MINION_SLOT_REQUIREMENT = [0, 0, 0, 0, 0, 5, 15, 30, 50, 75, 100, 125, 150, 175, 200, 225, 250, 275, 300, 350, 400,
+                           450, 500, 550]
 
-guild_level_requirements = [100000, 150000, 250000, 500000, 750000, 1000000, 1250000, 1500000, 2000000, 2500000,
+GUILD_LEVVEL_REQUIREMENT = [100000, 150000, 250000, 500000, 750000, 1000000, 1250000, 1500000, 2000000, 2500000,
                             3000000]  # every level after 2.5 mil needs 3mil
 
-tiered_talismans = {
+TIERED_TALISMANS = {
     'BAT_RING': ['BAT_ARTIFACT'],
     'BAT_TALISMAN': ['BAT_RING', 'BAT_ARTIFACT'],
     'BROKEN_PIGGY_BANK': ['CRACKED_PIGGY_BANK', 'PIGGY_BANK'],
@@ -299,7 +300,7 @@ tiered_talismans = {
     'SCARF_THESIS': ['SCARF_GRIMOIRE']
 }
 
-enchantment_effects = {
+ENCHANTMENT_BONUS = {
     # sword always
     'sharpness': 5,
     'giant_killer': lambda level: 25 if level > 0 else 0,
@@ -320,8 +321,7 @@ enchantment_effects = {
     'spiked_hook': 5
 }
 
-# list of relevant enchants for common mobs
-relavant_enchants = {
+MOBS_RELEVANT_ENCHANTS = {
     'slayer bosses': [
         'giant_killer',
         'sharpness',
@@ -348,7 +348,7 @@ relavant_enchants = {
     ]
 }
 
-max_book_levels = {
+ENCHANTED_BOOK_6 = {
     'sharpness': 6,
     'giant_killer': 6,
     'smite': 6,
@@ -364,7 +364,7 @@ max_book_levels = {
     'spiked_hook': 6
 }
 
-cheap_max_book_levels = {
+ENCHANTED_BOOK_5 = {
     'sharpness': 5,
     'giant_killer': 5,
     'smite': 5,
@@ -380,9 +380,9 @@ cheap_max_book_levels = {
     'spiked_hook': 5
 }
 
-rarities = ['common', 'uncommon', 'rare', 'epic', 'legendary', 'mythic']
+RARITIES = ['common', 'uncommon', 'rare', 'epic', 'legendary', 'mythic']
 
-damage_reforges = {
+DAMAGE_REFORGES = {
     'sword': {
         'legendary': {
             'common': {'strength': 3, 'crit chance': 5, 'crit damage': 5, 'intelligence': 5, 'attack speed': 2},
@@ -834,7 +834,7 @@ damage_reforges = {
 }
 
 # List of all reforges
-# reforges = {
+# REFORGES = {
 #     'sword': {
 #         'legendary': {
 #             'common': {'strength': 3, 'crit chance': 5, 'crit damage': 5, 'intelligence': 5, 'attack speed': 2},

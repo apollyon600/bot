@@ -1,8 +1,8 @@
 from discord.ext import commands
 
 from lib import Player
-from constants import relavant_enchants, enchantment_effects
-from constants.discord import timeout_emoji
+from constants import MOBS_RELEVANT_ENCHANTS, ENCHANTMENT_BONUS
+from constants.discord import TIMEOUT_EMOJIS
 
 
 class PlayerConverter(commands.Converter):
@@ -28,7 +28,7 @@ async def embed_timeout_handler(ctx, emoji_list, message=None):
     try:
         for (emoji, _) in emoji_list:
             await message.remove_reaction(emoji, ctx.bot.user)
-        for emoji in timeout_emoji:
+        for emoji in TIMEOUT_EMOJIS:
             await message.add_reaction(emoji)
     except:
         pass
@@ -36,9 +36,9 @@ async def embed_timeout_handler(ctx, emoji_list, message=None):
 
 def emod(activity, weapon):
     result = 0
-    for enchantment in relavant_enchants[activity]:
+    for enchantment in MOBS_RELEVANT_ENCHANTS[activity]:
         if enchantment in weapon.enchantments:
-            value = enchantment_effects[enchantment]
+            value = ENCHANTMENT_BONUS[enchantment]
             if callable(value):
                 result += value(weapon.enchantments[enchantment])
             else:

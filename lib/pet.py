@@ -1,7 +1,7 @@
 import re
 
 from . import Stats, level_from_xp_table
-from constants import pet_rarity, pet_xp, pets
+from constants import PET_RARITIES, PET_XP, PETS
 
 
 class Pet:
@@ -17,16 +17,16 @@ class Pet:
                 re.sub('_COMMON|_UNCOMMON|_RARE|_EPIC|_LEGENDARY', '', self.item_internal_name[9:]).split('_')
             ])
             if self.item_name == 'Tier Boost':
-                self.rarity = pet_rarity[pet_rarity.index(self.rarity) + 1]
+                self.rarity = PET_RARITIES[PET_RARITIES.index(self.rarity) + 1]
         else:
             self.item_name = None
         self.internal_name = nbt.get('type', 'BEE')
-        self.level = level_from_xp_table(self.xp, pet_xp[self.rarity])
-        self.name = pets[self.internal_name]['name']
+        self.level = level_from_xp_table(self.xp, PET_XP[self.rarity])
+        self.name = PETS[self.internal_name]['name']
         self.title = f'[Lvl {self.level}] {self.name}'
-        self.xp_remaining = pet_xp[self.rarity][-1] - self.xp
+        self.xp_remaining = PET_XP[self.rarity][-1] - self.xp
         self.candy_used = nbt.get('candyUsed', 0)
-        self.stats = Stats({stat: function(self.level) for stat, function in pets[self.internal_name]['stats'].items()})
+        self.stats = Stats({stat: function(self.level) for stat, function in PETS[self.internal_name]['stats'].items()})
 
         if self.item_name:
             if self.item_name == 'Textbook':

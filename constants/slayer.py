@@ -1,6 +1,6 @@
-slayers = ['zombie', 'spider', 'wolf']
+SLAYERS = ['zombie', 'spider', 'wolf']
 
-slayer_rewards = {
+SLAYER_REWARDS = {
     'zombie': [{}, {'health': 2}, {'health': 4}, {'health': 7}, {'health': 10}, {'health': 14}, {'health': 18},
                {'health': 23}, {'health': 28}, {'health': 34}],
     'spider': [{}, {'crit damage': 1}, {'crit damage': 2}, {'crit damage': 3}, {'crit damage': 4}, {'crit damage': 6},
@@ -12,7 +12,7 @@ slayer_rewards = {
              {'speed': 3, 'health': 12, 'crit damage': 3}]
 }
 
-slayer_level_requirements = {
+SLAYER_LEVEL_REQUIREMENT = {
     'zombie': [5, 15, 200, 1000, 5000, 20000, 100000, 400000, 1000000],
     'spider': [5, 15, 200, 1000, 5000, 20000, 100000, 400000, 1000000],
     'wolf': [10, 25, 250, 1500, 5000, 20000, 100000, 400000, 1000000]

@@ -5,7 +5,7 @@ from io import BytesIO as three
 from struct import unpack
 
 from . import Stats
-from constants import bow_enchants, rod_enchants, sword_enchants
+from constants import BOW_ENCHANTS, ROD_ENCHANTS, SWORD_ENCHANTS
 
 
 class Item:
@@ -39,8 +39,8 @@ class Item:
             self.dungeon = True if len(rarity_type) > 2 and rarity_type[1].lower() == 'dungeon' else False
 
             if self != 'ENCHANTED_BOOK':
-                for type, enchant_list in {'fishing rod': rod_enchants, 'bow': bow_enchants,
-                                           'sword': sword_enchants}.items():
+                for type, enchant_list in {'fishing rod': ROD_ENCHANTS, 'bow': BOW_ENCHANTS,
+                                           'sword': SWORD_ENCHANTS}.items():
                     for e in enchant_list:
                         if e in self.enchantments and e != 'looting' and e != 'dragon_hunter':
                             self.type = type

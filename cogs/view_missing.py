@@ -34,16 +34,16 @@ class ViewMissing(commands.Cog, name='Damage'):
         if not player.enabled_api['skills'] or not player.enabled_api['inventory']:
             raise APIDisabledError(player.uname, player.profile_name)
 
-        talismans = copy.deepcopy(constants.talismans)
+        talismans = copy.deepcopy(constants.TALISMANS)
         for talisman in player.talismans:
             if talisman.active:
-                for regex in constants.talismans.keys():
+                for regex in constants.TALISMANS.keys():
                     if regex.match(talisman.internal_name):
                         talismans.pop(regex)
 
         embed = Embed(
             ctx=ctx,
-            title=f'Player {player.uname} on profile {player.profile_name} is missing {len(talismans)}/{len(constants.talismans)} talisman{"" if len(talismans) == 1 else "s"}!',
+            title=f'Player {player.uname} on profile {player.profile_name} is missing {len(talismans)}/{len(constants.TALISMANS)} talisman{"" if len(talismans) == 1 else "s"}!',
         )
 
         if talismans:
