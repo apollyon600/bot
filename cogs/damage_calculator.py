@@ -58,18 +58,30 @@ class DamageCalculator(commands.Cog, name='Damage'):
 
         await Embed(
             ctx=ctx,
-            title=f'You should be doing {calculated_dmg} damage with those stats.'
+            title=f'Calculated damage'
         ).add_field(
-            value=f'or **{no_crit_dmg}** without a crit.',
-            inline=False
+            name='Critical hit',
+            value=f'```{calculated_dmg}```'
         ).add_field(
-            name='Damage formula',
-            value='```lua\n(5 + damage + floor(str ÷ 5)) ⋅\n(1 + str ÷ 100) ⋅\n(1 + cd ÷ 100) ⋅\n(1 + enchants bonus ÷ combat bonus)```'
-        ).send()
+            name='Non critical hit',
+            value=f'```{no_crit_dmg}```'
+        ).add_field().add_field(
+            name='Strength',
+            value=f'```{stats["strength"]}```'
+        ).add_field(
+            name='Crit damage',
+            value=f'```{stats["crit damage"]}%```'
+        ).add_field().add_field(
+            name='Weapon damage',
+            value=f'```{stats["weapon damage"]}```'
+        ).add_field(
+            name='Combat level',
+            value=f'```{stats["combat level"]}```'
+        ).add_field().send()
 
     @staticmethod
     async def prompt_for_mobs(ctx):
-        mobs = '\n'.join([k.capitalize() for k in MOBS_RELEVANT_ENCHANTS.keys()])
+        mobs = '\n'.join([mob.capitalize() for mob in MOBS_RELEVANT_ENCHANTS.keys()])
         await Embed(
             ctx=ctx,
             title='Which mob will you be targeting with this setup?'
