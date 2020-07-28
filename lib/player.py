@@ -25,9 +25,9 @@ class Player(HypixelApiInterface):
             self.uname = uname
             self.uuid = uuid
         elif uname and not uuid:
-            self.uname, self.uuid = await fetch_uuid_uname(uname, self.session)
+            self.uname, self.uuid = await fetch_uuid_uname(uname, session=self.session)
         elif uuid and not uname:
-            self.uname, self.uuid = await fetch_uuid_uname(uuid, self.session)
+            self.uname, self.uuid = await fetch_uuid_uname(uuid, session=self.session)
         else:
             raise DataError('You need to provide either a minecraft username or uuid!')
         self.online = False

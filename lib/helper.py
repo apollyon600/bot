@@ -4,22 +4,19 @@ import asyncio
 from . import ExternalAPIError, BadNameError
 
 
-# noinspection PyAssignmentToLoopOrWithParameter
-async def fetch_uuid_uname(uname_or_uuid, s):
+async def fetch_uuid_uname(uname_or_uuid, *, session):
     try:
-        async with s.get(f'https://api.mojang.com/users/profiles/minecraft/{uname_or_uuid}') as r:
+        async with session.get(f'https://api.mojang.com/users/profiles/minecraft/{uname_or_uuid}') as uname_response:
+            json = await uname_response.json(content_type=None)
 
-            json = await r.json(content_type=None)
             if not json:
-
-                async with s.get(f'https://api.mojang.com/user/profiles/{uname_or_uuid}/names') as r:
-                    json = await r.json(content_type=None)
+                async with session.get(f'https://api.mojang.com/user/profiles/{uname_or_uuid}/names') as uuid_response:
+                    json = await uuid_response.json(content_type=None)
 
                     if not json:
                         raise BadNameError(uname_or_uuid) from None
 
                     return json[-1]['name'], uname_or_uuid
-
             return json['name'], json['id']
     except asyncio.TimeoutError:
         raise ExternalAPIError('Could not connect to https://api.mojang.com.') from None
@@ -30,10 +27,9 @@ async def fetch_uuid_uname(uname_or_uuid, s):
 # noinspection PyUnboundLocalVariable
 def level_from_xp_table(xp, table):
     """
-    Takes a list of xp requirements and a xp value.
-    Returns whatever level the thing should be at
+    Takes a xp value and a list of level requirements.
+    Returns whatever level the thing should be at.
     """
-
     for level, requirement in enumerate(table):
         if requirement > xp:
             break

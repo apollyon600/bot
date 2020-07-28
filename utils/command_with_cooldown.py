@@ -1,5 +1,5 @@
 from discord.ext import commands
-from config import admin_ids
+from config import ADMIN_IDS
 
 
 class CommandWithCooldown(commands.Command):
@@ -7,7 +7,7 @@ class CommandWithCooldown(commands.Command):
         try:
             return await super().prepare(ctx)
         except commands.CommandOnCooldown as e:
-            if ctx.message.author.id in admin_ids:
+            if ctx.message.author.id in ADMIN_IDS:
                 return
             else:
                 raise e

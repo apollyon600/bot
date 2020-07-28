@@ -7,7 +7,7 @@ from constants.discord import TIMEOUT_EMOJIS
 
 class PlayerConverter(commands.Converter):
     async def convert(self, ctx, arg):
-        api_keys = ctx.bot.config.keys
+        api_keys = ctx.bot.config.API_KEYS
         return await Player(api_keys, uname=arg, session=ctx.bot.session)
 
 

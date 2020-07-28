@@ -11,10 +11,10 @@ import config
 class Bot(commands.AutoShardedBot):
     def __init__(self, *args, **kwargs):
         self.config = config
-        super().__init__(command_prefix=self.config.prefix, description='Skyblock Simplified',
-                         owner_ids=self.config.owner_ids, *args, **kwargs)
+        super().__init__(command_prefix=self.config.BOT_PREFIXES, description='Skyblock Simplified',
+                         owner_ids=self.config.OWNER_IDS, *args, **kwargs)
         self.session = aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=5), raise_for_status=True)
-        for extension in self.config.extensions:
+        for extension in self.config.COG_EXTENSIONS:
             try:
                 self.load_extension(extension)
             except Exception:
@@ -39,7 +39,7 @@ class Bot(commands.AutoShardedBot):
             # in case it raised from on_command_error
             return
         error = traceback.format_exc().replace('```', '"""')
-        for id in self.config.dev_ids:
+        for id in self.config.DEV_IDS:
             await self.get_user(id).send(f'```{error[-1950:]}```')
         print(error)
 

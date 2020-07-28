@@ -5,10 +5,10 @@ if os.environ.get('API_KEY') is None:
 
     dotenv.load_dotenv()
 
-keys = os.getenv('API_KEY')
+API_KEYS = os.getenv('API_KEY')
 SCIP_TIMELIMIT = os.getenv('SCIP_TIMELIMIT', 4)
 
-extensions = [
+COG_EXTENSIONS = [
     # Event/Error handler
     'cogs.event_handler',
     'cogs.error_handler',
@@ -22,22 +22,22 @@ extensions = [
     'cogs.auction_price'
 ]
 
-prefix = [
+BOT_PREFIXES = [
     'Exp' + ' ',
     'exp' + ' ',
 ]
 
 # to use high level commands
-owner_ids = [
+OWNER_IDS = [
     148460858438057985,  # yuerino
 ]
 
 # to get error DM from bot
-dev_ids = [
+DEV_IDS = [
     148460858438057985,  # yuerino
 ]
 
 # to bypass cooldown
-admin_ids = [
+ADMIN_IDS = [
     148460858438057985,  # yuerino
 ]
