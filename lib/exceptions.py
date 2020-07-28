@@ -1,4 +1,4 @@
-from discord.ext.commands import UserInputError
+from discord.ext.commands import UserInputError, CheckFailure
 
 
 class SkyblockCommandError(UserInputError):
@@ -74,9 +74,17 @@ class NoWeaponError(SkyblockCommandError):
     """
     pass
 
+
 class HypixelLanguageError(SkyblockCommandError):
     """
     Exception raised when the player's hypixel language is not english.
+    """
+    pass
+
+
+class NotStaff(CheckFailure):
+    """
+    Exception raised when the user is not a sbs staff.
     """
     pass
 

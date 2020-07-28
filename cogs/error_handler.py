@@ -87,6 +87,7 @@ class ErrorHandler(commands.Cog):
         )
 
         user_missing_errors = (
+            NotStaff,
             commands.CheckAnyFailure,
             commands.NotOwner,
             commands.MissingPermissions,
@@ -103,6 +104,7 @@ class ErrorHandler(commands.Cog):
                 f'{ctx.author.mention}, Sorry, it looks like you don\'t have the permissions or roles to use this command.')
         else:
             # other unimplemented check exceptions
+            print(error)
             pass
 
     async def handle_unexpected_error(self, ctx: commands.Context, error):
