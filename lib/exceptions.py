@@ -74,6 +74,12 @@ class NoWeaponError(SkyblockCommandError):
     """
     pass
 
+class HypixelLanguageError(SkyblockCommandError):
+    """
+    Exception raised when the player's hypixel language is not english.
+    """
+    pass
+
 
 class SessionTimeout(Exception):
     """

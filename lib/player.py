@@ -3,7 +3,7 @@ import copy
 from datetime import datetime
 
 from . import Pet, Stats, HypixelApiInterface, HypixelAPIError, DataError, NeverPlayedSkyblockError, \
-    decode_inventory_data, fetch_uuid_uname, level_from_xp_table, BadProfileError, safe_list_get
+    decode_inventory_data, fetch_uuid_uname, level_from_xp_table, BadProfileError, safe_list_get, HypixelLanguageError
 from constants import *
 
 
@@ -203,7 +203,10 @@ class Player(HypixelApiInterface):
 
         for tali in self.talismans:
             if tali.active:
-                self.talisman_counts[tali.rarity] += 1
+                try:
+                    self.talisman_counts[tali.rarity] += 1
+                except KeyError:
+                    raise HypixelLanguageError from None
 
         # Loads a player's minion slots and collections
         try:

@@ -77,9 +77,6 @@ class ErrorHandler(commands.Cog):
             await self.get_help_command(ctx)
         elif isinstance(error, SkyblockCommandError):
             await self.handle_skyblock_input_error(ctx, error)
-        else:
-            await ctx.send("Something about your input seems off. Please check the command usage.")
-            await self.get_help_command(ctx)
 
     @staticmethod
     async def handle_check_failure(ctx: commands.Context, error: commands.CheckFailure):
@@ -142,6 +139,9 @@ class ErrorHandler(commands.Cog):
             await ctx.send(f'{ctx.author.mention}, You have no weapons in your inventory.')
         elif isinstance(error, NoArmorError):
             await ctx.send(f'{ctx.author.mention}, You have no armors equipped or in wardrobe.')
+        elif isinstance(error, HypixelLanguageError):
+            await ctx.send(f'{ctx.author.mention}, I only support english at the moment!\n'
+                           f'Please change your hypixel language to English.')
 
 
 def setup(bot):
