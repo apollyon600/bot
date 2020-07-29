@@ -101,13 +101,37 @@ class Staff(commands.Cog):
         Use this command to check the current api key status.
         """
         data = await self.hypixel_api_client.get('key')
-        await ctx.send(data)
+        if data is None:
+            return await ctx.send('Something is wrong!')
+        if data['success']:
+            data = data['record']
+        else:
+            return await ctx.send('Something is wrong!')
+        censored_key = '\*' * (len(data['key']) - 3)
+        censored_key += data['key'][len(data['key']) - 3:]
+        await Embed(
+            ctx=ctx,
+            title='API Key status'
+        ).add_field(
+            name='Key',
+            value=f'{censored_key}'
+        ).add_field(
+            name='Owner',
+            value=f'{data["owner"]}',
+        ).add_field().add_field(
+            name='Limit',
+            value=f'{data["limit"]}',
+            inline=False
+        ).add_field(
+            name='Queries in past minute',
+            value=f'{data["queriesInPastMin"]}',
+            inline=False
+        ).add_field(
+            name='Total queries',
+            value=f'{data["totalQueries"]}',
+            inline=False
+        ).send()
 
-    @commands.command()
-    @commands.check_any(commands.is_owner(), checks.is_admin(), checks.is_dev())
-    async def shard(self, ctx):
-        shards = ctx.bot.shards
-        print(shards)
 
 def setup(bot):
     bot.add_cog(Staff(bot))
