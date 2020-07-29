@@ -13,19 +13,18 @@ class AuctionPrice(commands.Cog, name='Auction'):
 
     def __init__(self, bot):
         self.bot = bot
-        self.session = bot.http_session
 
     @commands.command()
     async def price(self, ctx, *, item_name):
         """
         Displays the average price for any item on the auction.
         """
-        item_id = await get_item_id(item_name, session=self.session)
+        item_id = await get_item_id(item_name, session=ctx.bot.session)
         if not item_id:
             return await ctx.send(f'{ctx.author.mention}, There is no item called `{" ".join(item_name)}`.\n'
                                   f'Or there was a problem connecting to https://auctions.craftlink.xyz/.')
 
-        item_price_stats = await get_item_price_stats(item_id[0]['_id'], session=self.session)
+        item_price_stats = await get_item_price_stats(item_id[0]['_id'], session=ctx.bot.session)
         if not item_price_stats:
             return await ctx.send(f'{ctx.author.mention}, There is no item called `{" ".join(item_name)}`.\n'
                                   f'Or there was a problem connecting to https://auctions.craftlink.xyz/.')

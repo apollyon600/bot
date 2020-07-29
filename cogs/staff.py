@@ -14,7 +14,6 @@ class Staff(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.config = bot.config
-        self.session = bot.http_session
         self.hypixel_api_client = bot.hypixel_api_client
 
     @commands.command()

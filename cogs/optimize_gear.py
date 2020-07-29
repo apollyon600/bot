@@ -12,7 +12,6 @@ class OptimizeGear(commands.Cog, name='Damage'):
     def __init__(self, bot):
         self.bot = bot
         self.config = bot.config
-        self.session = bot.http_session
 
     # noinspection PyUnresolvedReferences,PyTypeChecker
     @commands.command(cls=CommandWithCooldown, cooldown_after_parsing=True)
@@ -23,7 +22,7 @@ class OptimizeGear(commands.Cog, name='Damage'):
         """
         Optimizes your equipments to their best reforges.
         """
-        player = await Player(self.config.API_KEY, uname=player, session=self.session)
+        player = await Player(self.config.API_KEY, uname=player, session=ctx.bot.http_session)
 
         if not profile:
             await player.set_profile_automatically()

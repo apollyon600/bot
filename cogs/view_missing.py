@@ -16,7 +16,6 @@ class ViewMissing(commands.Cog, name='Damage'):
     def __init__(self, bot):
         self.bot = bot
         self.config = bot.config
-        self.session = bot.http_session
 
     # noinspection PyUnresolvedReferences
     @commands.command(cls=CommandWithCooldown, cooldown_after_parsing=True)
@@ -28,7 +27,7 @@ class ViewMissing(commands.Cog, name='Damage'):
         Displays a list of player's missing talismans.
         Also displays inactive/unnecessary talismans if player have them.
         """
-        player = await Player(self.config.API_KEY, uname=player, session=self.session)
+        player = await Player(self.config.API_KEY, uname=player, session=ctx.bot.session)
 
         if not profile:
             await player.set_profile_automatically()
