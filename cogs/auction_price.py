@@ -19,7 +19,7 @@ class AuctionPrice(commands.Cog, name='Auction'):
         """
         Displays the average price for any item on the auction.
         """
-        item_id = await get_item_id(item_name, session=ctx.bot.session)
+        item_id = await get_item_id(item_name, session=ctx.bot.http_session)
         if not item_id:
             return await ctx.send(f'{ctx.author.mention}, There is no item called `{" ".join(item_name)}`.\n'
                                   f'Or there was a problem connecting to https://auctions.craftlink.xyz/.')
