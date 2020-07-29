@@ -20,7 +20,7 @@ class ViewMissing(commands.Cog, name='Damage'):
     # noinspection PyUnresolvedReferences
     @commands.command(cls=CommandWithCooldown, cooldown_after_parsing=True)
     @commands.cooldown(1, 10.0, commands.BucketType.user)
-    # @commands.max_concurrency(1, per=commands.BucketType.channel, wait=False)
+    @commands.max_concurrency(1, per=commands.BucketType.channel, wait=False)
     @commands.max_concurrency(100, per=commands.BucketType.default, wait=False)
     async def missing(self, ctx, player: str, profile: str = ''):
         """

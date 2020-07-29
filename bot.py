@@ -103,5 +103,6 @@ class Bot(commands.AutoShardedBot):
         )
         self.http.connector = self._connector
 
-        self.http_session = aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=30), connector=self._connector)
+        self.http_session = aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=30), connector=self._connector,
+                                                  raise_for_status=True)
         self.hypixel_api_client.recreate(force=True, connector=self._connector)

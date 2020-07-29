@@ -16,7 +16,7 @@ class OptimizeGear(commands.Cog, name='Damage'):
     # noinspection PyUnresolvedReferences,PyTypeChecker
     @commands.command(cls=CommandWithCooldown, cooldown_after_parsing=True)
     @commands.cooldown(1, 10.0, commands.BucketType.user)
-    # @commands.max_concurrency(1, per=commands.BucketType.channel, wait=False)
+    @commands.max_concurrency(1, per=commands.BucketType.channel, wait=False)
     @commands.max_concurrency(100, per=commands.BucketType.default, wait=False)
     async def optimizer(self, ctx, player: str, profile: str = ''):
         """
