@@ -27,7 +27,7 @@ class ViewMissing(commands.Cog, name='Damage'):
         Displays a list of player's missing talismans.
         Also displays inactive/unnecessary talismans if player have them.
         """
-        player = await Player(self.config.API_KEY, uname=player, session=ctx.bot.session)
+        player = await Player(self.config.API_KEY, uname=player, session=ctx.bot.http_session)
 
         if not profile:
             await player.set_profile_automatically()

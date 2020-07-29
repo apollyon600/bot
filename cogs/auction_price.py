@@ -24,7 +24,7 @@ class AuctionPrice(commands.Cog, name='Auction'):
             return await ctx.send(f'{ctx.author.mention}, There is no item called `{" ".join(item_name)}`.\n'
                                   f'Or there was a problem connecting to https://auctions.craftlink.xyz/.')
 
-        item_price_stats = await get_item_price_stats(item_id[0]['_id'], session=ctx.bot.session)
+        item_price_stats = await get_item_price_stats(item_id[0]['_id'], session=ctx.bot.http_session)
         if not item_price_stats:
             return await ctx.send(f'{ctx.author.mention}, There is no item called `{" ".join(item_name)}`.\n'
                                   f'Or there was a problem connecting to https://auctions.craftlink.xyz/.')
