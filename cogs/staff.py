@@ -15,6 +15,7 @@ class Staff(commands.Cog):
         self.bot = bot
         self.config = bot.config
         self.session = bot.http_session
+        self.hypixel_api_client = bot.hypixel_api_client
 
     @commands.command()
     @commands.check_any(commands.is_owner(), checks.is_admin(), checks.is_dev())
@@ -100,7 +101,8 @@ class Staff(commands.Cog):
         """
         Use this command to check the current api key status.
         """
-        pass
+        data = await self.hypixel_api_client.get('key')
+        await ctx.send(data)
 
 
 def setup(bot):

@@ -1,28 +1,8 @@
 import aiohttp
 import asyncio
-from typing import Optional
 from urllib.parse import quote
 
-
-class ResponseCodeError(ValueError):
-    """
-    Exception raised when a non-OK HTTP response is received.
-    """
-
-    def __init__(
-            self,
-            response: aiohttp.ClientResponse,
-            response_json: Optional[dict] = None,
-            response_text: str = ""
-    ):
-        self.status = response.status
-        self.response_json = response_json or {}
-        self.response_text = response_text
-        self.response = response
-
-    def __str__(self):
-        response = self.response_json if self.response_json else self.response_text
-        return f"Status: {self.status} Response: {response}"
+from lib import HypixelResponseCodeError, HypixelAPITimeout, HypixelAPINoSuccess, HypixelAPIRateLimitError
 
 
 class HypixelAPIClient:
@@ -90,27 +70,45 @@ class HypixelAPIClient:
         """
         Raise ResponseCodeError for non-OK response if an exception should be raised.
         """
-        if should_raise and response.status >= 400:
+        if should_raise and response.status == 429:
+            raise HypixelAPIRateLimitError
+        elif should_raise and response.status >= 400:
             try:
                 response_json = await response.json()
-                raise ResponseCodeError(response=response, response_json=response_json)
+                raise HypixelResponseCodeError(response=response, response_json=response_json)
             except aiohttp.ContentTypeError:
                 response_text = await response.text()
-                raise ResponseCodeError(response=response, response_text=response_text)
+                raise HypixelResponseCodeError(response=response, response_text=response_text)
 
     async def request(self, method: str, endpoint: str, *, raise_for_status: bool = True, **kwargs):
         """
-         A HTTP request to the Hypixel API and return the JSON response.
-         """
+        A HTTP request to the Hypixel API and return the JSON response.
+        """
         await self._ready.wait()
 
+        if 'params' not in kwargs:
+            kwargs['params'] = {}
         kwargs['params']['key'] = self.key
-        async with self.session.request(method.upper(), self._url_for(endpoint), **kwargs) as resp:
-            await self.maybe_raise_for_status(resp, raise_for_status)
-            return await resp.json()
+        try:
+            async with self.session.request(method.upper(), self._url_for(endpoint), **kwargs) as resp:
+                await self.maybe_raise_for_status(resp, raise_for_status)
+                resp = await resp.json()
+
+                if not resp['success']:
+                    raise HypixelAPINoSuccess
+                return resp
+        except asyncio.TimeoutError:
+            raise HypixelAPITimeout
 
     async def get(self, endpoint: str, *, raise_for_status: bool = True, **kwargs):
         """
         Hypixel API Get.
         """
         return await self.request("GET", endpoint, raise_for_status=raise_for_status, **kwargs)
+
+    async def get_skyblock_player(self, uuid, *, raise_for_status: bool = True, **kwargs):
+        """
+        Hypixel API get play's skyblock profiles.
+        """
+        return await self.get('sykblock/profiles', raise_for_status=raise_for_status,
+                              **{**{'params': {'uuid': uuid}}, **kwargs})

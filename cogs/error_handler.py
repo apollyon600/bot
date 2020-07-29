@@ -17,8 +17,9 @@ class ErrorHandler(commands.Cog):
             await ctx.send(
                 f'{ctx.author.mention}, This command is on cooldown for you! Please try again in {error.retry_after:.2f}s.')
         elif isinstance(error, commands.MaxConcurrencyReached):
-            await ctx.send(
-                f'{ctx.author.mention}, Someone is already using this command in this channel! Please try again later or DM me directly.')
+            # await ctx.send(
+            #     f'{ctx.author.mention}, Someone is already using this command in this channel! Please try again later or DM me directly.')
+            await ctx.send(f'{ctx.author.mention}, Too many people is using this command! Please try again later.')
         elif isinstance(error, commands.CommandNotFound):
             await ctx.send(f'{ctx.author.mention}, Did you make a typo? There is no command: `{ctx.invoked_with}`.')
         elif isinstance(error, commands.DisabledCommand):

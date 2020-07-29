@@ -1,3 +1,5 @@
+import aiohttp
+from typing import Optional
 from discord.ext.commands import UserInputError, CheckFailure
 
 
@@ -139,6 +141,48 @@ class HypixelAPIError(APIError):
 
     def __init__(self, reason=''):
         self.reason = reason
+
+
+class HypixelAPIRateLimitError(APIError):
+    """
+    Exception raised when hypixel api ratelimit is reached.
+    """
+    pass
+
+
+class HypixelAPINoSuccess(APIError):
+    """
+    Exception raised when hypixel api return not success.
+    """
+    pass
+
+
+class HypixelAPITimeout(APIError):
+    """
+    Exception raised when hypixel api request timed out.
+    """
+    pass
+
+
+class HypixelResponseCodeError(ValueError):
+    """
+    Exception raised when a non-OK HTTP response from hypixel is received.
+    """
+
+    def __init__(
+            self,
+            response: aiohttp.ClientResponse,
+            response_json: Optional[dict] = None,
+            response_text: str = ""
+    ):
+        self.status = response.status
+        self.response_json = response_json or {}
+        self.response_text = response_text
+        self.response = response
+
+    def __str__(self):
+        response = self.response_json if self.response_json else self.response_text
+        return f"Status: {self.status} Response: {response}"
 
 
 class APIKeyError(APIError):

@@ -1,25 +1,30 @@
 import copy
 from discord.ext import commands
 
-from utils import CommandWithCooldown, PlayerConverter, Embed, colorize, format_pet, emod
+from utils import CommandWithCooldown, Embed, colorize, format_pet, emod
 from constants.discord import OPTIMIZER_GOALS, RARITY_COLORS, PET_EMOJIS, DAMAGE_POTIONS, NUMBER_EMOJIS, SUPPORT_ITEMS
 from constants import DAMAGE_REFORGES
 from lib import APIDisabledError, SessionTimeout, damage, damage_optimizer, PlayerOnlineError, NoArmorError, \
-    NoWeaponError
+    NoWeaponError, Player
 
 
 class OptimizeGear(commands.Cog, name='Damage'):
     def __init__(self, bot):
         self.bot = bot
+        self.config = bot.config
+        self.session = bot.http_session
 
     # noinspection PyUnresolvedReferences,PyTypeChecker
     @commands.command(cls=CommandWithCooldown, cooldown_after_parsing=True)
     @commands.cooldown(1, 10.0, commands.BucketType.user)
-    @commands.max_concurrency(1, per=commands.BucketType.channel, wait=False)
-    async def optimizer(self, ctx, player: PlayerConverter, profile: str = ''):
+    # @commands.max_concurrency(1, per=commands.BucketType.channel, wait=False)
+    @commands.max_concurrency(100, per=commands.BucketType.default, wait=False)
+    async def optimizer(self, ctx, player: str, profile: str = ''):
         """
         Optimizes your equipments to their best reforges.
         """
+        player = await Player(self.config.API_KEY, uname=player, session=self.session)
+
         if not profile:
             await player.set_profile_automatically()
         else:

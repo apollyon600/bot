@@ -2,8 +2,8 @@ import copy
 from discord.ext import commands
 
 import constants
-from utils import PlayerConverter, Embed, CommandWithCooldown
-from lib import APIDisabledError
+from utils import Embed, CommandWithCooldown
+from lib import APIDisabledError, Player
 
 
 class ViewMissing(commands.Cog, name='Damage'):
@@ -16,16 +16,20 @@ class ViewMissing(commands.Cog, name='Damage'):
     def __init__(self, bot):
         self.bot = bot
         self.config = bot.config
+        self.session = bot.http_session
 
     # noinspection PyUnresolvedReferences
     @commands.command(cls=CommandWithCooldown, cooldown_after_parsing=True)
     @commands.cooldown(1, 10.0, commands.BucketType.user)
-    @commands.max_concurrency(1, per=commands.BucketType.channel, wait=False)
-    async def missing(self, ctx, player: PlayerConverter, profile: str = ''):
+    # @commands.max_concurrency(1, per=commands.BucketType.channel, wait=False)
+    @commands.max_concurrency(100, per=commands.BucketType.default, wait=False)
+    async def missing(self, ctx, player: str, profile: str = ''):
         """
         Displays a list of player's missing talismans.
         Also displays inactive/unnecessary talismans if player have them.
         """
+        player = await Player(self.config.API_KEY, uname=player, session=self.session)
+
         if not profile:
             await player.set_profile_automatically()
         else:
