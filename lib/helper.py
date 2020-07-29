@@ -9,14 +9,14 @@ async def fetch_uuid_uname(uname_or_uuid, *, session):
         async with session.get(f'https://api.mojang.com/users/profiles/minecraft/{uname_or_uuid}') as uname_response:
             json = await uname_response.json(content_type=None)
 
-            if not json:
+            if json is None:
                 async with session.get(f'https://api.mojang.com/user/profiles/{uname_or_uuid}/names') as uuid_response:
                     if uuid_response.status == 204:
-                        raise BadNameError(uname_or_uuid)
+                        raise BadNameError(uname_or_uuid) from None
 
                     json = await uuid_response.json(content_type=None)
 
-                    if not json:
+                    if json is None:
                         raise BadNameError(uname_or_uuid) from None
 
                     return json[-1]['name'], uname_or_uuid
