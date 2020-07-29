@@ -103,6 +103,11 @@ class Staff(commands.Cog):
         data = await self.hypixel_api_client.get('key')
         await ctx.send(data)
 
+    @commands.command()
+    @commands.check_any(commands.is_owner(), checks.is_admin(), checks.is_dev())
+    async def shard(self, ctx):
+        shards = ctx.bot.shards
+        print(shards)
 
 def setup(bot):
     bot.add_cog(Staff(bot))

@@ -11,6 +11,9 @@ async def fetch_uuid_uname(uname_or_uuid, *, session):
 
             if not json:
                 async with session.get(f'https://api.mojang.com/user/profiles/{uname_or_uuid}/names') as uuid_response:
+                    if uuid_response.status == 204:
+                        raise BadNameError(uname_or_uuid)
+
                     json = await uuid_response.json(content_type=None)
 
                     if not json:

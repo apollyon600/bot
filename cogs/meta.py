@@ -64,10 +64,10 @@ class Meta(commands.Cog, name='Bot'):
         )
 
         shards = [[0, 0, 0]] * ctx.bot.shard_count
-        for x in ctx.bot.guilds:
-            shards[x.shard_id][0] += 1
-            shards[x.shard_id][1] += len(x.text_channels)
-            shards[x.shard_id][2] += len(x.members)
+        for guild in ctx.bot.guilds:
+            shards[guild.shard_id][0] += 1
+            shards[guild.shard_id][1] += len(guild.text_channels)
+            shards[guild.shard_id][2] += len(guild.members)
 
         for x in range(ctx.bot.shard_count):
             embed.add_field(
