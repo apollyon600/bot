@@ -19,7 +19,7 @@ class ErrorHandler(commands.Cog):
         elif isinstance(error, commands.MaxConcurrencyReached):
             # await ctx.send(
             #     f'{ctx.author.mention}, Someone is already using this command in this channel! Please try again later or DM me directly.')
-            await ctx.send(f'{ctx.author.mention}, Too many people is using this command! Please try again later.')
+            await ctx.send(f'{ctx.author.mention}, Too many people are using this command! Please try again later.')
         elif isinstance(error, commands.CommandNotFound):
             await ctx.send(f'{ctx.author.mention}, Did you make a typo? There is no command: `{ctx.invoked_with}`.')
         elif isinstance(error, commands.DisabledCommand):
@@ -33,7 +33,7 @@ class ErrorHandler(commands.Cog):
                 try:
                     await ctx.send(
                         f'{ctx.author.mention}, Sorry, it looks like I don\'t have the permissions or roles to do that.\n'
-                        f'Try enabling your DMS or contract the server owner to give me more permissions.')
+                        f'Try enabling your DMS or contact the server owner to give me more permissions.')
                 except:
                     # in case the server disable bot's message permission
                     pass
@@ -99,7 +99,7 @@ class ErrorHandler(commands.Cog):
         if isinstance(error, bot_missing_errors):
             await ctx.send(
                 f'{ctx.author.mention}, Sorry, it looks like I don\'t have the permissions or roles to do that.\n'
-                f'Try enabling your DM or contract the server owner to give me more permissions.')
+                f'Try enabling your DM or contact the server owner to give me more permissions.')
         elif isinstance(error, user_missing_errors):
             await ctx.send(
                 f'{ctx.author.mention}, Sorry, it looks like you don\'t have the permissions or roles to use this command.')
