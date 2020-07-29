@@ -282,7 +282,7 @@ class OptimizeGear(commands.Cog, name='Damage'):
         potions_list = [f'{name.capitalize()}: {level}' for name, level in selected_pots if level != 0]
         return await ctx.prompt(embed=Embed(
             ctx=ctx,
-            title='Is this the correct options that you choose?'
+            title='Are these options correct?'
         ).add_field(
             name='Goal',
             value=f'```{"Perfect crit chance" if perfect_crit_chance else "Maximum damage"}```'
@@ -319,7 +319,7 @@ class OptimizeGear(commands.Cog, name='Damage'):
             selected_level = await ctx.prompt(
                 message=f'{ctx.author.mention}, What level of `{name} potion` do you want to use?' +
                         '{s}'.format(
-                            s='\nSelect 0 if you want to choose normal potion instead of dungeon potion!' if name == 'dungeon' else ''),
+                            s='\nSelect 0 if you want to choose normal potions instead of a dungeon potion!' if name == 'dungeon' else ''),
                 emoji_list=emoji_list)
 
             selected_pots.append((name, selected_level))
@@ -351,12 +351,12 @@ class OptimizeGear(commands.Cog, name='Damage'):
             ctx=ctx,
             title='What reforges do you want to use?',
             description='```blacksmith > Only the reforges from blacksmith```\n'
-                        '```all > All the blacksmith reforges and reforges stone```'
+                        '```all > All the blacksmith reforges and reforge stones```'
         ).add_field(
             name='Option',
             value='If you want to ignore specific reforges that you don\'t like, enter using this format\n'
-                  '`<blacksmith / all> ignore [ignored reforge follow by space for multiple]`\n'
-                  'Ex: `all ignore renowned spiked`'
+                  '`<blacksmith / all> ignore [ignored reforge followed by a space for multiple]`\n'
+                  'Example: `all ignore renowned spiked`'
         ).send()
 
         def check(m):
