@@ -13,7 +13,7 @@ class AuctionPrice(commands.Cog, name='Auction'):
 
     def __init__(self, bot):
         self.bot = bot
-        self.session = bot.session
+        self.session = bot.http_session
 
     @commands.command()
     async def price(self, ctx, *, item_name):

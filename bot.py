@@ -2,24 +2,29 @@ import sys
 import traceback
 import discord
 import aiohttp
-
+import socket
+from typing import Optional
 from discord.ext import commands
+
+from lib import HypixelAPIClient
 from utils import Context
 import config
 
 
 class Bot(commands.AutoShardedBot):
     def __init__(self, *args, **kwargs):
+        if "connector" in kwargs:
+            print(
+                "If login() is called (or the bot is started), the connector will be overwritten with an internal one")
+
+        super().__init__(*args, **kwargs)
+
         self.config = config
-        super().__init__(command_prefix=self.config.BOT_PREFIXES, description='Skyblock Simplified',
-                         owner_ids=self.config.OWNER_IDS, *args, **kwargs)
-        self.session = aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=5), raise_for_status=True)
-        for extension in self.config.COG_EXTENSIONS:
-            try:
-                self.load_extension(extension)
-            except Exception:
-                print(f'Failed to load extension {extension}.', file=sys.stderr)
-                traceback.print_exc()
+        self.http_session: Optional[aiohttp.ClientSession] = None
+        self.hypixel_api_client = HypixelAPIClient(config.API_KEY, self.loop, timeout=aiohttp.ClientTimeout(total=30))
+
+        self._connector = None
+        self._resolver = None
 
     async def process_commands(self, message):
         if message.author.bot:
@@ -46,3 +51,57 @@ class Bot(commands.AutoShardedBot):
     def add_cog(self, cog: commands.Cog):
         super().add_cog(cog)
         print(f"Cog loaded: {type(cog).__name__} ({cog.qualified_name}).")
+
+    def clear(self):
+        """
+        Clears the internal state of the bot and recreates the connector and sessions.
+        Will cause a DeprecationWarning if called outside a coroutine.
+        """
+        self._recreate()
+        super().clear()
+
+    async def close(self):
+        """
+        Close the Discord connection, the http session, connector, resolver and hypixel api client.
+        """
+        await super().close()
+
+        await self.hypixel_api_client.close()
+
+        if self._connector:
+            await self._connector.close()
+
+        if self._resolver:
+            await self._resolver.close()
+
+        if self.http_session:
+            await self.http_session.close()
+
+    async def login(self, *args, **kwargs):
+        """
+        Re-create the connector and set up sessions before logging into Discord.
+        """
+        self._recreate()
+        await super().login(*args, **kwargs)
+
+    # noinspection PyProtectedMember
+    def _recreate(self):
+        """
+        Re-create the connector, aiohttp session and the APIClient.
+        """
+        # Use asyncio for DNS resolution instead of threads so threads aren't spammed.
+        self._resolver = aiohttp.AsyncResolver()
+
+        if self._connector and not self._connector._closed:
+            print("The previous connector was not closed; it will remain open and be overwritten")
+        if self.http_session and not self.http_session.closed:
+            print('The previous http session was not closed, it will remain open and be overwritten')
+
+        self._connector = aiohttp.TCPConnector(
+            resolver=self._resolver,
+            family=socket.AF_INET,
+        )
+        self.http.connector = self._connector
+
+        self.http_session = aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=30), connector=self._connector)
+        self.hypixel_api_client.recreate(force=True, connector=self._connector)

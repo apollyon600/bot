@@ -1,11 +1,12 @@
 import os
 
-if os.environ.get('API_KEY') is None:
+if os.environ.get('DISCORD_TOKEN') is None:
     import dotenv
 
     dotenv.load_dotenv()
 
-API_KEYS = os.getenv('API_KEY')
+DISCORD_TOKEN = os.getenv('DISCORD_TOKEN')
+API_KEY = os.getenv('API_KEY')
 SCIP_TIMELIMIT = os.getenv('SCIP_TIMELIMIT', 4)
 
 COG_EXTENSIONS = [
@@ -32,14 +33,17 @@ BOT_PREFIXES = [
 # to use high level commands
 OWNER_IDS = [
     148460858438057985,  # yuerino
+    181152738086748160,  # plutie
 ]
 
 # to get error DM from bot
 DEV_IDS = [
     148460858438057985,  # yuerino
+    181152738086748160,  # plutie
 ]
 
 # to bypass cooldown
 ADMIN_IDS = [
     148460858438057985,  # yuerino
+    181152738086748160,  # plutie
 ]

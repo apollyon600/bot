@@ -11,3 +11,4 @@ python-dotenv
 cloudscraper
 pyomo
 psutil
+aiodns

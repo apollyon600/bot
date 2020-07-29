@@ -14,6 +14,7 @@ class Staff(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.config = bot.config
+        self.session = bot.http_session
 
     @commands.command()
     @commands.check_any(commands.is_owner(), checks.is_admin(), checks.is_dev())
@@ -92,6 +93,14 @@ class Staff(commands.Cog):
                     break
             if _run:
                 await ctx.send(f'{ctx.author.mention}, Did you make a typo? Choose a command from the list.')
+
+    @commands.command()
+    @commands.check_any(commands.is_owner(), checks.is_admin(), checks.is_dev())
+    async def apikey(self, ctx):
+        """
+        Use this command to check the current api key status.
+        """
+        pass
 
 
 def setup(bot):

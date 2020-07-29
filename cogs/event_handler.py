@@ -10,7 +10,6 @@ class EventHandler(commands.Cog):
     @commands.Cog.listener()
     async def on_ready(self):
         print(f'Logged on as {self.bot.user}! (ID: {self.bot.user.id})')
-        await self.bot.change_presence(activity=discord.Game(f'| 🍤 {self.config.BOT_PREFIXES[-1]} help'))
 
     @commands.Cog.listener()
     async def on_command(self, ctx):

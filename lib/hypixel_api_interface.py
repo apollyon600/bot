@@ -19,6 +19,8 @@ class HypixelApiInterface:
             async with session.get(url, params=kwargs) as data:
                 data = await data.json(content_type=None)
 
+                if not data:
+                    raise HypixelAPIError('Hypixel\'s API is currently not working. Please try again in a few minutes.')
                 if data['success']:
                     return data
                 elif data['cause'] == 'Invalid API key!':
@@ -27,7 +29,8 @@ class HypixelApiInterface:
                     raise HypixelAPIError(data['cause'])
 
         except asyncio.TimeoutError:
-            return await self.__call_api__(api, session, **kwargs)
+            raise HypixelAPIError('Hypixel\'s API is currently not working. Please try again in a few minutes.')
+            # return await self.__call_api__(api, session, **kwargs)
 
         except aiohttp.ClientResponseError as e:
             if e.status == 403:
