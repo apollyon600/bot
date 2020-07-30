@@ -91,7 +91,8 @@ class Context(commands.Context):
             except (asyncio.TimeoutError, SessionTimeout) as e:
                 for future in pending:
                     future.cancel()
-                self.bot.loop.create_task(embed_timeout_handler(self, pages.reaction_emojis, message=pages.message))
+                if paginating:
+                    self.bot.loop.create_task(embed_timeout_handler(self, pages.reaction_emojis, message=pages.message))
                 raise e from None
 
     async def ask(self, *, message=None, timeout=60.0, message_check=None):

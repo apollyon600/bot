@@ -121,10 +121,16 @@ class HypixelAPIClient:
         )
 
     async def get_skyblock_profiles(self, uuid, *, raise_for_status: bool = True, **kwargs):
+        """
+        Hypixel API get skyblock profiles.
+        """
         data = await self.get('skyblock/profiles', raise_for_status=raise_for_status,
                               **{**{'params': {'uuid': uuid}}, **kwargs})
         return data['profiles']
 
     async def get_key_status(self, *, raise_for_status: bool = True, **kwargs):
+        """
+        Hypixel API get key status.
+        """
         data = await self.get('key', raise_for_status=raise_for_status, **kwargs)
         return data['record']
