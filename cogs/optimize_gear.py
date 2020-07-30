@@ -35,15 +35,15 @@ class OptimizeGear(commands.Cog, name='Damage'):
         if not player.enabled_api['skills'] or not player.enabled_api['inventory']:
             raise APIDisabledError(player.uname, player.profile_name)
 
-        armor = await self.prompt_for_armor(ctx, player)
-        if not armor:
-            raise NoArmorError from None
-        player.set_armor(armor)
-
         weapon = await self.prompt_for_weapon(ctx, player)
         if not weapon:
             raise NoWeaponError from None
         player.set_weapon(weapon)
+
+        armor = await self.prompt_for_armor(ctx, player)
+        if not armor:
+            raise NoArmorError from None
+        player.set_armor(armor)
 
         pet = await self.prompt_for_pet(ctx, player)
         player.set_pet(pet)
