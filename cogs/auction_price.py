@@ -1,7 +1,6 @@
 from discord.ext import commands
 
-from lib import get_item_price_stats, get_item_id
-from utils import Embed
+from utils import Embed, get_item_price_stats, get_item_id
 
 
 class AuctionPrice(commands.Cog, name='Auction'):
@@ -15,49 +14,51 @@ class AuctionPrice(commands.Cog, name='Auction'):
         self.bot = bot
 
     @commands.command()
+    @commands.cooldown(1, 10.0, commands.BucketType.user)
+    @commands.max_concurrency(1, per=commands.BucketType.channel, wait=False)
     async def price(self, ctx, *, item_name):
         """
         Displays the average price for any item on the auction.
         """
-        item_id = await get_item_id(item_name, session=ctx.bot.http_session)
+        item_id = await get_item_id(item_name, session=self.bot.http_session)
         if not item_id:
             return await ctx.send(f'{ctx.author.mention}, There is no item called `{" ".join(item_name)}`.\n'
                                   f'Or there was a problem connecting to https://auctions.craftlink.xyz/.')
 
-        item_price_stats = await get_item_price_stats(item_id[0]['_id'], session=ctx.bot.http_session)
+        item_price_stats = await get_item_price_stats(item_id[0]['_id'], session=self.bot.http_session)
         if not item_price_stats:
             return await ctx.send(f'{ctx.author.mention}, There is no item called `{" ".join(item_name)}`.\n'
                                   f'Or there was a problem connecting to https://auctions.craftlink.xyz/.')
 
         await Embed(
             ctx=ctx,
-            title=f'{item_price_stats["name"]}'
+            title=f'{item_price_stats.get("name", item_name)}'
         ).add_field(
             name='Deviation',
-            value=f'```{item_price_stats["deviation"]:.2f}```'
+            value=f'```{item_price_stats.get("deviation", 0.00):.2f}```'
         ).add_field(
             name='Average',
-            value=f'```{item_price_stats["average"]:.2f}```'
+            value=f'```{item_price_stats.get("average", 0.00):.2f}```'
         ).add_field().add_field(
             name='Median',
-            value=f'```{item_price_stats["median"]}```',
+            value=f'```{item_price_stats.get("median", 0)}```',
         ).add_field(
             name='Mode',
-            value=f'```{item_price_stats["mode"]}```'
+            value=f'```{item_price_stats.get("mode", 0)}```'
         ).add_field().add_field(
             name='Average bids',
-            value=f'```{item_price_stats["averageBids"]:.2f}```'
+            value=f'```{item_price_stats.get("averageBids", 0.00):.2f}```'
         ).add_field(
             name='Average quantity',
-            value=f'```{item_price_stats["averageQuantity"]}```'
+            value=f'```{item_price_stats.get("averageQuantity", 0)}```'
         ).add_field().add_field(
             name='Total sales',
-            value=f'```{item_price_stats["totalSales"]}```'
+            value=f'```{item_price_stats.get("totalSales", 0)}```'
         ).add_field(
             name='Total bids',
-            value=f'```{item_price_stats["totalBids"]}```'
+            value=f'```{item_price_stats.get("totalBids", 0)}```'
         ).add_field().set_footer(
-            text='Powered by https://auctions.craftlink.xyz'
+            text='Powered by https://auctions.craftlink.xyz.'
         ).send()
 
 

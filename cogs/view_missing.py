@@ -1,9 +1,9 @@
 import copy
 from discord.ext import commands
 
-import constants
-from utils import Embed, CommandWithCooldown
-from lib import APIDisabledError, Player
+from lib import APIDisabledError
+from utils import Embed, CommandWithCooldown, get_uuid_from_name
+from constants import TALISMANS
 
 
 class ViewMissing(commands.Cog, name='Damage'):
@@ -17,36 +17,39 @@ class ViewMissing(commands.Cog, name='Damage'):
         self.bot = bot
         self.config = bot.config
 
-    # noinspection PyUnresolvedReferences
     @commands.command(cls=CommandWithCooldown, cooldown_after_parsing=True)
     @commands.cooldown(1, 10.0, commands.BucketType.user)
     @commands.max_concurrency(1, per=commands.BucketType.channel, wait=False)
-    @commands.max_concurrency(100, per=commands.BucketType.default, wait=False)
-    async def missing(self, ctx, player: str, profile: str = ''):
+    async def missing(self, ctx, player: str = '', profile: str = ''):
         """
         Displays a list of player's missing talismans.
         Also displays inactive/unnecessary talismans if player have them.
         """
-        player = await Player(self.config.API_KEY, uname=player, session=ctx.bot.http_session)
+        if not player:
+            player = await ctx.ask(message=f'{ctx.author.mention}, What is your minecraft username?')
 
-        if not profile:
-            await player.set_profile_automatically()
+        player_name, player_uuid = await get_uuid_from_name(player, session=self.bot.http_session)
+        player = await self.bot.hypixel_api_client.get_player(player_name, player_uuid)
+
+        if profile:
+            await player.get_set_skyblock_profiles(selected_profile=profile)
         else:
-            await player.set_profile(profile)
+            await player.get_set_skyblock_profiles()
 
-        if not player.enabled_api['skills'] or not player.enabled_api['inventory']:
-            raise APIDisabledError(player.uname, player.profile_name)
+        if not player.profile.enabled_api['skills'] or not player.profile.enabled_api['inventory']:
+            raise APIDisabledError(player.uname, player.profile.profile_name)
 
-        talismans = copy.deepcopy(constants.TALISMANS)
-        for talisman in player.talismans:
+        talismans = copy.deepcopy(TALISMANS)
+        for talisman in player.profile.talismans:
             if talisman.active:
-                for regex in constants.TALISMANS.keys():
+                for regex in TALISMANS.keys():
                     if regex.match(talisman.internal_name):
                         talismans.pop(regex)
 
         embed = Embed(
             ctx=ctx,
-            title=f'Player {player.uname} on profile {player.profile_name} is missing {len(talismans)}/{len(constants.TALISMANS)} talisman{"" if len(talismans) == 1 else "s"}!',
+            title=f'Player {player.uname} on profile {player.profile.profile_name.capitalize()} is missing '
+                  f'{len(talismans)}/{len(TALISMANS)} talisman{"" if len(talismans) == 1 else "s"}!',
         )
 
         if talismans:
@@ -56,7 +59,7 @@ class ViewMissing(commands.Cog, name='Damage'):
                 inline=False
             )
 
-        inactive = [talisman for talisman in player.talismans if not talisman.active]
+        inactive = [talisman for talisman in player.profile.talismans if not talisman.active]
 
         if inactive:
             embed.add_field(

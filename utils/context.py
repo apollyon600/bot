@@ -2,8 +2,8 @@ import asyncio
 import discord
 from discord.ext import commands
 
-from utils import embed_timeout_handler, Pages
 from lib import SessionTimeout
+from utils import embed_timeout_handler, Pages
 
 
 class Context(commands.Context):
@@ -93,6 +93,21 @@ class Context(commands.Context):
                     future.cancel()
                 self.bot.loop.create_task(embed_timeout_handler(self, pages.reaction_emojis, message=pages.message))
                 raise e from None
+
+    async def ask(self, *, message=None, timeout=60.0, message_check=None):
+        if message:
+            await self.send(message)
+
+        if not message_check:
+            def check(m):
+                if m.clean_content.lower() == 'exit':
+                    raise SessionTimeout
+                return m.author.id == self.author.id and m.channel.id == self.channel.id
+
+            message_check = check
+
+        ans = await self.bot.wait_for('message', timeout=timeout, check=message_check)
+        return ans.clean_content
 
     async def send_in_task(self, message, emoji_list, *, embed):
         try:

@@ -17,9 +17,8 @@ class ErrorHandler(commands.Cog):
             await ctx.send(
                 f'{ctx.author.mention}, This command is on cooldown for you! Please try again in {error.retry_after:.2f}s.')
         elif isinstance(error, commands.MaxConcurrencyReached):
-            # await ctx.send(
-            #     f'{ctx.author.mention}, Someone is already using this command in this channel! Please try again later or DM me directly.')
-            await ctx.send(f'{ctx.author.mention}, Too many people are using this command! Please try again later or DM me directly.')
+            await ctx.send(
+                f'{ctx.author.mention}, Someone is already using this command in this channel! Please try again later or DM me directly.')
         elif isinstance(error, commands.CommandNotFound):
             await ctx.send(f'{ctx.author.mention}, Did you make a typo? There is no command: `{ctx.invoked_with}`.')
         elif isinstance(error, commands.DisabledCommand):
@@ -115,9 +114,13 @@ class ErrorHandler(commands.Cog):
     async def handle_api_error(self, ctx: commands.Context, error: APIError):
         if isinstance(error, ExternalAPIError):
             await ctx.send(f'{ctx.author.mention}, {error}')
-        elif isinstance(error, HypixelAPIError):
+        elif isinstance(error, HypixelAPIRateLimitError):
+            await ctx.send(f'{ctx.author.mention}, Hypixel API ratelimit has been reached!')
+        elif isinstance(error, (HypixelAPINoSuccess, HypixelAPITimeout, HypixelResponseCodeError)):
             await ctx.send(f'{ctx.author.mention}, Something went wrong while calling Hypixel API.\n'
                            f'This error usually goes away after about a minute. If not then Hypixel API is down.')
+            if isinstance(error, HypixelResponseCodeError):
+                raise error from None
         else:
             await self.handle_unexpected_error(ctx, error)
 
@@ -144,7 +147,7 @@ class ErrorHandler(commands.Cog):
             await ctx.send(f'{ctx.author.mention}, You have no armors equipped or in wardrobe.')
         elif isinstance(error, HypixelLanguageError):
             await ctx.send(f'{ctx.author.mention}, I only support english at the moment!\n'
-                           f'Please change your hypixel language to English.')
+                           f'Please change your hypixel language to English and try again.')
 
 
 def setup(bot):

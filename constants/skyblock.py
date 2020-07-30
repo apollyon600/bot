@@ -203,10 +203,10 @@ TALISMANS = {re.compile(k): v for k, v in {
     'SEAL_OF_THE_FAMILY': 'Seal of the Family',
 }.items()}
 
-SKILLS = ['farming', 'mining', 'combat', 'foraging', 'fishing', 'enchanting', 'alchemy', 'taming', 'carpentry',
-          'runecrafting']
+SKILL_NAMES = ['farming', 'mining', 'combat', 'foraging', 'fishing', 'enchanting', 'alchemy', 'taming', 'carpentry',
+               'runecrafting']
 
-COSMETIC_SKILLS = ['carpentry', 'runecrafting']
+COSMETIC_SKILL_NAMES = ['carpentry', 'runecrafting']
 
 BASE_PLAYER_STATS = {
     'damage': 0,
@@ -250,7 +250,8 @@ FAIRY_SOUL_HP_BONUS = [0, 3, 6, 10, 14, 19, 24, 30, 36, 43, 50, 58, 66, 75, 84, 
 
 SKILL_LEVEL_REQUIREMENT = [50, 175, 375, 675, 1175, 1925, 2925, 4425, 6425, 9925, 14925, 22425, 32425, 47425, 67425,
                            97425, 147425, 222425, 322425, 522425, 822425, 1222425, 1722425, 2322425, 3022425, 3822425,
-                           4722425, 5722425, 6822425, 8022425, 9322425, 10722425, 12222425, 13822425, 15522425, 17322425,
+                           4722425, 5722425, 6822425, 8022425, 9322425, 10722425, 12222425, 13822425, 15522425,
+                           17322425,
                            19222425, 21222425, 23322425, 25522425, 27822425, 30222425, 32722425, 35322425, 38022425,
                            40822425, 43922425, 47322425, 51022425, 55022425]
 

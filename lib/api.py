@@ -2,7 +2,8 @@ import aiohttp
 import asyncio
 from urllib.parse import quote
 
-from lib import HypixelResponseCodeError, HypixelAPITimeout, HypixelAPINoSuccess, HypixelAPIRateLimitError
+from . import Player
+from . import HypixelResponseCodeError, HypixelAPITimeout, HypixelAPINoSuccess, HypixelAPIRateLimitError
 
 
 class HypixelAPIClient:
@@ -93,7 +94,8 @@ class HypixelAPIClient:
             async with self.session.request(method.upper(), self._url_for(endpoint), **kwargs) as resp:
                 await self.maybe_raise_for_status(resp, raise_for_status)
                 resp = await resp.json()
-
+                if resp is None or 'success' not in resp:
+                    raise HypixelAPINoSuccess
                 if not resp['success']:
                     raise HypixelAPINoSuccess
                 return resp
@@ -106,9 +108,23 @@ class HypixelAPIClient:
         """
         return await self.request("GET", endpoint, raise_for_status=raise_for_status, **kwargs)
 
-    async def get_skyblock_player(self, uuid, *, raise_for_status: bool = True, **kwargs):
+    async def get_player(self, uname, uuid, *, raise_for_status: bool = True, **kwargs):
         """
-        Hypixel API get play's skyblock profiles.
+        Hypixel API get player, return player object.
         """
-        return await self.get('sykblock/profiles', raise_for_status=raise_for_status,
+        data = await self.get('player', raise_for_status=raise_for_status, **{**{'params': {'uuid': uuid}}, **kwargs})
+        return Player(
+            uname=uname,
+            uuid=uuid,
+            player_data=data['player'],
+            hypixel_api_client=self
+        )
+
+    async def get_skyblock_profiles(self, uuid, *, raise_for_status: bool = True, **kwargs):
+        data = await self.get('skyblock/profiles', raise_for_status=raise_for_status,
                               **{**{'params': {'uuid': uuid}}, **kwargs})
+        return data['profiles']
+
+    async def get_key_status(self, *, raise_for_status: bool = True, **kwargs):
+        data = await self.get('key', raise_for_status=raise_for_status, **kwargs)
+        return data['record']

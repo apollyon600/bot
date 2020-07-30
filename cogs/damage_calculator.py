@@ -1,8 +1,8 @@
 from discord.ext import commands
 
-from utils import Embed
+from lib import SessionTimeout
+from utils import Embed, damage
 from constants import MOBS_RELEVANT_ENCHANTS, ENCHANTMENT_BONUS, ENCHANTED_BOOK_5, ENCHANTED_BOOK_6
-from lib import SessionTimeout, damage
 
 
 class DamageCalculator(commands.Cog, name='Damage'):
@@ -10,6 +10,7 @@ class DamageCalculator(commands.Cog, name='Damage'):
         self.bot = bot
 
     @commands.command()
+    @commands.cooldown(1, 10.0, commands.BucketType.user)
     @commands.max_concurrency(1, per=commands.BucketType.channel, wait=False)
     async def damage(self, ctx):
         """

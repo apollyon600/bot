@@ -1,7 +1,7 @@
 from discord.ext import commands
 
-from utils import checks, Embed
 from lib import SessionTimeout
+from utils import checks, Embed
 
 
 class Staff(commands.Cog):
@@ -16,6 +16,7 @@ class Staff(commands.Cog):
         self.config = bot.config
         self.hypixel_api_client = bot.hypixel_api_client
 
+    # TODO: adding logs and reason for enable/disable command
     @commands.command()
     @commands.check_any(commands.is_owner(), checks.is_admin(), checks.is_dev())
     async def disable(self, ctx):
@@ -100,25 +101,23 @@ class Staff(commands.Cog):
         """
         Use this command to check the current api key status.
         """
-        data = await self.hypixel_api_client.get('key')
-        if data is None:
-            return await ctx.send('Something is wrong!')
-        if data['success']:
-            data = data['record']
-        else:
-            return await ctx.send('Something is wrong!')
+        data = await self.hypixel_api_client.get_key_status()
         censored_key = '\*' * (len(data['key']) - 3)
         censored_key += data['key'][len(data['key']) - 3:]
+        censored_owner = '\*' * (len(data['owner']) - 3)
+        censored_owner += data['owner'][len(data['owner']) - 3:]
         await Embed(
             ctx=ctx,
             title='API Key status'
         ).add_field(
             name='Key',
-            value=f'{censored_key}'
+            value=f'{censored_key}',
+            inline=False
         ).add_field(
             name='Owner',
-            value=f'{data["owner"]}',
-        ).add_field().add_field(
+            value=f'{censored_owner}',
+            inline=False
+        ).add_field(
             name='Limit',
             value=f'{data["limit"]}',
             inline=False

@@ -160,14 +160,19 @@ def _blaze(player):
         for piece in player.armor.values():
             if piece:
                 piece.stats.multiplier += player.pet.level * 0.004
+                # piece.base_stats.multiplier += player.pet.level * 0.004
     if player.pet.rarity == 'legendary':
         for piece in player.armor.values():
             if piece:
                 piece.stats.__iadd__('health', piece.hot_potatos * 4)
+                piece.base_stats.__iadd__('health', piece.hot_potatos * 4)
                 piece.stats.__iadd__('defense', piece.hot_potatos * 2)
+                piece.base_stats.__iadd__('defense', piece.hot_potatos * 2)
         if player.weapon:
             player.weapon.stats.__iadd__('damage', player.weapon.hot_potatos * 2)
+            player.weapon.base_stats.__iadd__('damage', player.weapon.hot_potatos * 2)
             player.weapon.stats.__iadd__('strength', player.weapon.hot_potatos * 2)
+            player.weapon.base_stats.__iadd__('strength', player.weapon.hot_potatos * 2)
 
 
 def _blackcat(player):  # (tbd)

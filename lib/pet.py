@@ -1,6 +1,7 @@
 import re
 
-from . import Stats, level_from_xp_table
+from . import Stats
+from utils import level_from_xp_table
 from constants import PET_RARITIES, PET_XP, PETS
 
 

@@ -134,15 +134,6 @@ class ExternalAPIError(APIError):
         self.reason = reason
 
 
-class HypixelAPIError(APIError):
-    """
-    Exception raised when something is wrong while calling Hypixel API.
-    """
-
-    def __init__(self, reason=''):
-        self.reason = reason
-
-
 class HypixelAPIRateLimitError(APIError):
     """
     Exception raised when hypixel api ratelimit is reached.
@@ -164,7 +155,7 @@ class HypixelAPITimeout(APIError):
     pass
 
 
-class HypixelResponseCodeError(ValueError):
+class HypixelResponseCodeError(APIError):
     """
     Exception raised when a non-OK HTTP response from hypixel is received.
     """

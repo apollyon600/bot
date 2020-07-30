@@ -1,11 +1,11 @@
 import copy
 from discord.ext import commands
 
-from utils import CommandWithCooldown, Embed, colorize, format_pet, emod
+from lib import damage_optimizer
+from lib import APIDisabledError, SessionTimeout, PlayerOnlineError, NoArmorError, NoWeaponError
+from utils import CommandWithCooldown, Embed, colorize, format_pet, emod, damage, get_uuid_from_name
 from constants.discord import OPTIMIZER_GOALS, RARITY_COLORS, PET_EMOJIS, DAMAGE_POTIONS, NUMBER_EMOJIS, SUPPORT_ITEMS
 from constants import DAMAGE_REFORGES
-from lib import APIDisabledError, SessionTimeout, damage, damage_optimizer, PlayerOnlineError, NoArmorError, \
-    NoWeaponError, Player
 
 
 class OptimizeGear(commands.Cog, name='Damage'):
@@ -13,42 +13,47 @@ class OptimizeGear(commands.Cog, name='Damage'):
         self.bot = bot
         self.config = bot.config
 
-    # noinspection PyUnresolvedReferences,PyTypeChecker
     @commands.command(cls=CommandWithCooldown, cooldown_after_parsing=True)
     @commands.cooldown(1, 10.0, commands.BucketType.user)
     @commands.max_concurrency(1, per=commands.BucketType.channel, wait=False)
-    @commands.max_concurrency(100, per=commands.BucketType.default, wait=False)
-    async def optimizer(self, ctx, player: str, profile: str = ''):
+    async def optimizer(self, ctx, player: str = '', profile: str = ''):
         """
         Optimizes your equipments to their best reforges.
         """
-        player = await Player(self.config.API_KEY, uname=player, session=ctx.bot.http_session)
+        await ctx.send(f'{ctx.author.mention}, Welcome to the optimizer!\n'
+                       f'Please enter `exit` at any given point in the optimizer to exit')
 
-        if not profile:
-            await player.set_profile_automatically()
+        if not player:
+            player = await ctx.ask(message=f'{ctx.author.mention}, What is your minecraft username?')
+
+        player_name, player_uuid = await get_uuid_from_name(player, session=self.bot.http_session)
+        player = await self.bot.hypixel_api_client.get_player(player_name, player_uuid)
+
+        if profile:
+            await player.get_set_skyblock_profiles(selected_profile=profile)
         else:
-            await player.set_profile(profile)
+            await player.get_set_skyblock_profiles()
 
         if player.online:
-            raise PlayerOnlineError from None
+            raise PlayerOnlineError
 
-        if not player.enabled_api['skills'] or not player.enabled_api['inventory']:
-            raise APIDisabledError(player.uname, player.profile_name)
+        if not player.profile.enabled_api['skills'] or not player.profile.enabled_api['inventory']:
+            raise APIDisabledError(player.uname, player.profile.profile_name)
 
-        weapon = await self.prompt_for_weapon(ctx, player)
+        weapon = await self.prompt_for_weapon(ctx, player.profile)
         if not weapon:
-            raise NoWeaponError from None
-        player.set_weapon(weapon)
+            raise NoWeaponError
+        player.profile.set_weapon(weapon)
 
-        armor = await self.prompt_for_armor(ctx, player)
+        armor = await self.prompt_for_armor(ctx, player.profile)
         if not armor:
-            raise NoArmorError from None
-        player.set_armor(armor)
+            raise NoArmorError
+        player.profile.set_armor(armor)
 
-        pet = await self.prompt_for_pet(ctx, player)
-        player.set_pet(pet)
+        pet = await self.prompt_for_pet(ctx, player.profile)
+        player.profile.set_pet(pet)
 
-        profile_confirm = await self.confirm_equipment(ctx, player)
+        profile_confirm = await self.confirm_equipment(ctx, player.profile)
         if not profile_confirm:
             raise SessionTimeout
 
@@ -63,9 +68,9 @@ class OptimizeGear(commands.Cog, name='Damage'):
 
         only_blacksmith, reforges_set, ignored_reforges = await self.prompt_for_reforges(ctx)
 
-        selected_pots = await self.prompt_for_potions(ctx, player)
+        selected_pots = await self.prompt_for_potions(ctx, player.profile)
 
-        selected_buffs = await self.prompt_for_support_item(ctx, player)
+        selected_buffs = await self.prompt_for_support_item(ctx, player.profile)
 
         option_confirm = await self.confirm_options(ctx, perfect_crit_chance, attack_speed_limit, only_blacksmith,
                                                     ignored_reforges, selected_pots, selected_buffs)
@@ -73,18 +78,18 @@ class OptimizeGear(commands.Cog, name='Damage'):
             raise SessionTimeout
 
         best_route = damage_optimizer(
-            player,
+            player.profile,
             perfect_crit_chance=perfect_crit_chance,
             attack_speed_limit=attack_speed_limit,
             only_blacksmith_reforges=only_blacksmith,
             reforges_set=reforges_set
         )
 
-        await self.send_optimizer_result(ctx, player, best_route)
+        await self.send_optimizer_result(ctx, player.profile, best_route)
 
     @staticmethod
-    async def send_optimizer_result(ctx, player, best_route):
-        weapon = player.weapon
+    async def send_optimizer_result(ctx, profile, best_route):
+        weapon = profile.weapon
         best_stats = best_route[0] or {}
         best_equip = best_route[1] or {}
         is_optimized = best_route[0]['is optimized']
@@ -110,7 +115,7 @@ class OptimizeGear(commands.Cog, name='Damage'):
                     inline=False
                 )
 
-        base_mod = player.stats['enchantment modifier']
+        base_mod = profile.stats['enchantment modifier']
         zealot_mod = emod('zealots', weapon) + base_mod
         slayer_mod = emod('slayer bosses', weapon) + base_mod
 
@@ -120,26 +125,30 @@ class OptimizeGear(commands.Cog, name='Damage'):
         elif weapon.internal_name == 'SCORPION_FOIL':
             slayer_mult = 2.5
 
-        zealot_damage = damage(player.weapon.stats['damage'], player.stats['strength'],
-                               player.stats['crit damage'], zealot_mod)
-        slayer_damage = damage(player.weapon.stats['damage'], player.stats['strength'],
-                               player.stats['crit damage'], slayer_mod)
+        zealot_damage = damage(profile.weapon.stats['damage'], profile.stats['strength'],
+                               profile.stats['crit damage'], zealot_mod)
+        slayer_damage = damage(profile.weapon.stats['damage'], profile.stats['strength'],
+                               profile.stats['crit damage'], slayer_mod)
         slayer_damage *= slayer_mult
 
-        zealot_damage_after = damage(player.weapon.stats['damage'], best_stats['strength'],
+        zealot_damage_after = damage(best_stats['damage'], best_stats['strength'],
                                      best_stats['crit damage'], zealot_mod)
-        slayer_damage_after = damage(player.weapon.stats['damage'], best_stats['strength'],
+        slayer_damage_after = damage(best_stats['damage'], best_stats['strength'],
                                      best_stats['crit damage'], slayer_mod)
         slayer_damage_after *= slayer_mult
 
         embed.add_field(
             name='**Before**',
-            value=f'```{player.stats["strength"]:.0f} strength\n{player.stats["crit damage"]:.0f} crit damage\n{player.stats["crit chance"]:.0f} crit chance\n{player.stats["attack speed"]:.0f} attack speed```'
+            value=f'```{profile.stats["strength"]:.0f} strength\n{profile.stats["crit damage"]:.0f} crit damage\n'
+                  f'{profile.stats["crit chance"]:.0f} crit chance\n{profile.stats["attack speed"]:.0f} attack speed\n'
+                  f'{profile.weapon.stats["damage"]:.0f} weapon damage```'
                   f'```{zealot_damage:,.0f} to zealots\n{slayer_damage:,.0f} to slayers```'
         )
         embed.add_field(
             name='**After**',
-            value=f'```{best_stats["strength"]:.0f} strength\n{best_stats["crit damage"]:.0f} crit damage\n{best_stats["crit chance"]:.0f} crit chance\n{best_stats["attack speed"]:.0f} attack speed```'
+            value=f'```{best_stats["strength"]:.0f} strength\n{best_stats["crit damage"]:.0f} crit damage\n'
+                  f'{best_stats["crit chance"]:.0f} crit chance\n{best_stats["attack speed"]:.0f} attack speed\n'
+                  f'{best_stats["damage"]:.0f} weapon damage```'
                   f'```{zealot_damage_after:,.0f} to zealots\n{slayer_damage_after:,.0f} to slayers```'
         )
 
@@ -184,24 +193,24 @@ class OptimizeGear(commands.Cog, name='Damage'):
                 await ctx.send(f'{ctx.author.mention}, Invalid number! Did you make a typo?')
 
     @staticmethod
-    async def prompt_for_weapon(ctx, player):
-        if len(player.weapons) == 0:
+    async def prompt_for_weapon(ctx, profile):
+        if len(profile.weapons) == 0:
             return None
-        elif len(player.weapons) == 1:
-            return player.weapons[0]
+        elif len(profile.weapons) == 1:
+            return profile.weapons[0]
         else:
             weapon_index = await ctx.prompt_with_list(
-                entries=[weapon for weapon in player.weapons],
+                entries=[weapon for weapon in profile.weapons],
                 title='Which weapon would you like to use?',
                 footer='You may enter the corresponding weapon number.'
             )
-            return player.weapons[weapon_index - 1]
+            return profile.weapons[weapon_index - 1]
 
     @staticmethod
-    async def prompt_for_armor(ctx, player):
-        if len(player.wardrobe) > 1:
+    async def prompt_for_armor(ctx, profile):
+        if len(profile.wardrobe) > 1:
             entries = []
-            for i, armor in enumerate(player.wardrobe):
+            for i, armor in enumerate(profile.wardrobe):
                 entries.append(f'{armor["helmet"]}\n'
                                f'{"".ljust(len(str(i + 1)) + 3)}{armor["chestplate"]}\n'
                                f'{"".ljust(len(str(i + 1)) + 3)}{armor["leggings"]}\n'
@@ -212,31 +221,31 @@ class OptimizeGear(commands.Cog, name='Damage'):
                 footer='You may enter the corresponding armor set number.',
                 per_page=3
             )
-            return player.wardrobe[armor_index - 1]
+            return profile.wardrobe[armor_index - 1]
         else:
-            if player.current_armor:
-                return player.current_armor
+            if profile.current_armor:
+                return profile.current_armor
             else:
                 return None
 
     @staticmethod
-    async def prompt_for_pet(ctx, player):
-        if len(player.pets) == 0:
+    async def prompt_for_pet(ctx, profile):
+        if len(profile.pets) == 0:
             return None
-        elif len(player.pets) == 1:
-            return player.pets[0]
+        elif len(profile.pets) == 1:
+            return profile.pets[0]
         else:
             pet_index = await ctx.prompt_with_list(
-                entries=[format_pet(pet) for pet in player.pets],
+                entries=[format_pet(pet) for pet in profile.pets],
                 title='Which pet would you like to use?',
                 footer='You may enter the corresponding pet number.'
             )
-            return player.pets[pet_index - 1]
+            return profile.pets[pet_index - 1]
 
     @staticmethod
-    async def confirm_equipment(ctx, player):
-        weapon = player.weapon
-        pet = player.pet
+    async def confirm_equipment(ctx, profile):
+        weapon = profile.weapon
+        pet = profile.pet
         return await ctx.prompt(embed=Embed(
             ctx=ctx,
             title='Is this the correct equipment?'
@@ -254,25 +263,25 @@ class OptimizeGear(commands.Cog, name='Damage'):
             inline=False
         ).add_field(
             name='⛑️\tHelmet',
-            value=f'```{player.armor["helmet"]}```',
+            value=f'```{profile.armor["helmet"]}```',
             inline=False
         ).add_field(
             name='👚\tChestplate',
-            value=f'```{player.armor["chestplate"]}```',
+            value=f'```{profile.armor["chestplate"]}```',
             inline=False
         ).add_field(
             name='👖\tLeggings',
-            value=f'```{player.armor["leggings"]}```',
+            value=f'```{profile.armor["leggings"]}```',
             inline=False
         ).add_field(
             name='👞\tBoots',
-            value=f'```{player.armor["boots"]}```',
+            value=f'```{profile.armor["boots"]}```',
             inline=False
         ).add_field(
             name='🏺\tTalismans',
             value=''.join(
                 colorize(f'{amount} {name.capitalize()}', RARITY_COLORS[name])
-                for name, amount in player.talisman_counts.items()
+                for name, amount in profile.talisman_counts.items()
             )
         ))
 
@@ -304,8 +313,8 @@ class OptimizeGear(commands.Cog, name='Damage'):
         ))
 
     @staticmethod
-    async def prompt_for_potions(ctx, player):
-        weapon = player.weapon
+    async def prompt_for_potions(ctx, profile):
+        weapon = profile.weapon
         selected_pots = []
         for name, pot in DAMAGE_POTIONS.items():
             buff = pot['stats']
@@ -325,25 +334,25 @@ class OptimizeGear(commands.Cog, name='Damage'):
             selected_pots.append((name, selected_level))
 
             for stat, amount in buff.items():
-                player.stats.__iadd__(stat, amount[selected_level])
+                profile.stats.__iadd__(stat, amount[selected_level])
 
             if name == 'dungeon' and selected_level > 0:
                 break
         return selected_pots
 
     @staticmethod
-    async def prompt_for_support_item(ctx, player):
+    async def prompt_for_support_item(ctx, profile):
         selected_buffs = []
         for name, orb in SUPPORT_ITEMS.items():
             internal_name = orb['internal']
             buff = orb['stats']
 
-            if internal_name in player.inventory or internal_name in player.echest:
+            if internal_name in profile.inventory or internal_name in profile.echest:
                 confirm = await ctx.prompt(message=f'{ctx.author.mention}, Will you be using your `{name}`?')
                 if confirm:
                     selected_buffs.append(name)
                     for stat, amount in buff.items():
-                        player.stats.__iadd__(stat, amount)
+                        profile.stats.__iadd__(stat, amount)
         return selected_buffs
 
     async def prompt_for_reforges(self, ctx):

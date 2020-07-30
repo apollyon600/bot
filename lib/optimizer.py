@@ -61,12 +61,12 @@ def create_model(counts, reforge_set, only_blacksmith_reforges):
 #         return m() * (sum_value + player.stats.get_raw_base_stats(stat))
 
 
-def create_constraint_rule(stat, m, counts, player, reforges_set):
+def create_constraint_rule(stat, m, counts, profile, reforges_set):
     rule = quicksum((reforges_set['talisman'][k][j].get(stat, 0) * m.reforge_counts['talisman', j, k] for i, j, k in
                      m.reforge_set if i == 'talisman'), linear=False)
     for equip in counts:
         if equip != 'talisman':
-            for k in player.stats.children:
+            for k in profile.stats.children:
                 if k[0] == equip:
                     rule += k[1].multiplier * quicksum(
                         (reforges_set[armor_check(equip)][k][j].get(stat, 0) * m.reforge_counts[equip, j, k] for
@@ -80,31 +80,31 @@ def armor_check(armor):
 
 # TODO: Add gap limit = 0.10%
 # TODO: possibly a thread limit = 4?
-# noinspection PyTypeChecker,PyCallingNonCallable,PyUnresolvedReferences
-def damage_optimizer(player, *, perfect_crit_chance, attack_speed_limit, only_blacksmith_reforges, reforges_set):
+# noinspection PyUnresolvedReferences,PyTypeChecker,PyCallingNonCallable
+def damage_optimizer(profile, *, perfect_crit_chance, attack_speed_limit, only_blacksmith_reforges, reforges_set):
     # overhead due to rounding
     if attack_speed_limit == 100:
         attack_speed_limit = 100.5
     # remove gilded if there is no midas
-    if not player.weapon == 'MIDAS_SWORD' and not only_blacksmith_reforges:
+    if not profile.weapon == 'MIDAS_SWORD' and not only_blacksmith_reforges:
         for reforge in reforges_set['sword'].keys():
             if reforge == 'gilded':
                 reforges_set['sword'].pop('gilded')
                 break
 
-    armor_types = [type for type, piece in player.armor.items() if armor_check(type) == 'armor' and piece]
-    equipment_types = ['talisman', player.weapon.type] + armor_types
+    armor_types = [type for type, piece in profile.armor.items() if armor_check(type) == 'armor' and piece]
+    equipment_types = ['talisman', profile.weapon.type] + armor_types
 
     counts = {
-        'talisman': player.talisman_counts,
-        player.weapon.type: {rarity: int(player.weapon.rarity == rarity) for rarity in RARITIES},
-        'helmet': {rarity: int(player.armor['helmet'].rarity == rarity) for rarity in RARITIES} if player.armor[
+        'talisman': profile.talisman_counts,
+        profile.weapon.type: {rarity: int(profile.weapon.rarity == rarity) for rarity in RARITIES},
+        'helmet': {rarity: int(profile.armor['helmet'].rarity == rarity) for rarity in RARITIES} if profile.armor[
             'helmet'] else {rarity: 0 for rarity in RARITIES},
-        'chestplate': {rarity: int(player.armor['chestplate'].rarity == rarity) for rarity in RARITIES} if player.armor[
+        'chestplate': {rarity: int(profile.armor['chestplate'].rarity == rarity) for rarity in RARITIES} if profile.armor[
             'chestplate'] else {rarity: 0 for rarity in RARITIES},
-        'leggings': {rarity: int(player.armor['leggings'].rarity == rarity) for rarity in RARITIES} if player.armor[
+        'leggings': {rarity: int(profile.armor['leggings'].rarity == rarity) for rarity in RARITIES} if profile.armor[
             'leggings'] else {rarity: 0 for rarity in RARITIES},
-        'boots': {rarity: int(player.armor['boots'].rarity == rarity) for rarity in RARITIES} if player.armor[
+        'boots': {rarity: int(profile.armor['boots'].rarity == rarity) for rarity in RARITIES} if profile.armor[
             'boots'] else {rarity: 0 for rarity in RARITIES},
     }
 
@@ -124,7 +124,7 @@ def damage_optimizer(player, *, perfect_crit_chance, attack_speed_limit, only_bl
                 m.eqn.add(quicksum(sums[rarity], linear=False) == counts[equipment_type][rarity])
 
     # for stat in ['strength', 'crit damage'] + ['crit chance'] * perfect_crit_chance + ['attack speed'] * include_attack_speed:
-    #     player.stats.modifiers[stat].insert(0,
+    #     profile.stats.modifiers[stat].insert(0,
     #                                         lambda stat: stat + quicksum(
     #                                             damage_reforges[armor_check(i)][k][j].get(stat, 0) * m.reforge_counts[
     #                                                 i, j, k] for i, j, k in m.reforge_set))
@@ -137,56 +137,56 @@ def damage_optimizer(player, *, perfect_crit_chance, attack_speed_limit, only_bl
     m.cc = Var(domain=Reals, initialize=100)
     m.a = Var(domain=Reals, initialize=50)
     if only_blacksmith_reforges:
-        m.m = player.stats.multiplier
+        m.m = profile.stats.multiplier
     else:
         m.m = Var(domain=Reals, initialize=1)
-    if player.weapon == 'MIDAS_SWORD' and not only_blacksmith_reforges:
+    if profile.weapon == 'MIDAS_SWORD' and not only_blacksmith_reforges:
         m.wd = Var(domain=Reals, initialize=200)
     else:
-        m.wd = player.weapon.stats['damage']
+        m.wd = profile.weapon.stats['damage']
         # ---
 
     # --- modifiers ---
     # manually add it here now, will find a better way to do it
-    cd_tara_helm = m.s / 10 if player.armor['helmet'] == 'TARANTULA_HELMET' else 0
+    cd_tara_helm = m.s / 10 if profile.armor['helmet'] == 'TARANTULA_HELMET' else 0
     # ---
 
     # --- weapon damage ---
-    if player.weapon == 'MIDAS_SWORD' and not only_blacksmith_reforges:
-        m.eqn.add(m.wd == player.weapon.stats['damage'] + quicksum(
+    if profile.weapon == 'MIDAS_SWORD' and not only_blacksmith_reforges:
+        m.eqn.add(m.wd == profile.weapon.stats['damage'] + quicksum(
             (reforges_set['sword'][k][j].get('damage', 0) * m.reforge_counts['sword', j, k] for i, j, k in
              m.reforge_set if i == 'sword'), linear=False))
     # ---
 
     # --- multiplier ---
     if not only_blacksmith_reforges:
-        m.eqn.add(m.m == player.stats.multiplier + (quicksum(
+        m.eqn.add(m.m == profile.stats.multiplier + (quicksum(
             (m.reforge_counts[i, j, k] * 0.01 for i, j, k in m.reforge_set if i in armor_types and k == 'renowned'),
             linear=False) if not only_blacksmith_reforges else 0))
     # ---
 
     # --- crit chance ---
-    cc_rule = create_constraint_rule('crit chance', m, counts, player, reforges_set)
-    m.eqn.add(m.cc == m.m * (cc_rule + player.stats.get_raw_base_stats('crit chance')))
+    cc_rule = create_constraint_rule('crit chance', m, counts, profile, reforges_set)
+    m.eqn.add(m.cc == m.m * (cc_rule + profile.stats.get_raw_base_stats('crit chance')))
     if perfect_crit_chance:
         m.eqn.add(99.5 <= m.cc)
     # ---
 
     # --- attack speed ---
-    a_rule = create_constraint_rule('attack speed', m, counts, player, reforges_set)
-    m.eqn.add(m.a == m.m * (a_rule + player.stats.get_raw_base_stats('attack speed')))
+    a_rule = create_constraint_rule('attack speed', m, counts, profile, reforges_set)
+    m.eqn.add(m.a == m.m * (a_rule + profile.stats.get_raw_base_stats('attack speed')))
     if attack_speed_limit:
         m.eqn.add(attack_speed_limit >= m.a)
     # ---
 
     # --- strength ---
-    strength_rule = create_constraint_rule('strength', m, counts, player, reforges_set)
-    m.eqn.add(m.s == m.m * (strength_rule + player.stats.get_raw_base_stats('strength')))
+    strength_rule = create_constraint_rule('strength', m, counts, profile, reforges_set)
+    m.eqn.add(m.s == m.m * (strength_rule + profile.stats.get_raw_base_stats('strength')))
     # ---
 
     # --- crit damage ---
-    cd_rule = create_constraint_rule('crit damage', m, counts, player, reforges_set)
-    m.eqn.add(m.cd == m.m * (cd_rule + player.stats.get_raw_base_stats('crit damage') + cd_tara_helm))
+    cd_rule = create_constraint_rule('crit damage', m, counts, profile, reforges_set)
+    m.eqn.add(m.cd == m.m * (cd_rule + profile.stats.get_raw_base_stats('crit damage') + cd_tara_helm))
     # ---
 
     m.eqn.add(m.floored_strength >= m.s / 5 - 0.9999)
@@ -206,6 +206,11 @@ def damage_optimizer(player, *, perfect_crit_chance, attack_speed_limit, only_bl
               'crit chance': m.cc(),
               'attack speed': m.a(),
               'is optimized': is_optimized}
+
+    if profile.weapon == 'MIDAS_SWORD' and not only_blacksmith_reforges:
+        result.update({'damage': m.wd()})
+    else:
+        result.update({'damage': m.wd})
 
     return result, format_counts(m.reforge_counts)
 
