@@ -76,7 +76,6 @@ class HelpPages:
                 inline=False
             )
 
-    # noinspection PyAttributeOutsideInit
     async def show_page(self, page_name, *, first=False):
         try:
             entries = self.get_page(page_name)
@@ -129,6 +128,7 @@ class HelpPages:
                 return True
         return False
 
+    # noinspection PyUnboundLocalVariable
     async def paginate(self):
         """Actually paginate the entries and run the interactive loop if necessary."""
         first_page = self.show_page(self.entries[0][0], first=True)
@@ -141,7 +141,7 @@ class HelpPages:
         while self.paginating:
             try:
                 payload = await self.bot.wait_for('raw_reaction_add', check=self.react_check, timeout=120.0)
-            except asyncio.TimeoutError as e:
+            except asyncio.TimeoutError:
                 if not self.paginating:
                     pass
                 self.paginating = False
@@ -149,7 +149,6 @@ class HelpPages:
                                                                 [(cog_emoji, None) for
                                                                  (cog, description, cog_emoji, commands)
                                                                  in self.entries], message=self.message))
-                raise e from None
 
             try:
                 await self.message.remove_reaction(payload.emoji, discord.Object(id=payload.user_id))
