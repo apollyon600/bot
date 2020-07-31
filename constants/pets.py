@@ -734,5 +734,15 @@ PETS = {
         'ability': _yeti,
         'type': 'fishing',
         'icon': '/head/ab126814fc3fa846dad934c349628a7a1de5b415021a03ef4211d62514d5'
+    },
+    'SPIRIT': {
+        'name': 'Spirit',
+        'stats': {
+            'speed': lambda lvl: lvl * 0.3,
+            'intelligence': lambda lvl: lvl
+        },
+        'ability': None,
+        'type': 'combat',
+        'icon': None
     }
 }
