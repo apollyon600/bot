@@ -1,4 +1,3 @@
-import copy
 from discord.ext import commands
 
 from lib import APIDisabledError
@@ -36,10 +35,10 @@ class ViewMissing(commands.Cog, name='Damage'):
         else:
             await player.get_set_skyblock_profiles()
 
-        if not player.profile.enabled_api['skills'] or not player.profile.enabled_api['inventory']:
+        if not player.profile.enabled_api['inventory']:
             raise APIDisabledError(player.uname, player.profile.profile_name)
 
-        talismans = copy.deepcopy(TALISMANS)
+        talismans = TALISMANS.copy()
         for talisman in player.profile.talismans:
             if talisman.active:
                 for regex in TALISMANS.keys():

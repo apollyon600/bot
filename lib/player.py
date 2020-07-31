@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from . import Profile
-from . import NeverPlayedSkyblockError, BadProfileError
+from . import NeverPlayedSkyblockError, BadProfileError, BadNameError
 
 
 class Player:
@@ -9,6 +9,8 @@ class Player:
         self.hypixel_api_client = hypixel_api_client
         self.uname = uname
         self.uuid = uuid
+        if not player_data:
+            raise BadNameError(self.uname)
         self.player_data = player_data
         self.online = player_data.get('lastLogout', 0) < player_data.get('lastLogin', 0)
         self.achievements = player_data.get('achievements', {})
@@ -45,7 +47,7 @@ class Player:
                 latest_profile = profile
 
         if selected_profile and self.profile is None:
-            BadProfileError(selected_profile)
+            raise BadProfileError(selected_profile)
         elif not selected_profile:
             self.profile = latest_profile
 
