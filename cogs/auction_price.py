@@ -30,15 +30,19 @@ class AuctionPrice(commands.Cog, name='Auction'):
             return await ctx.send(f'{ctx.author.mention}, There is no item called `{" ".join(item_name)}`.\n'
                                   f'Or there was a problem connecting to https://auctions.craftlink.xyz/.')
 
+        _deviation = item_price_stats.get("deviation", 0.00)
+        _average = item_price_stats.get("average", 0.00)
+        _averageBids = item_price_stats.get("averageBids", 0.00)
+
         await Embed(
             ctx=ctx,
             title=f'{item_price_stats.get("name", item_name)}'
         ).add_field(
             name='Deviation',
-            value=f'```{item_price_stats.get("deviation", 0.00):.2f}```'
+            value=f'```{_deviation or 0.00:.2f}```'
         ).add_field(
             name='Average',
-            value=f'```{item_price_stats.get("average", 0.00):.2f}```'
+            value=f'```{_average or 0.00:.2f}```'
         ).add_field().add_field(
             name='Median',
             value=f'```{item_price_stats.get("median", 0)}```',
@@ -47,7 +51,7 @@ class AuctionPrice(commands.Cog, name='Auction'):
             value=f'```{item_price_stats.get("mode", 0)}```'
         ).add_field().add_field(
             name='Average bids',
-            value=f'```{item_price_stats.get("averageBids", 0.00):.2f}```'
+            value=f'```{_averageBids or 0.00:.2f}```'
         ).add_field(
             name='Average quantity',
             value=f'```{item_price_stats.get("averageQuantity", 0)}```'
