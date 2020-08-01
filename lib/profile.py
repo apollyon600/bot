@@ -146,18 +146,18 @@ class Profile:
 
         for talisman in self.talismans:
             talisman.active = True
-            # Check for duplicate talismans
-            if self.talismans.count(talisman) > 1:
-                talisman.active = False
-                if talisman not in talismans_dup:
-                    talismans_dup.append(talisman)  # append the reference to a list to set active true later
-
             # Check for talisman families
             if talisman.internal_name in TIERED_TALISMANS:
                 for other_fam_member in TIERED_TALISMANS[talisman.internal_name]:
                     if other_fam_member in self.talismans:
                         talisman.active = False
-                        break
+                        continue
+
+            # Check for duplicate talismans
+            if self.talismans.count(talisman) > 1:
+                talisman.active = False
+                if talisman not in talismans_dup:
+                    talismans_dup.append(talisman)  # append the reference to a list to set active true later
 
         # Set one of the talisman dup to active true
         for talisman in talismans_dup:
@@ -265,6 +265,13 @@ class Profile:
             pet_ability = PETS[self.pet.internal_name]['ability']
             if callable(pet_ability):
                 pet_ability(self, dungeon=dungeon)
+
+    def set_pet_armor_automatically(self):
+        self.set_armor(self.current_armor)
+
+        for pet in self.pets:
+            if pet.active:
+                self.set_pet(pet)
 
     async def get_profile_auctions(self):
         """
