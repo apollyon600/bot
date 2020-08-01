@@ -127,7 +127,7 @@ def damage_optimizer(profile, *, perfect_crit_chance, attack_speed_limit, only_b
         m.wd = Var(domain=Reals, initialize=200)
     else:
         m.wd = profile.weapon.stats.get_stat('damage')
-        # ---
+    # ---
 
     # --- modifiers ---
     # manually add it here now, will find a better way to do it
