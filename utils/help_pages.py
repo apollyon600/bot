@@ -149,6 +149,7 @@ class HelpPages:
                                                                 [(cog_emoji, None) for
                                                                  (cog, description, cog_emoji, commands)
                                                                  in self.entries], message=self.message))
+                break
 
             try:
                 await self.message.remove_reaction(payload.emoji, discord.Object(id=payload.user_id))
