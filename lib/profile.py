@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from . import Stats, Pet, decode_inventory_data
+from . import ProfileStats, Pet, decode_inventory_data
 from . import HypixelLanguageError
 from utils import safe_list_get, level_from_xp_table
 from constants import *
@@ -28,6 +28,9 @@ class Profile:
         self.armor = {'helmet': None, 'chestplate': None, 'leggings': None, 'boots': None}
         self.weapon = None
         self.pet = None
+
+        # Dungeon skill level, will be set if there is a dungeon item
+        self.dungeon_skill = 0
 
         # Load profile's bank data if banking api is enabled
         self.bank_balance = 0.00
@@ -71,20 +74,22 @@ class Profile:
         self.specifc_deaths = {name.replace('deaths_', '').replace('_', ' '): int(amount)
                                for name, amount in self.profile_raw_data['stats'].items() if re.match('deaths_', name)}
 
-        # Load profile base stats
-        self.stats = Stats(BASE_PLAYER_STATS.copy())
+        # Load profile stats
+        self.stats = ProfileStats(BASE_PLAYER_STATS.copy(), profile=self)
+
+        self.stats.combat_bonus = self.skills.get('combat', 0) * 4
 
         self.fairy_souls = self.profile_raw_data.get('fairy_souls_collected', 0)
-        self.stats.__iadd__('health', FAIRY_SOUL_HP_BONUS[self.fairy_souls // 5])
-        self.stats.__iadd__('defense', self.fairy_souls // 5 + self.fairy_souls // 25)
-        self.stats.__iadd__('strength', self.fairy_souls // 5 + self.fairy_souls // 25)
-        self.stats.__iadd__('speed', self.fairy_souls // 50)
+        self.stats.add_stat('health', FAIRY_SOUL_HP_BONUS[self.fairy_souls // 5])
+        self.stats.add_stat('defense', self.fairy_souls // 5 + self.fairy_souls // 25)
+        self.stats.add_stat('strength', self.fairy_souls // 5 + self.fairy_souls // 25)
+        self.stats.add_stat('speed', self.fairy_souls // 50)
 
         for slayer_name, slayer_level in self.slayers.items():
-            self.stats += Stats(SLAYER_REWARDS[slayer_name][slayer_level])
+            self.stats += ProfileStats(SLAYER_REWARDS[slayer_name][slayer_level])
 
         for skill_name, skill_level in self.skills.items():
-            self.stats += Stats(SKILL_REWARDS[skill_name][skill_level])
+            self.stats += ProfileStats(SKILL_REWARDS[skill_name][skill_level])
 
         # Load profile's current equipped armor
         for armor in self._parse_inventory(self.profile_raw_data, ['inv_armor', 'data']):
@@ -124,6 +129,15 @@ class Profile:
                     continue
                 self.wardrobe.append(armor_set)
 
+        # Check if player has dungeon armor/wep items
+        self.has_dungeon_items = False
+        for item in self.inventory + self.echest + wardrobe:
+            if not item:
+                continue
+            if item.dungeon:
+                self.has_dungeon_items = True
+                break
+
         # Load profile's talismans from inventory + talisman bag and talisman counts
         self.talismans = [talisman for talisman in self.inventory + self.talisman_bag if
                           talisman.type in ('accessory', 'hatccessory')]
@@ -137,7 +151,6 @@ class Profile:
                 talisman.active = False
                 if talisman not in talismans_dup:
                     talismans_dup.append(talisman)  # append the reference to a list to set active true later
-                continue  # no need to check for families
 
             # Check for talisman families
             if talisman.internal_name in TIERED_TALISMANS:
@@ -151,9 +164,7 @@ class Profile:
             talisman.active = True
 
         # Load talisman stats
-        self.stats.children.extend([('accessory', talisman.stats) for talisman in self.talismans if talisman.active])
-        self.stats.base_children.extend(
-            [('accessory', talisman.base_stats) for talisman in self.talismans if talisman.active])
+        self.stats.childrens.extend([talisman.stats for talisman in self.talismans if talisman.active])
 
         # Load talisman counts
         for taliman in self.talismans:
@@ -168,7 +179,7 @@ class Profile:
         self.pets = []
         if 'pets' in self.profile_raw_data:
             for pet_data in self.profile_raw_data['pets']:
-                self.pets.append(Pet(pet_data))
+                self.pets.append(Pet(pet_data, profile=self))
 
         # Loads profile's collections if collection api is enabled
         try:
@@ -196,46 +207,64 @@ class Profile:
         if weapon:
             self.weapon = weapon
 
-            self.stats.children.append((self.weapon.type, self.weapon.stats))
-            self.stats.base_children.append((self.weapon.type, self.weapon.base_stats))
+            self.stats.childrens.append(self.weapon.stats)
 
-    def set_armor(self, armor):
+    def set_armor(self, armor, *, dungeon=False):
         """
         Set profile armor.
         """
         if armor:
             self.armor = armor
 
-            self.stats.children.extend([(type, piece.stats) for type, piece in self.armor.items() if piece is not None])
-            self.stats.base_children.extend(
-                [(type, piece.base_stats) for type, piece in self.armor.items() if piece is not None])
+            self.stats.childrens.extend([piece.stats for piece in self.armor.values() if piece is not None])
 
             # Armor passive/set bonus
             if self.armor == {'helmet': 'SUPERIOR_DRAGON_HELMET', 'chestplate': 'SUPERIOR_DRAGON_CHESTPLATE',
                               'leggings': 'SUPERIOR_DRAGON_LEGGINGS', 'boots': 'SUPERIOR_DRAGON_BOOTS'}:
                 self.stats.multiplier += 0.05
             elif self.armor['helmet'] == 'TARANTULA_HELMET':
-                self.stats.modifiers['crit damage'].insert(0, lambda stat: stat + self.stats['strength'] / 10)
-            # These are not supported for now
-            # elif self.armor == {'helmet': 'YOUNG_HELMET', 'chestplate': 'YOUNG_CHESTPLATE', 'leggings': 'YOUNG_LEGGINGS', 'boots': 'YOUNG_BOOTS'}: #name maybe wrong check later
-            # 	self.stats.__iadd__('speed cap', 100)
-            # elif self.armor == {'helmet': 'MASTIFF_HELMET', 'chestplate': 'MASTIFF_CHESTPLATE', 'leggings': 'MASTIFF_LEGGINGS', 'boots': 'MASTIFF_BOOTS'}:
-            # 	self.stats.modifiers['crit damage'].append(lambda stat: stat / 2)
-            # 	self.stats.modifiers['health'].append(lambda stat: stat + self.stats['crit damage'] * 50)
+                self.stats.add_modifier('crit damage',
+                                        lambda stat: stat + self.stats.get_stat('strength', dungeon=dungeon) / 10)
+            elif self.armor == {'helmet': 'MUSHROOM_HELMET', 'chestplate': 'MUSHROOM_CHESTPLATE',
+                                'leggings': 'MUSHROOM_LEGGINGS', 'boots': 'MUSHROOM_BOOTS'}:
+                for piece in self.armor:
+                    piece.stats.multiplier *= 3
+            elif self.armor == {'helmet': 'END_HELMET', 'chestplate': 'END_CHESTPLATE',
+                                'leggings': 'END_LEGGINGS', 'boots': 'END_BOOTS'}:
+                for piece in self.armor:
+                    piece.stats.multiplier *= 3
+            elif self.armor == {'helmet': 'BAT_PERSON_HELMET', 'chestplate': 'BAT_PERSON_CHESTPLATE',
+                                'leggings': 'BAT_PERSON_LEGGINGS', 'boots': 'BAT_PERSON_BOOTS'}:
+                for piece in self.armor:
+                    piece.stats.multiplier *= 3
+            elif self.armor == {'helmet': 'SNOW_SUIT_HELMET', 'chestplate': 'SNOW_SUIT_CHESTPLATE',
+                                'leggings': 'SNOW_SUIT_LEGGINGS', 'boots': 'SNOW_SUIT_BOOTS'}:
+                for piece in self.armor:
+                    piece.stats.multiplier *= 3
+            elif self.armor == {'helmet': 'YOUNG_DRAGON_HELMET', 'chestplate': 'YOUNG_DRAGON_CHESTPLATE',
+                                'leggings': 'YOUNG_DRAGON_LEGGINGS', 'boots': 'YOUNG_DRAGON_BOOTS'}:
+                self.stats.add_stat('speed cap', 100)
+            elif self.armor == {'helmet': 'MASTIFF_HELMET', 'chestplate': 'MASTIFF_CHESTPLATE',
+                                'leggings': 'MASTIFF_LEGGINGS', 'boots': 'MASTIFF_BOOTS'}:
+                self.stats.add_modifier('crit damage', lambda stat: stat / 2)
+                self.stats.add_modifier('health',
+                                        lambda stat: stat + self.stats.get_stat('crit damage', dungeon=dungeon) * 50)
+            elif self.weapon == 'POOCH_SWORD':
+                self.weapon.stats.add_modifier('damage',
+                                               lambda stat: stat + self.stats.get_stat('health', dungeon=dungeon) // 50)
 
-    def set_pet(self, pet):
+    def set_pet(self, pet, *, dungeon=False):
         """
         Set profile pet.
         """
         if pet:
             self.pet = pet
 
-            self.stats.children.append((self.pet.internal_name, self.pet.stats))
-            self.stats.base_children.append((self.pet.internal_name, self.pet.stats))
+            self.stats.childrens.append(self.pet.stats)
 
             pet_ability = PETS[self.pet.internal_name]['ability']
             if callable(pet_ability):
-                pet_ability(self)
+                pet_ability(self, dungeon=dungeon)
 
     async def get_profile_auctions(self):
         """

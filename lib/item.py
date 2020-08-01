@@ -4,149 +4,148 @@ from gzip import decompress as two
 from io import BytesIO as three
 from struct import unpack
 
-from . import Stats
-from constants import BOW_ENCHANTS, ROD_ENCHANTS, SWORD_ENCHANTS
+from . import ItemStats
+from utils import get_stats_from_description, closest
+from constants import ACCUMULATED_CATACOMB_LEVEL_REWARDS
 
 
 class Item:
-    def __init__(self, nbt, slot_number=0, player=None):
-        self._nbt = nbt
-        self.player = player
+    def __init__(self, raw_data, profile, *, slot_number=0):
+        self._raw_data = raw_data
+        self.profile = profile
 
-        self.stack_size = self._nbt.get('Count', 1)
-        self.slot_number = slot_number
-
-        tag = nbt.get('tag', {})
+        tag = raw_data.get('tag', {})
         extras = tag.get('ExtraAttributes', {})
 
+        self.slot_number = slot_number
+        self.stack_size = self._raw_data.get('Count', 1)
+
+        # Load item name and description
+        self.name = re.sub('§.', '', tag.get('display', {}).get('Name', ''))
+        self.internal_name = extras.get('id', '')
+
         self.description = tag.get('display', {}).get('Lore', [])
-        self.description_clean = [re.sub('§.[a-z]?', '', line) for line in self.description]
-        self.description = '\n'.join(self.description)
-        self.internal_name = extras.get('id', None)
-        name = self.internal_name if self.internal_name else None
+        self.description_clean = [re.sub('§.', '', line) for line in self.description]
+
+        # Load item extra attributes
         self.hot_potatos = extras.get('hot_potato_count', 0)
-        self.collection_date = extras.get('timestamp', '')  # ex: 'timestamp': '2/16/20 9:24 PM',
-        self.runes = extras.get('runes', {})  # ex: 'runes': {'ZOMBIE_SLAYER': 3},
+        self.anvil_uses = extras.get('anvil_uses', 0) - self.hot_potatos
+        self.collection_date = extras.get('timestamp', '')  # ex: 'timestamp': '2/16/20 9:24 PM'
+        self.runes = extras.get('runes', {})  # ex: 'runes': {'ZOMBIE_SLAYER': 3}
         self.enchantments = extras.get('enchantments', {})
         self.reforge = extras.get('modifier', None)
-        self.dungeon = False
+        self.recombobulation = False
+        if 'rarity_upgrades' in extras:
+            if extras['rarity_upgrades'] == 1:
+                self.recombobulation = True
+        self.dungeon = 'dungeon_item_level' in extras
+        self.dungeon_level = None
+        if self.dungeon:
+            self.dungeon_level = extras['dungeon_item_level']
 
+        # Load item rarity and item from last line of description clean
+        self.rarity = None
+        self.type = None
         if self.description_clean:
-            rarity_type = self.description_clean[-1].split()
-            self.rarity = rarity_type[0].lower()
-            self.type = rarity_type[2].lower() if len(rarity_type) > 2 else rarity_type[1].lower() if len(
-                rarity_type) > 1 else None
-            self.dungeon = True if len(rarity_type) > 2 and rarity_type[1].lower() == 'dungeon' else False
+            last_line = self.description_clean[-1].split()
+            # remove extra 'a' from recombobulated item description last line
+            if self.recombobulation:
+                last_line.pop(0)
+                last_line.pop(-1)
 
-            if self != 'ENCHANTED_BOOK':
-                for type, enchant_list in {'fishing rod': ROD_ENCHANTS, 'bow': BOW_ENCHANTS,
-                                           'sword': SWORD_ENCHANTS}.items():
-                    for e in enchant_list:
-                        if e in self.enchantments and e != 'looting' and e != 'dragon_hunter':
-                            self.type = type
-                            break
-        else:
-            self.rarity = None
-            self.type = None
+            self.rarity = last_line[0].lower()
+            if len(last_line) > 1:
+                self.type = last_line[1].lower()
+                if (self.dungeon or last_line[1].lower() == 'dungeon') and len(last_line) > 2:
+                    # In case some dungeon item doesnt have 'dungeon_item_level' attribute
+                    if not self.dungeon:
+                        self.dungeon = True
+                        self.dungeon_level = 0
+                    self.type = last_line[2].lower()
 
-        self.name = re.sub('§.', '', self['tag']['display']['Name'])
-
-        # Stats
-        self.stats = Stats()
-        self.base_stats = Stats()
-
-        # Parse items from cake bag and backpacks
+        # Load item from backpacks
         self.contents = None
+        if self.internal_name == 'NEW_YEAR_CAKE_BAG' or self.internal_name.endswith('_BACKPACK'):
+            for key, value in extras.items():
+                if key == 'new_year_cake_bag_data' or key.endswith('_backpack_data'):
+                    self.contents = decode_inventory_data(value, profile, backpack=True)
+                    break
+
+        # Load item stats
+        stats, reforge_stat, dungeon_bonus = get_stats_from_description(self.description_clean, dungeon=self.dungeon)
+        self.stats = ItemStats(stats, item=self)
+        self.stats.reforge_stat = reforge_stat
+        if self.dungeon:
+            self.stats.dungeon_bonus += self.dungeon_level / 10
+
+        # Check and get profile's catacomb dungeon bonus + level based on dungeon bonus from description.
+        # Only when the item is a dungeon item + there's a dungeon bonus from item and profile dungeon level hasn't been set.
+        if self.dungeon and dungeon_bonus > 1.00 and self.profile.dungeon_skill == 0:
+            relative_dungeon_bonus = (dungeon_bonus - (1 + self.dungeon_level / 10)) * 100
+            total_dungeon_bonus, dungeon_level = closest(ACCUMULATED_CATACOMB_LEVEL_REWARDS['dungeon bonus'],
+                                                         relative_dungeon_bonus)
+            self.profile.dungeon_skill = dungeon_level
+            self.profile.stats.dungeon_bonus += total_dungeon_bonus / 100
+
+        self.get_item_stats_extra()
+
+    def get_item_stats_extra(self):
+        """
+        Get extra stats from some specific item
+        """
+        name = self.internal_name
         if name:
-            if name == 'NEW_YEAR_CAKE_BAG' or name.endswith('_BACKBACK'):
-                for k, v in extras.items():
-                    if k == 'new_year_cake_bag_data' or k.endswith('_backpack_data'):
-                        self.contents = decode_inventory_data(v, player, backpack=True)
-                        break
-
             if name == 'RECLUSE_FANG':
-                self.stats.__iadd__('strength', 370)
+                self.stats.add_stat('strength', 370)
             elif name == 'POOCH_SWORD':
-                self.stats.__iadd__('strength', 150)
+                self.stats.add_stat('strength', 150)
             elif name == 'THE_SHREDDER':
-                self.stats.__iadd__('damage', 115)
-                self.stats.__iadd__('strength', 15)
+                self.stats.add_stat('damage', 115)
+                self.stats.add_stat('strength', 15)
             elif name == 'NIGHT_CRYSTAL' or name == 'DAY_CRYSTAL':
-                self.stats.__iadd__('strength', 2.5)
-                self.stats.__iadd__('defense', 2.5)
+                self.stats.add_stat('strength', 2.5)
+                self.stats.add_stat('defense', 2.5)
             elif name == 'NEW_YEAR_CAKE_BAG':
-                self.stats.__iadd__('health', len(self.contents) if self.contents else 0)
+                self.stats.add_stat('health', len(self.contents) if self.contents else 0)
             elif name == 'GRAVITY_TALISMAN':
-                self.stats.__iadd__('strength', 10)
-                self.stats.__iadd__('defense', 10)
+                self.stats.add_stat('strength', 10)
+                self.stats.add_stat('defense', 10)
             elif name == 'SPEED_TALISMAN':
-                self.stats.__iadd__('speed', 1)
+                self.stats.add_stat('speed', 1)
             elif name == 'SPEED_RING':
-                self.stats.__iadd__('speed', 3)
+                self.stats.add_stat('speed', 3)
             elif name == 'SPEED_ARTIFACT':
-                self.stats.__iadd__('speed', 5)
+                self.stats.add_stat('speed', 5)
             elif name == 'CHEETAH_TALISMAN':
-                self.stats.__iadd__('speed', 3)
-            # elif name == 'PARTY_HAT_CRAB':
-            # Get Intelligence base on how long player played (tbd)
+                self.stats.add_stat('speed', 3)
             elif name == 'PIGMAN_SWORD':
-                self.stats.__iadd__('defense', 50)
-            elif self.player:
-                # if name == 'POOCH_SWORD' and self.player.weapon == 'POOCH_SWORD':
-                # 	self.stats.modifiers['damage'].insert(0, lambda stat: stat + player.stats['health'] // 50)
-                if re.match('MUSHROOM_(HELMET|CHESTPLATE|LEGGINGS|BOOTS)', name) and self.player.armor == {
-                        'helmet': 'MUSHROOM_HELMET', 'chestplate': 'MUSHROOM_CHESTPLATE', 'leggings': 'MUSHROOM_LEGGINGS',
-                        'boots': 'MUSHROOM_BOOTS'}:
-                    self.stats.multiplier *= 3
-                elif re.match('END_(HELMET|CHESTPLATE|LEGGINGS|BOOTS)', name) and self.player.armor == {
-                        'helmet': 'END_HELMET', 'chestplate': 'END_CHESTPLATE', 'leggings': 'END_LEGGINGS',
-                        'boots': 'END_BOOTS'}:
-                    self.stats.multiplier *= 2
-                elif re.match('BAT_PERSON_(HELMET|CHESTPLATE|LEGGINGS|BOOTS)', name) and self.player.armor == {
-                        'helmet': 'BAT_PERSON_HELMET', 'chestplate': 'BAT_PERSON_CHESTPLATE',
-                        'leggings': 'BAT_PERSON_LEGGINGS', 'boots': 'BAT_PERSON_BOOTS'}:
-                    self.stats.multiplier *= 3
-                elif re.match('SNOW_SUIT_(HELMET|CHESTPLATE|LEGGINGS|BOOTS)', name) and self.player.armor == {
-                        'helmet': 'SNOW_SUIT_HELMET', 'chestplate': 'SNOW_SUIT_CHESTPLATE',
-                        'leggings': 'SNOW_SUIT_LEGGINGS', 'boots': 'SNOW_SUIT_BOOTS'}:
-                    self.stats.multiplier *= 2
+                self.stats.add_stat('defense', 50)
 
-        if self.reforge == 'renowned' and player:
-            player.stats.multiplier += 0.01
+        if self.reforge == 'renowned':
+            self.profile.stats.multiplier += 0.01
 
-        r = re.compile('([\w ]*): \+(\d*\.?\d*)(.*)')
-        r_r = re.compile('.*\(([\w ]*) \+(\d*)')
-
-        for line in self.description_clean:
-            match = r.match(line)
-            if match:
-                self.stats['attack speed' if match[1].lower() == 'bonus attack speed' else match[1].lower()] = float(
-                    match[2])
-                match_r = r_r.match(match.group(3))
-                reforge_stat = float(match_r[2]) if match_r else 0
-                if float(match[2]) - reforge_stat == 0:
-                    continue
-                self.base_stats[
-                    'attack speed' if match[1].lower() == 'bonus attack speed' else match[1].lower()] = float(
-                    match[2]) - reforge_stat
-
-    def __getitem__(self, name):
-        return self._nbt[name]
+    def __getitem__(self, key):
+        if isinstance(key, str):
+            return self._raw_data.get(key, None)
+        else:
+            raise KeyError
 
     def __eq__(self, other):
-        return self.internal_name == (other if isinstance(other, str) else other.internal_name)
+        if isinstance(other, str):
+            return self.internal_name == other
+        elif isinstance(other, Item):
+            return self.internal_name == other.internal_name
+        else:
+            raise TypeError
 
     def __str__(self):
         return self.name
 
-    def __repr__(self):
-        return f"'{self.internal_name}'"
 
-
-def decode_inventory_data(raw, player=None, backpack=False, *, index_empty=False):
+def decode_inventory_data(raw, profile=None, *, backpack=False, index_empty=False):
     """
 	Takes a raw string representing inventory data.
-	Returns a json object with the inventory's contents
+	Returns a json object with the inventory's contents.
 	"""
 
     if backpack:
@@ -210,7 +209,7 @@ def decode_inventory_data(raw, player=None, backpack=False, *, index_empty=False
     items = []
     for i, x in enumerate(root['i']):
         if x and 'tag' in x and 'ExtraAttributes' in x['tag']:
-            items.append(Item(x, i, player))
+            items.append(Item(x, profile, slot_number=i))
         elif index_empty:
             items.append(None)
 

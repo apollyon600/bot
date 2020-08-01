@@ -115,7 +115,7 @@ class OptimizeGear(commands.Cog, name='Damage'):
                     inline=False
                 )
 
-        base_mod = profile.stats['enchantment modifier']
+        base_mod = profile.stats.combat_bonus + (profile.stats.archery_bonus if weapon.type == 'bow' else 0)
         zealot_mod = emod('zealots', weapon) + base_mod
         slayer_mod = emod('slayer bosses', weapon) + base_mod
 
@@ -125,10 +125,10 @@ class OptimizeGear(commands.Cog, name='Damage'):
         elif weapon.internal_name == 'SCORPION_FOIL':
             slayer_mult = 2.5
 
-        zealot_damage = damage(profile.weapon.stats['damage'], profile.stats['strength'],
-                               profile.stats['crit damage'], zealot_mod)
-        slayer_damage = damage(profile.weapon.stats['damage'], profile.stats['strength'],
-                               profile.stats['crit damage'], slayer_mod)
+        zealot_damage = damage(profile.weapon.stats.get_stat('damage'), profile.stats.get_stat('strength'),
+                               profile.stats.get_stat('crit damage'), zealot_mod)
+        slayer_damage = damage(profile.weapon.stats.get_stat('damage'), profile.stats.get_stat('strength'),
+                               profile.stats.get_stat('crit damage'), slayer_mod)
         slayer_damage *= slayer_mult
 
         zealot_damage_after = damage(best_stats['damage'], best_stats['strength'],
@@ -139,9 +139,9 @@ class OptimizeGear(commands.Cog, name='Damage'):
 
         embed.add_field(
             name='**Before**',
-            value=f'```{profile.stats["strength"]:.0f} strength\n{profile.stats["crit damage"]:.0f} crit damage\n'
-                  f'{profile.stats["crit chance"]:.0f} crit chance\n{profile.stats["attack speed"]:.0f} attack speed\n'
-                  f'{profile.weapon.stats["damage"]:.0f} weapon damage```'
+            value=f'```{profile.stats.get_stat("strength"):.0f} strength\n{profile.stats.get_stat("crit damage"):.0f} crit damage\n'
+                  f'{profile.stats.get_stat("crit chance"):.0f} crit chance\n{profile.stats.get_stat("attack speed"):.0f} attack speed\n'
+                  f'{profile.weapon.stats.get_stat("damage"):.0f} weapon damage```'
                   f'```{zealot_damage:,.0f} to zealots\n{slayer_damage:,.0f} to slayers```'
         )
         embed.add_field(
@@ -334,7 +334,10 @@ class OptimizeGear(commands.Cog, name='Damage'):
             selected_pots.append((name, selected_level))
 
             for stat, amount in buff.items():
-                profile.stats.__iadd__(stat, amount[selected_level])
+                if stat == 'archery bonus':
+                    profile.stats.archery_bonus += amount[selected_level]
+                else:
+                    profile.stats.add_stat(stat, amount[selected_level])
 
             if name == 'dungeon' and selected_level > 0:
                 break
@@ -352,7 +355,7 @@ class OptimizeGear(commands.Cog, name='Damage'):
                 if confirm:
                     selected_buffs.append(name)
                     for stat, amount in buff.items():
-                        profile.stats.__iadd__(stat, amount)
+                        profile.stats.add_stat(stat, amount)
         return selected_buffs
 
     async def prompt_for_reforges(self, ctx):

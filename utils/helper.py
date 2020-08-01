@@ -1,8 +1,9 @@
 import aiohttp
 import asyncio
+import re
 
 from lib import ExternalAPIError, BadNameError
-from constants import MOBS_RELEVANT_ENCHANTS, ENCHANTMENT_BONUS
+from constants import MOBS_RELEVANT_ENCHANTS, ENCHANTMENT_BONUS, STAT_NAMES
 from constants.discord import TIMEOUT_EMOJIS
 
 
@@ -115,3 +116,67 @@ def emod(activity, weapon):
             else:
                 result += value * weapon.enchantments[enchantment]
     return result
+
+
+def get_stats_from_description(desc, *, dungeon=False):
+    """
+    Get item stats from clean description and estimated total dungeon bonus.
+    Return item stats dict, item reforge stats dict, estimated total dungeon bonus value.
+    """
+    stat_regex = re.compile('([\w ]*): \D?(\d*\.?\d*)(.*)')
+    reforge_regex = re.compile('.*\(([\w ]*) \+(\d*)')
+    dungeon_regex = re.compile('.*\(\D?(\d*\.\d*).*\)')
+    stats = {}
+    reforge_stats = {}
+    dungeon_bonus = 1.00
+    for line in desc:
+        stat_match = stat_regex.match(line)
+        if stat_match is None:
+            continue  # if doesn't match
+
+        stat_type = stat_match.group(1).lower()
+        stat_value = stat_match.group(2)
+        if not stat_value or not stat_type:
+            continue
+        stat_value = float(stat_value)
+
+        if stat_type in STAT_NAMES:
+            if stat_type == 'bonus attack speed':
+                stat_type = 'attack speed'  # remove bonus
+            stats[stat_type] = stat_value
+
+        # check for reforge stat
+        if stat_match.group(3):
+            reforge_match = reforge_regex.match(stat_match.group(3))
+            if reforge_match is not None:
+                reforge_value = reforge_match.group(2)
+
+                if reforge_value:
+                    reforge_value = float(reforge_value)
+                    reforge_stats[stat_type] = reforge_value
+
+            if dungeon:
+                dungeon_match = dungeon_regex.match(stat_match.group(3))
+                if dungeon_match is None:
+                    continue
+
+                dungeon_stat = dungeon_match.group(1)
+                if not dungeon_stat:
+                    continue
+                dungeon_stat = float(dungeon_stat)
+
+                if dungeon_stat < stat_value:
+                    continue  # if the matched stat is less than main stat
+
+                dungeon_bonus = float(dungeon_stat / stat_value)
+
+    return stats, reforge_stats, dungeon_bonus
+
+
+def closest(lst, k):
+    """
+    Find closest number in the given list.
+    Return the number and the index in that list
+    """
+    num = min(range(len(lst)), key=lambda i: abs(lst[i] - k))
+    return lst[num], num

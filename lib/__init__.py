@@ -1,5 +1,5 @@
 from .exceptions import *
-from .stats import Stats
+from .stats import ProfileStats, ItemStats, PetStats
 from .item import Item, decode_inventory_data
 from .pet import Pet
 from .profile import Profile

@@ -86,174 +86,177 @@ PET_XP = {
 }
 
 
-def _pigman(player):
+def _pigman(profile, *, dungeon=False):
     # Buffs the Pigman sword by (Pet lvl * 0.4) damage and (Pet lvl * 0.25) strength. (All)
     # Deal (Pet lvl * 0.2%) extra damage to monsters level 100 and up. (Legendary)
-    if player.weapon == 'PIGMAN_SWORD':
-        player.weapon.stats.__iadd__('damage', player.pet.level * 0.4)
-        player.weapon.stats.__iadd__('strength', player.pet.level * 0.25)
+    if profile.weapon == 'PIGMAN_SWORD':
+        profile.weapon.stats.add_stat('damage', profile.pet.level * 0.4)
+        profile.weapon.stats.add_stat('strength', profile.pet.level * 0.25)
 
 
-def _elephant(player):  # (tbd)
-    if player.pet.rarity in ('common', 'uncommon', 'rare'):
-        player.stats.modifiers['health'].insert(0, lambda stat: stat + (player.pet.level / 10) * (
-                player.stats['speed'] // 100))
+def _elephant(profile, *, dungeon=False):  # (tbd)
+    if profile.pet.rarity in ('common', 'uncommon', 'rare'):
+        profile.stats.add_modifier('health', lambda stat: stat + (profile.pet.level / 10) * (
+                profile.stats.get_stat('speed', dungeon=dungeon) // 100))
     else:
-        player.stats.modifiers['health'].insert(0, lambda stat: stat + (player.pet.level / 5) * (
-                player.stats['speed'] // 100))
-    if player.pet.rarity not in ('common', 'uncommon'):
-        player.stats.modifiers['health'].insert(0, lambda stat: stat + (player.pet.level / 100) * (
-                player.stats['defense'] // 10))
+        profile.stats.add_modifier('health', lambda stat: stat + (profile.pet.level / 5) * (
+                profile.stats.get_stat('speed', dungeon=dungeon) // 100))
+    if profile.pet.rarity not in ('common', 'uncommon'):
+        profile.stats.add_modifier('health', lambda stat: stat + (profile.pet.level / 100) * (
+                profile.stats.get_stat('defense', dungeon=dungeon) // 10))
 
 
-def _hound(player):
-    if player.pet.rarity == 'legendary':
-        player.stats.__iadd__('attack speed', player.pet.level * 0.1)
+def _hound(profile, *, dungeon=False):
+    if profile.pet.rarity == 'legendary':
+        profile.stats.add_stat('attack speed', profile.pet.level * 0.1)
 
 
-def _enderdragon(player):
+def _enderdragon(profile, *, dungeon=False):
     # Deal (Pet lvl * 0.25%) more damage to end mobs. (All)
     # Buffs the Aspect of the Dragon sword by (Pet lvl * 0.5) damage and (Pet lvl * 0.3) strength. (All)
     # Increases all stats by (Pet lvl * 0.1%). (Legendary)
-    if player.weapon == 'ASPECT_OF_THE_DRAGON':
-        player.weapon.stats.__iadd__('damage', player.pet.level * 0.5)
-        player.weapon.stats.__iadd__('strength', player.pet.level * 0.3)
-    if player.pet.rarity == 'legendary':
-        player.stats.multiplier += player.pet.level * 0.001
+    if profile.weapon == 'ASPECT_OF_THE_DRAGON':
+        profile.weapon.stats.add_stat('damage', profile.pet.level * 0.5)
+        profile.weapon.stats.add_stat('strength', profile.pet.level * 0.3)
+    if profile.pet.rarity == 'legendary':
+        profile.stats.multiplier += profile.pet.level * 0.001
 
 
-def _bee(player):
+def _bee(profile, *, dungeon=False):
     # Gain (1 + (Pet lvl * 0.02)) Intelligence and (1 + (Pet lvl * 0.02)) Strength for each nearby bee. (Max 15) (Common)
     # (1+ (Pet lvl * 0.09) INT and (1 + (Pet lvl * 0.07)) STR on Rare)
     # (1+ (Pet lvl * 0.14) INT and (1 + (Pet lvl * 0.11)) STR on Epic)
     # (1+ (Pet lvl * 0.19) INT and (1 + (Pet lvl * 0.14)) STR on Legendary)
-    player.stats.__iadd__('intelligence', 1 + player.pet.level *
-                          {'common': 0.02, 'uncommon': 0.02, 'rare': 0.09, 'epic': 0.14, 'legendary': 0.19}[
-                              player.pet.rarity])
-    player.stats.__iadd__('strength', 1 + player.pet.level *
-                          {'common': 0.02, 'uncommon': 0.02, 'rare': 0.07, 'epic': 0.11, 'legendary': 0.14}[
-                              player.pet.rarity])
+    profile.stats.add_stat('intelligence', 1 + profile.pet.level *
+                           {'common': 0.02, 'uncommon': 0.02, 'rare': 0.09, 'epic': 0.14, 'legendary': 0.19}[
+                               profile.pet.rarity])
+    profile.stats.add_stat('strength', 1 + profile.pet.level *
+                           {'common': 0.02, 'uncommon': 0.02, 'rare': 0.07, 'epic': 0.11, 'legendary': 0.14}[
+                               profile.pet.rarity])
 
 
-def _squid(player):
+def _squid(profile, *, dungeon=False):
     # Buffs the Ink Wand by (Pet lvl * 0.3) damage and (Pet lvl * 0.1) strength. (Rare) (0.4 DMG and 0.2 STR on Epic, Legendary)
-    if player.pet.rarity not in ('common', 'uncommon') and player.weapon == 'INK_WAND':
-        player.weapon.stats.__iadd__('damage', player.pet.level * {'rare': 0.3, 'epic': 0.4, 'legendary': 0.4}[
-            player.pet.rarity])
-        player.weapon.stats.__iadd__('strength', player.pet.level * {'rare': 0.1, 'epic': 0.2, 'legendary': 0.2}[
-            player.pet.rarity])
+    if profile.pet.rarity not in ('common', 'uncommon') and profile.weapon == 'INK_WAND':
+        profile.weapon.stats.add_stat('damage', profile.pet.level * {'rare': 0.3, 'epic': 0.4, 'legendary': 0.4}[
+            profile.pet.rarity])
+        profile.weapon.stats.add_stat('strength', profile.pet.level * {'rare': 0.1, 'epic': 0.2, 'legendary': 0.2}[
+            profile.pet.rarity])
 
 
-def _parrot(player):
-    # Gives (5 + (Pet lvl * 0.25)) strength to players within 20 Blocks (No stack). (Legendary)
-    if player.pet.rarity == 'legendary':
-        player.stats.__iadd__('strength', 5 + (player.pet.level * 0.25))
+def _parrot(profile, *, dungeon=False):
+    # Gives (5 + (Pet lvl * 0.25)) strength to profiles within 20 Blocks (No stack). (Legendary)
+    if profile.pet.rarity == 'legendary':
+        profile.stats.add_stat('strength', 5 + (profile.pet.level * 0.25))
 
 
-def _blaze(player):
+def _blaze(profile, *, dungeon=False):
     # Upgrades Blaze Armor stats and ability by (Pet lvl * 0.4%). (All)
     # Double effects of Hot Potato Books. (Legendary)
-    if player.armor == {'helmet': 'BLAZE_HELMET', 'chestplate': 'BLAZE_CHESTPLATE', 'leggings': 'BLAZE_LEGGINGS',
-                        'boots': 'BLAZE_BOOTS'} \
-            or player.armor == {'helmet': 'FROZEN_BLAZE_HELMET', 'chestplate': 'FROZEN_BLAZE_CHESTPLATE',
-                                'leggings': 'FROZEN_BLAZE_LEGGINGS', 'boots': 'FROZEN_BLAZE_BOOTS'}:
-        for piece in player.armor.values():
+    if profile.armor == {'helmet': 'BLAZE_HELMET', 'chestplate': 'BLAZE_CHESTPLATE', 'leggings': 'BLAZE_LEGGINGS',
+                         'boots': 'BLAZE_BOOTS'} \
+            or profile.armor == {'helmet': 'FROZEN_BLAZE_HELMET', 'chestplate': 'FROZEN_BLAZE_CHESTPLATE',
+                                 'leggings': 'FROZEN_BLAZE_LEGGINGS', 'boots': 'FROZEN_BLAZE_BOOTS'}:
+        for piece in profile.armor.values():
             if piece:
-                piece.stats.multiplier += player.pet.level * 0.004
-                # piece.base_stats.multiplier += player.pet.level * 0.004
-    if player.pet.rarity == 'legendary':
-        for piece in player.armor.values():
+                piece.stats.multiplier += profile.pet.level * 0.004
+    if profile.pet.rarity == 'legendary':
+        for piece in profile.armor.values():
             if piece:
-                piece.stats.__iadd__('health', piece.hot_potatos * 4)
-                piece.base_stats.__iadd__('health', piece.hot_potatos * 4)
-                piece.stats.__iadd__('defense', piece.hot_potatos * 2)
-                piece.base_stats.__iadd__('defense', piece.hot_potatos * 2)
-        if player.weapon:
-            player.weapon.stats.__iadd__('damage', player.weapon.hot_potatos * 2)
-            player.weapon.base_stats.__iadd__('damage', player.weapon.hot_potatos * 2)
-            player.weapon.stats.__iadd__('strength', player.weapon.hot_potatos * 2)
-            player.weapon.base_stats.__iadd__('strength', player.weapon.hot_potatos * 2)
+                piece.stats.add_stat('health', piece.hot_potatos * 4)
+                piece.stats.add_stat('defense', piece.hot_potatos * 2)
+        if profile.weapon:
+            profile.weapon.stats.add_stat('damage', profile.weapon.hot_potatos * 2)
+            profile.weapon.stats.add_stat('strength', profile.weapon.hot_potatos * 2)
 
 
-def _blackcat(player):  # (tbd)
-    player.stats.__iadd__('speed', player.pet.level)
-    player.stats.__iadd__('speed cap', player.pet.level)
-    player.stats.modifiers['pet luck'].append(lambda stat: stat * 1.15)
-    player.stats.modifiers['magic find'].append(lambda stat: stat * 1.15)
+def _blackcat(profile, *, dungeon=False):  # (tbd)
+    profile.stats.add_stat('speed', profile.pet.level)
+    profile.stats.add_stat('speed cap', profile.pet.level)
+    profile.stats.add_modifier('pet luck', lambda stat: stat * 1.15)
+    profile.stats.add_modifier('magic find', lambda stat: stat * 1.15)
 
 
-def _flyingfish(player):
+def _flyingfish(profile, *, dungeon=False):
     # Gives (Pet lvl * 0.4) strength when near water. (Rare) (0.5 on Epic, Legendary)
     # Increases the stats of Diver's Armor by (Pet lvl * 0.3%). (Legendary)
-    if player.pet.rarity == 'legendary' and player.armor == {'helmet': 'DIVER_HELMET',
-                                                             'chestplate': 'DIVER_CHESTPLATE',
-                                                             'leggings': 'DIVER_LEGGINGS', 'boots': 'DIVER_BOOTS'}:
-        for piece in player.armor.values():
-            piece.stats.multiplier += player.pet.level * 0.003
+    if profile.pet.rarity == 'legendary' and profile.armor == {'helmet': 'DIVER_HELMET',
+                                                               'chestplate': 'DIVER_CHESTPLATE',
+                                                               'leggings': 'DIVER_LEGGINGS', 'boots': 'DIVER_BOOTS'}:
+        for piece in profile.armor.values():
+            piece.stats.multiplier += profile.pet.level * 0.003
 
 
-def _magmacube(player):
+def _magmacube(profile, *, dungeon=False):
     # Deal (Pet lvl * 0.25%) more damage to slimes. (Rare, Epic, Legendary)
     # Buffs the stats of Ember Armor by (Pet lvl * 1%). (Legendary)
-    if player.pet.rarity == 'legendary' and player.armor == {'helmet': 'BLAZE_HELMET',
-                                                             'chestplate': 'BLAZE_CHESTPLATE',
-                                                             'leggings': 'BLAZE_LEGGINGS', 'boots': 'BLAZE_BOOTS'}:
-        for piece in player.armor.values():
-            piece.stats.multiplier += player.pet.level * 0.01
+    if profile.pet.rarity == 'legendary' and profile.armor == {'helmet': 'BLAZE_HELMET',
+                                                               'chestplate': 'BLAZE_CHESTPLATE',
+                                                               'leggings': 'BLAZE_LEGGINGS', 'boots': 'BLAZE_BOOTS'}:
+        for piece in profile.armor.values():
+            piece.stats.multiplier += profile.pet.level * 0.01
 
 
-def _jerry(player):
-    if player.pet.rarity == 'legendary' and player.weapon == 'ASPECT_OF_THE_JERRY':
-        player.weapon.stats.__iadd__('damage', player.pet.level * 0.1)
+def _jerry(profile, *, dungeon=False):
+    if profile.pet.rarity == 'legendary' and profile.weapon == 'ASPECT_OF_THE_JERRY':
+        profile.weapon.stats.add_stat('damage', profile.pet.level * 0.1)
 
 
-def _silverfish(player):  # (tbd)
-    player.stats.__iadd__('true defense', player.pet.level *
-                          {'common': 0.05, 'uncommon': 0.1, 'rare': 0.1, 'epic': 0.15, 'legendary': 0.15}[
-                              player.pet.rarity])
+def _silverfish(profile, *, dungeon=False):  # (tbd)
+    profile.stats.add_stat('true defense', profile.pet.level *
+                           {'common': 0.05, 'uncommon': 0.1, 'rare': 0.1, 'epic': 0.15, 'legendary': 0.15}[
+                               profile.pet.rarity])
 
 
-def _turtle(player):  # (tbd)
-    player.stats.modifiers['defense'].append(lambda stat: stat * (3 + player.pet.level * 0.17))
+def _turtle(profile, *, dungeon=False):  # (tbd)
+    profile.stats.add_modifier('defense', lambda stat: stat * (3 + profile.pet.level * 0.17))
 
 
-def _zombie(player):  # (tbd)
-    for piece in player.armor.values():
+def _zombie(profile, *, dungeon=False):  # (tbd)
+    for piece in profile.armor.values():
         if piece.internal_name.startswith('REVENANT_') or piece.internal_name.startswith('ZOMBIE_'):
-            piece.stats.modifiers['defense'].append(lambda stat: stat * player.pet.level / 4)
+            piece.stats.add_modifier('defense', lambda stat: stat * profile.pet.level / 4)
 
 
-def _dolphin(player):  # (tbd)
-    if player.pet.rarity in ('rare', 'epic', 'legendary'):
-        player.stats.modifiers['sea creature chance'].append(lambda stat: stat * (1 + player.pet.level / 1000))
+def _dolphin(profile, *, dungeon=False):  # (tbd)
+    if profile.pet.rarity in ('rare', 'epic', 'legendary'):
+        profile.stats.add_modifier('sea creature chance', lambda stat: stat * (1 + profile.pet.level / 1000))
 
 
-def _lion(player):
+def _lion(profile, *, dungeon=False):
     # Adds (Pet lvl * 0.03) damage to your weapons. (Common) (0.05 on Uncommon) (0.1 on Rare) (0.15 on Epic) (0.2 on Legendary)
     # Increases damage dealt by (Pet lvl * 0.3%) on your first hit on a mob. (Rare) (0.4% on Epic) (0.5% on Legendary)
     # Deal (Pet lvl * 0.3%) weapon damage against mobs below level 80. (Legendary)
-    if player.weapon:
-        player.weapon.stats.__iadd__('damage', player.pet.level *
-                                     {'common': 0.03, 'uncommon': 0.05, 'rare': 0.1, 'epic': 0.15,
-                                      'legendary': 0.2}[player.pet.rarity])
+    if profile.weapon:
+        profile.weapon.stats.add_stat('damage', profile.pet.level *
+                                      {'common': 0.03, 'uncommon': 0.05, 'rare': 0.1, 'epic': 0.15,
+                                       'legendary': 0.2}[profile.pet.rarity])
 
 
-def _yeti(player):
-    player.stats.modifiers['defense'].insert(0, lambda stat: stat + player.stats['strength'] / 100)
-    if player.pet.rarity == 'legendary' and player.weapon == 'YETI_SWORD':
-        player.weapon.stats.__iadd__('damage', 100)
-        player.weapon.stats.__iadd__('intelligence', 100)
+def _yeti(profile, *, dungeon=False):
+    profile.stats.add_modifier('defense', lambda stat: stat + profile.stats.get_stat('strength', dungeon=dungeon) / 100)
+    if profile.pet.rarity == 'legendary' and profile.weapon == 'YETI_SWORD':
+        profile.weapon.stats.add_stat('damage', 100)
+        profile.weapon.stats.add_stat('intelligence', 100)
 
 
-def _bluewhale(player):  # (tbd)
-    if player.pet.rarity == 'legendary':
-        player.stats.modifiers['health'].append(lambda stat: stat * (1 + player.pet.level / 500))
-    if player.pet.rarity in ('rare', 'epic', 'legendary'):
-        player.stats.modifiers['defense'].insert(0, lambda stat: stat + (player.pet.level * 0.03) * (
-                player.stats['defense'] // 20))
+def _bluewhale(profile, *, dungeon=False):  # (tbd)
+    if profile.pet.rarity == 'legendary':
+        profile.stats.add_modifier('health', lambda stat: stat * (1 + profile.pet.level / 500))
+    if profile.pet.rarity in ('rare', 'epic', 'legendary'):
+        profile.stats.add_modifier('defense', lambda stat: stat + (profile.pet.level * 0.03) * (
+                profile.stats.get_stat('defense', dungeon=dungeon) // 20))
 
 
 PETS = {
+    # Template
+    'PET': {
+        'name': 'Pet',
+        'stats': {},
+        'ability': None,
+        'type': 'combat',
+        'icon': None
+    },
     'SKELETON_HORSE': {
         'name': 'Skeleton Horse',
         'stats': {
@@ -523,7 +526,7 @@ PETS = {
             'crit damage': lambda lvl: lvl / 10,
             'intelligence': lambda lvl: lvl
         },
-        # Gives (5 + (Pet lvl * 0.25)) strength to players within 20 Blocks (No stack). (Legendary)
+        # Gives (5 + (Pet lvl * 0.25)) strength to profiles within 20 Blocks (No stack). (Legendary)
         'ability': _parrot,
         'type': 'alchemy',
         'icon': '/head/5df4b3401a4d06ad66ac8b5c4d189618ae617f9c143071c8ac39a563cf4e4208'

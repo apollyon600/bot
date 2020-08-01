@@ -102,6 +102,8 @@ class Staff(commands.Cog):
         Use this command to check the current api key status.
         """
         data = await self.hypixel_api_client.get_key_status()
+        if not data:
+            ctx.send(f'{ctx.author.mention}, Something is wrong!')
         censored_key = '\*' * (len(data['key']) - 3)
         censored_key += data['key'][len(data['key']) - 3:]
         censored_owner = '\*' * (len(data['owner']) - 3)
