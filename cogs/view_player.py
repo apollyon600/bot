@@ -1,6 +1,6 @@
 from discord.ext import commands
 
-from utils import Embed, ask_for_skyblock_profiles, CommandWithCooldown
+from utils import Embed, ask_for_skyblock_profiles, CommandWithCooldown, format_pet
 from constants import SKILL_NAMES, COSMETIC_SKILL_NAMES, SKILL_LEVEL_REQUIREMENT, RUNECRAFTING_LEVEL_REQUIREMENT, \
     SLAYER_LEVEL_REQUIREMENT
 from constants.discord import SKILL_EMOJIS
@@ -44,7 +44,8 @@ class ViewPlayer(commands.Cog, name='Spy'):
             description=f'```{api_header}```\n'
                         f'```Deaths > {profile.deaths}\n'
                         f'Guild > {guild.name if guild else None}\n'
-                        f'Money > {profile.bank_balance + profile.purse:,.0f}```'
+                        f'Money > {profile.bank_balance + profile.purse:,.0f}\n'
+                        f'Pet > {format_pet(profile.pet)}```'
         ).add_field(
             name=f'🔰 \tSkills',
             value=f'```diff\n'
@@ -62,8 +63,6 @@ class ViewPlayer(commands.Cog, name='Spy'):
             url=player.get_avatar_url()
         )
 
-        if profile.enabled_api['skills']:
-            embed.add_field(inline=False)
         for skill, level in profile.skills.items():
             percent_to_max = 100 * min(1, profile.skills_xp.get(skill, 0) / (
                 RUNECRAFTING_LEVEL_REQUIREMENT[-1] if skill == 'runecrafting' else SKILL_LEVEL_REQUIREMENT[-1]))
@@ -80,7 +79,6 @@ class ViewPlayer(commands.Cog, name='Spy'):
             for i in range(0, left_over_field):
                 embed.add_field()
 
-        embed.add_field(inline=False)
         for slayer, level in profile.slayers.items():
             percent_to_max = 100 * min(1, profile.slayers_xp.get(slayer, 0) / SLAYER_LEVEL_REQUIREMENT[slayer][-1])
             embed.add_field(
@@ -91,11 +89,13 @@ class ViewPlayer(commands.Cog, name='Spy'):
                       f'{percent_to_max:.1f}% Maxed```'
             )
 
-        embed.add_field().add_field(
+        embed.add_field(
             name=f'{SKILL_EMOJIS["dungeons"]}\tDungeon Catacombs',
             value=f'```diff\n'
                   f'Level > {profile.dungeon_skill}```',
             inline=False
+        ).set_footer(
+            text=f'Player is current {"online" if player.online else "offline"} in game.'
         )
 
         await embed.send()
