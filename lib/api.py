@@ -134,3 +134,10 @@ class HypixelAPIClient:
         """
         data = await self.get('key', raise_for_status=raise_for_status, **kwargs)
         return data['record']
+
+    async def get_guild(self, *, raise_for_status: bool = True, **kwargs):
+        """
+        Hypixel API get guild.
+        """
+        data = await self.get('guild', raise_for_status=raise_for_status, **kwargs)
+        return data['guild']

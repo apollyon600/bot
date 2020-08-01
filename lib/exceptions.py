@@ -12,11 +12,11 @@ class SkyblockCommandError(UserInputError):
 
 class BadNameError(SkyblockCommandError):
     """
-    Exception raised when a user enters invalid player name/uuid.
+    Exception raised when a user enters invalid player name.
     """
 
-    def __init__(self, uname_or_uuid):
-        self.uname = uname_or_uuid
+    def __init__(self, uname):
+        self.uname = uname
 
 
 class BadProfileError(SkyblockCommandError):

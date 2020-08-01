@@ -128,7 +128,7 @@ class ErrorHandler(commands.Cog):
     async def handle_skyblock_input_error(ctx: commands.Context, error: SkyblockCommandError):
         ctx.command.reset_cooldown(ctx)
         if isinstance(error, BadNameError):
-            await ctx.send(f'{ctx.author.mention}, Invalid player\'s name/uuid: {error.uname}.')
+            await ctx.send(f'{ctx.author.mention}, Invalid player\'s name: {error.uname}.')
         elif isinstance(error, BadProfileError):
             await ctx.send(f'{ctx.author.mention}, Invalid profile\'s name: {error.profile_name}.')
         elif isinstance(error, NeverPlayedSkyblockError):

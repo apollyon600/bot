@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from . import Profile
+from . import Profile, Guild
 from . import NeverPlayedSkyblockError, BadProfileError, BadNameError
 
 
@@ -23,7 +23,7 @@ class Player:
     def __str__(self):
         return self.uname
 
-    async def get_set_skyblock_profiles(self, *, selected_profile='', **kwargs):
+    async def get_skyblock_profiles(self, *, selected_profile='', **kwargs):
         """
         Get player's skyblock profiles and set the selected profile, if not it will set the last save profile.
         """
@@ -37,10 +37,10 @@ class Player:
         for profile_data in profiles:
             profile = Profile(
                 player=self,
-                profile=profile_data
+                profile_data=profile_data
             )
             self.profiles.append(profile)
-            if selected_profile.lower() == profile.profile_name:
+            if selected_profile.lower() == profile.name:
                 self.profile = profile
             if profile.last_save > latest_logout:
                 latest_logout = profile.last_save
@@ -55,5 +55,12 @@ class Player:
         """
         Get player's guild data
         """
-        # call hypixel guild endpoint using player uuid.
-        raise NotImplementedError
+        guild_data = await self.hypixel_api_client.get_guild(params={'player': self.uuid})
+        if guild_data is not None:
+            self.guild = Guild(guild_data, self)
+
+    def get_avatar_url(self, *, size=None):
+        if size:
+            return f'https://mc-heads.net/avatar/{self.uuid}/{size}'
+        else:
+            return f'https://mc-heads.net/avatar/{self.uuid}'

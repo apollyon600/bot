@@ -180,3 +180,25 @@ def closest(lst, k):
     """
     num = min(range(len(lst)), key=lambda i: abs(lst[i] - k))
     return lst[num], num
+
+
+async def ask_for_skyblock_profiles(ctx, player, profile, *, session, hypixel_api_client, auto_set=False,
+                                    get_guild=False):
+    if not player:
+        player = await ctx.ask(message=f'{ctx.author.mention}, What is your minecraft username?')
+
+    player_name, player_uuid = await get_uuid_from_name(player, session=session)
+    player = await hypixel_api_client.get_player(player_name, player_uuid)
+
+    if profile:
+        await player.get_skyblock_profiles(selected_profile=profile)
+    else:
+        await player.get_skyblock_profiles()
+
+    if auto_set:
+        player.profile.set_pet_armor_automatically()
+
+    if get_guild:
+        await player.get_player_guild()
+
+    return player

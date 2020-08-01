@@ -1,4 +1,5 @@
 from .exceptions import *
+from .guild import Guild
 from .stats import ProfileStats, ItemStats, PetStats
 from .item import Item, decode_inventory_data
 from .pet import Pet

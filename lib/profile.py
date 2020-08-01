@@ -7,19 +7,19 @@ from constants import *
 
 
 class Profile:
-    def __init__(self, *, player, profile):
+    def __init__(self, *, player, profile_data):
         self.player = player
-        self.profile_raw_data = profile['members'][player.uuid]
-        self.profile_id = profile['profile_id']
-        self.profile_name = profile['cute_name'].lower()
-        self.last_save = datetime.fromtimestamp(self.profile_raw_data.get('last_save', 0) / 1000.0)
-        self.join_date = datetime.fromtimestamp(self.profile_raw_data.get('first_join', 0) / 1000.0)
-        self.purse = float(f'{self.profile_raw_data.get("coin_purse", 0.00):.2f}')
+        self.profile_data = profile_data['members'][player.uuid]
+        self.id = profile_data['profile_id']
+        self.name = profile_data['cute_name'].lower()
+        self.last_save = datetime.fromtimestamp(self.profile_data.get('last_save', 0) / 1000.0)
+        self.join_date = datetime.fromtimestamp(self.profile_data.get('first_join', 0) / 1000.0)
+        self.purse = float(f'{self.profile_data.get("coin_purse", 0.00):.2f}')
 
         # Get coop members uuid if there is
         self.coop_members = []
-        if len(profile['members']) > 1:
-            for member in profile['members'].keys():
+        if len(profile_data['members']) > 1:
+            for member in profile_data['members'].keys():
                 if member != player.uuid:
                     self.coop_members.append(member)
 
@@ -35,18 +35,18 @@ class Profile:
         # Load profile's bank data if banking api is enabled
         self.bank_balance = 0.00
         self.bank_transactions = None
-        if 'banking' in profile:
+        if 'banking' in profile_data:
             self.enabled_api['banking'] = True
-            self.bank_balance = float(f'{profile["banking"].get("balance", 0.00):.2f}')
-            self.bank_transactions = profile['banking'].get('transactions', [])
+            self.bank_balance = float(f'{profile_data["banking"].get("balance", 0.00):.2f}')
+            self.bank_transactions = profile_data['banking'].get('transactions', [])
 
         # Loads profile's skill skills api is enabled
         self.skills_xp = {}
         self.skills = {}
         for skill in SKILL_NAMES:
-            if f'experience_skill_{skill}' in self.profile_raw_data:
+            if f'experience_skill_{skill}' in self.profile_data:
                 self.enabled_api['skills'] = True
-                xp = int(self.profile_raw_data.get(f'experience_skill_{skill}', 0))
+                xp = int(self.profile_data.get(f'experience_skill_{skill}', 0))
                 self.skills_xp[skill] = xp
                 self.skills[skill] = level_from_xp_table(
                     xp,
@@ -60,26 +60,26 @@ class Profile:
         self.slayers_xp = {}
         self.slayers = {}
         for slayer_name in SLAYERS:
-            xp = self.profile_raw_data.get('slayer_bosses', {}).get(slayer_name, {}).get('xp', 0)
+            xp = self.profile_data.get('slayer_bosses', {}).get(slayer_name, {}).get('xp', 0)
             self.slayers_xp[slayer_name] = xp
             self.slayers[slayer_name] = level_from_xp_table(xp, SLAYER_LEVEL_REQUIREMENT[slayer_name])
         self.total_slayer_xp = sum(self.slayers_xp.values())
 
         # Loads profile's kills and deaths
-        self.kills = int(self.profile_raw_data.get('stats', {'kills': 0}).get('kills', 0))
+        self.kills = int(self.profile_data.get('stats', {'kills': 0}).get('kills', 0))
         self.specifc_kills = {name.replace('kills_', '').replace('_', ' '): int(amount)
-                              for name, amount in self.profile_raw_data['stats'].items() if re.match('kills_', name)}
+                              for name, amount in self.profile_data['stats'].items() if re.match('kills_', name)}
 
-        self.deaths = int(self.profile_raw_data.get('stats', {'deaths': 0}).get('deaths', 0))
+        self.deaths = int(self.profile_data.get('stats', {'deaths': 0}).get('deaths', 0))
         self.specifc_deaths = {name.replace('deaths_', '').replace('_', ' '): int(amount)
-                               for name, amount in self.profile_raw_data['stats'].items() if re.match('deaths_', name)}
+                               for name, amount in self.profile_data['stats'].items() if re.match('deaths_', name)}
 
         # Load profile stats
         self.stats = ProfileStats(BASE_PLAYER_STATS.copy(), profile=self)
 
         self.stats.combat_bonus = self.skills.get('combat', 0) * 4
 
-        self.fairy_souls = self.profile_raw_data.get('fairy_souls_collected', 0)
+        self.fairy_souls = self.profile_data.get('fairy_souls_collected', 0)
         self.stats.add_stat('health', FAIRY_SOUL_HP_BONUS[self.fairy_souls // 5])
         self.stats.add_stat('defense', self.fairy_souls // 5 + self.fairy_souls // 25)
         self.stats.add_stat('strength', self.fairy_souls // 5 + self.fairy_souls // 25)
@@ -92,7 +92,7 @@ class Profile:
             self.stats += ProfileStats(SKILL_REWARDS[skill_name][skill_level])
 
         # Load profile's current equipped armor
-        for armor in self._parse_inventory(self.profile_raw_data, ['inv_armor', 'data']):
+        for armor in self._parse_inventory(self.profile_data, ['inv_armor', 'data']):
             # check for special type
             if armor.type == 'hatccessory':
                 self.current_armor['helmet'] = armor
@@ -100,9 +100,9 @@ class Profile:
                 self.current_armor[armor.type] = armor
 
         # Load profile's inventories
-        self.inventory = self._parse_inventory(self.profile_raw_data, ['inv_contents', 'data'])
-        self.echest = self._parse_inventory(self.profile_raw_data, ['ender_chest_contents', 'data'])
-        self.talisman_bag = self._parse_inventory(self.profile_raw_data, ['talisman_bag', 'data'])
+        self.inventory = self._parse_inventory(self.profile_data, ['inv_contents', 'data'])
+        self.echest = self._parse_inventory(self.profile_data, ['ender_chest_contents', 'data'])
+        self.talisman_bag = self._parse_inventory(self.profile_data, ['talisman_bag', 'data'])
         # Comment out unnecessary inventories for now
         # self.candy_bag = self._parse_inventory(self.profile_raw_data, ['candy_inventory_contents', 'data'])
         # self.potion_bag = self._parse_inventory(self.profile_raw_data, ['potion_bag', 'data'])
@@ -116,7 +116,7 @@ class Profile:
 
         # Load profile's wardrobe
         self.wardrobe = []
-        wardrobe = self._parse_inventory(self.profile_raw_data, ['wardrobe_contents', 'data'], index_empty=True)
+        wardrobe = self._parse_inventory(self.profile_data, ['wardrobe_contents', 'data'], index_empty=True)
         for wardrobe_page in range(0, 2 * 36, 36):  # 2 for current max 2 pages of wardrobe
             for i in range(wardrobe_page, wardrobe_page + 9):
                 armor_set = {
@@ -177,28 +177,28 @@ class Profile:
 
         # Loads profile's pets
         self.pets = []
-        if 'pets' in self.profile_raw_data:
-            for pet_data in self.profile_raw_data['pets']:
+        if 'pets' in self.profile_data:
+            for pet_data in self.profile_data['pets']:
                 self.pets.append(Pet(pet_data, profile=self))
 
         # Loads profile's collections if collection api is enabled
         try:
             # TODO: revise to get exactly collection name instead of collection's icon name
             self.collections = {collection.lower().replace('_', ' '): amount for collection, amount in
-                                self.profile_raw_data['collection'].items()}
+                                self.profile_data['collection'].items()}
             self.enabled_api['collection'] = True
         except KeyError:
             self.collections = {}
 
         # Load profile's minion slots
-        self.unlocked_collections = self._parse_collection(self.profile_raw_data, 'unlocked_coll_tiers')
+        self.unlocked_collections = self._parse_collection(self.profile_data, 'unlocked_coll_tiers')
 
-        self.minions = self._parse_collection(self.profile_raw_data, 'crafted_generators')
+        self.minions = self._parse_collection(self.profile_data, 'crafted_generators')
         self.unique_minions = sum(self.minions.values())
         self.minion_slots = level_from_xp_table(self.unique_minions, MINION_SLOT_REQUIREMENT)
 
     def __str__(self):
-        return self.profile_name
+        return self.name
 
     def set_weapon(self, weapon):
         """

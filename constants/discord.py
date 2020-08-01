@@ -103,3 +103,23 @@ SUPPORT_ITEMS = {
 }
 
 NUMBER_EMOJIS = ['0️⃣', '1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟']
+
+SKILL_EMOJIS = {
+    'skill': '📈',
+    'minion slots': '⛓',
+    'farming': '🌾',
+    'mining': '⛏',
+    'combat': '⚔',
+    'foraging': '🪓',
+    'enchanting': '📖',
+    'alchemy': '⚗',
+    'fishing': '🎣',
+    'taming': '🐣',
+    'carpentry': '🪑',
+    'runecrafting': '⚜️',
+    'zombie': '🧟',
+    'spider': '🕸️',
+    'wolf': '🐺',
+    'slayers': '☠️',
+    'dungeons': '⚔️'
+}

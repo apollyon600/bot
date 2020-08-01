@@ -1,13 +1,13 @@
 from discord.ext import commands
 
 from lib import APIDisabledError
-from utils import Embed, CommandWithCooldown, get_uuid_from_name
+from utils import Embed, CommandWithCooldown, ask_for_skyblock_profiles
 from constants import TALISMANS
 
 
 class ViewMissing(commands.Cog, name='Damage'):
     """
-    A collection of tools designed for hypixel skyblock.
+    A collection of tools designed to optimize your damage and talismans.
     """
 
     emoji = '💪'
@@ -24,22 +24,15 @@ class ViewMissing(commands.Cog, name='Damage'):
         Displays a list of player's missing talismans.
         Also displays inactive/unnecessary talismans if player have them.
         """
-        if not player:
-            player = await ctx.ask(message=f'{ctx.author.mention}, What is your minecraft username?')
+        player = await ask_for_skyblock_profiles(ctx, player, profile, session=self.bot.http_session,
+                                                 hypixel_api_client=self.bot.hypixel_api_client)
+        profile = player.profile
 
-        player_name, player_uuid = await get_uuid_from_name(player, session=self.bot.http_session)
-        player = await self.bot.hypixel_api_client.get_player(player_name, player_uuid)
-
-        if profile:
-            await player.get_set_skyblock_profiles(selected_profile=profile)
-        else:
-            await player.get_set_skyblock_profiles()
-
-        if not player.profile.enabled_api['inventory']:
-            raise APIDisabledError(player.uname, player.profile.profile_name)
+        if not profile.enabled_api['inventory']:
+            raise APIDisabledError(player.uname, profile.name)
 
         talismans = TALISMANS.copy()
-        for talisman in player.profile.talismans:
+        for talisman in profile.talismans:
             if talisman.active:
                 for regex in TALISMANS.keys():
                     if regex.match(talisman.internal_name):
@@ -47,7 +40,7 @@ class ViewMissing(commands.Cog, name='Damage'):
 
         embed = Embed(
             ctx=ctx,
-            title=f'Player {player.uname} on profile {player.profile.profile_name.capitalize()} is missing '
+            title=f'Player {player.uname} on profile {profile.name.capitalize()} is missing '
                   f'{len(talismans)}/{len(TALISMANS)} talisman{"" if len(talismans) == 1 else "s"}!',
         )
 
@@ -58,7 +51,7 @@ class ViewMissing(commands.Cog, name='Damage'):
                 inline=False
             )
 
-        inactive = [talisman for talisman in player.profile.talismans if not talisman.active]
+        inactive = [talisman for talisman in profile.talismans if not talisman.active]
 
         if inactive:
             embed.add_field(

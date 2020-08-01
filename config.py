@@ -22,7 +22,9 @@ COG_EXTENSIONS = [
     'cogs.optimize_gear',
     'cogs.view_missing',
     # Auction commands
-    'cogs.auction_price'
+    'cogs.auction_price',
+    # Spy commands
+    'cogs.view_player',
 ]
 
 BOT_PREFIXES = [

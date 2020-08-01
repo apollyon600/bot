@@ -3,7 +3,7 @@ from discord.ext import commands
 
 from lib import damage_optimizer
 from lib import APIDisabledError, SessionTimeout, PlayerOnlineError, NoArmorError, NoWeaponError
-from utils import CommandWithCooldown, Embed, colorize, format_pet, emod, damage, get_uuid_from_name
+from utils import CommandWithCooldown, Embed, colorize, format_pet, emod, damage, ask_for_skyblock_profiles
 from constants.discord import OPTIMIZER_GOALS, RARITY_COLORS, PET_EMOJIS, DAMAGE_POTIONS, NUMBER_EMOJIS, SUPPORT_ITEMS
 from constants import DAMAGE_REFORGES
 
@@ -23,37 +23,30 @@ class OptimizeGear(commands.Cog, name='Damage'):
         await ctx.send(f'{ctx.author.mention}, Welcome to the optimizer!\n'
                        f'Please enter `exit` at any given point in the optimizer to exit')
 
-        if not player:
-            player = await ctx.ask(message=f'{ctx.author.mention}, What is your minecraft username?')
-
-        player_name, player_uuid = await get_uuid_from_name(player, session=self.bot.http_session)
-        player = await self.bot.hypixel_api_client.get_player(player_name, player_uuid)
-
-        if profile:
-            await player.get_set_skyblock_profiles(selected_profile=profile)
-        else:
-            await player.get_set_skyblock_profiles()
+        player = await ask_for_skyblock_profiles(ctx, player, profile, session=self.bot.http_session,
+                                                 hypixel_api_client=self.bot.hypixel_api_client)
+        profile = player.profile
 
         if player.online:
             raise PlayerOnlineError
 
-        if not player.profile.enabled_api['skills'] or not player.profile.enabled_api['inventory']:
-            raise APIDisabledError(player.uname, player.profile.profile_name)
+        if not profile.enabled_api['skills'] or not profile.enabled_api['inventory']:
+            raise APIDisabledError(player.uname, profile.name)
 
-        weapon = await self.prompt_for_weapon(ctx, player.profile)
+        weapon = await self.prompt_for_weapon(ctx, profile)
         if not weapon:
             raise NoWeaponError
-        player.profile.set_weapon(weapon)
+        profile.set_weapon(weapon)
 
-        armor = await self.prompt_for_armor(ctx, player.profile)
+        armor = await self.prompt_for_armor(ctx, profile)
         if not armor:
             raise NoArmorError
-        player.profile.set_armor(armor)
+        profile.set_armor(armor)
 
-        pet = await self.prompt_for_pet(ctx, player.profile)
-        player.profile.set_pet(pet)
+        pet = await self.prompt_for_pet(ctx, profile)
+        profile.set_pet(pet)
 
-        profile_confirm = await self.confirm_equipment(ctx, player.profile)
+        profile_confirm = await self.confirm_equipment(ctx, profile)
         if not profile_confirm:
             raise SessionTimeout
 
@@ -68,9 +61,9 @@ class OptimizeGear(commands.Cog, name='Damage'):
 
         only_blacksmith, reforges_set, ignored_reforges = await self.prompt_for_reforges(ctx)
 
-        selected_pots = await self.prompt_for_potions(ctx, player.profile)
+        selected_pots = await self.prompt_for_potions(ctx, profile)
 
-        selected_buffs = await self.prompt_for_support_item(ctx, player.profile)
+        selected_buffs = await self.prompt_for_support_item(ctx, profile)
 
         option_confirm = await self.confirm_options(ctx, perfect_crit_chance, attack_speed_limit, only_blacksmith,
                                                     ignored_reforges, selected_pots, selected_buffs)
@@ -78,14 +71,14 @@ class OptimizeGear(commands.Cog, name='Damage'):
             raise SessionTimeout
 
         best_route = damage_optimizer(
-            player.profile,
+            profile,
             perfect_crit_chance=perfect_crit_chance,
             attack_speed_limit=attack_speed_limit,
             only_blacksmith_reforges=only_blacksmith,
             reforges_set=reforges_set
         )
 
-        await self.send_optimizer_result(ctx, player.profile, best_route)
+        await self.send_optimizer_result(ctx, profile, best_route)
 
     @staticmethod
     async def send_optimizer_result(ctx, profile, best_route):
