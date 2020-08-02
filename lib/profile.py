@@ -16,12 +16,16 @@ class Profile:
         self.join_date = datetime.fromtimestamp(self.profile_data.get('first_join', 0) / 1000.0)
         self.purse = float(f'{self.profile_data.get("coin_purse", 0.00):.2f}')
 
-        # Get coop members uuid if there is
+        # Get coop members uuid and coop crafted minions if there is
         self.coop_members = []
+        minions = []
         if len(profile_data['members']) > 1:
             for member in profile_data['members'].keys():
+                minions += profile_data['members'][member].get('crafted_generators', [])
+
                 if member != player.uuid:
                     self.coop_members.append(member)
+        self.minions = self._parse_collection(minions)
 
         self.enabled_api = {'skills': False, 'collection': False, 'inventory': False, 'banking': False}
         self.current_armor = {'helmet': None, 'chestplate': None, 'leggings': None, 'boots': None}
@@ -84,9 +88,8 @@ class Profile:
             self.collections = {}
 
         # Load profile's minion slots
-        self.unlocked_collections = self._parse_collection(self.profile_data, 'unlocked_coll_tiers')
+        self.unlocked_collections = self._parse_collection(self.profile_data.get('unlocked_coll_tiers', []))
 
-        self.minions = self._parse_collection(self.profile_data, 'crafted_generators')
         self.unique_minions = sum(self.minions.values())
         self.minion_slots = level_from_xp_table(self.unique_minions, MINION_SLOT_REQUIREMENT)
 
@@ -305,10 +308,10 @@ class Profile:
     # TODO: revise this aswell
     # noinspection PyTypeChecker,PyShadowingNames
     @staticmethod
-    def _parse_collection(raw_data, path):
+    def _parse_collection(raw_data):
         try:
             tuples = []
-            for s in raw_data[path]:
+            for s in raw_data:
                 temp = re.split('_(?!.*_)', s, maxsplit=1)
                 temp[1] = int(temp[1])
                 tuples.append(temp)
