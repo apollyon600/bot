@@ -95,7 +95,7 @@ class ViewPlayer(commands.Cog, name='Spy'):
                   f'Level > {profile.dungeon_skill}```',
             inline=False
         ).set_footer(
-            text=f'Player is current {"online" if player.online else "offline"} in game.'
+            text=f'Player is currently {"online" if player.online else "offline"} in game.'
         )
 
         await embed.send()

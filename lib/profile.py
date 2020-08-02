@@ -234,7 +234,7 @@ class Profile:
             elif self.armor == {'helmet': 'END_HELMET', 'chestplate': 'END_CHESTPLATE',
                                 'leggings': 'END_LEGGINGS', 'boots': 'END_BOOTS'}:
                 for piece in self.armor.values():
-                    piece.stats.multiplier *= 3
+                    piece.stats.multiplier *= 2
             elif self.armor == {'helmet': 'BAT_PERSON_HELMET', 'chestplate': 'BAT_PERSON_CHESTPLATE',
                                 'leggings': 'BAT_PERSON_LEGGINGS', 'boots': 'BAT_PERSON_BOOTS'}:
                 for piece in self.armor.values():
@@ -242,7 +242,7 @@ class Profile:
             elif self.armor == {'helmet': 'SNOW_SUIT_HELMET', 'chestplate': 'SNOW_SUIT_CHESTPLATE',
                                 'leggings': 'SNOW_SUIT_LEGGINGS', 'boots': 'SNOW_SUIT_BOOTS'}:
                 for piece in self.armor.values():
-                    piece.stats.multiplier *= 3
+                    piece.stats.multiplier *= 2
             elif self.armor == {'helmet': 'YOUNG_DRAGON_HELMET', 'chestplate': 'YOUNG_DRAGON_CHESTPLATE',
                                 'leggings': 'YOUNG_DRAGON_LEGGINGS', 'boots': 'YOUNG_DRAGON_BOOTS'}:
                 self.stats.add_stat('speed cap', 100)
