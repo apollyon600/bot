@@ -1,9 +1,31 @@
+import traceback
+import sys
+import discord
 import os
-import bot
+import asyncio
 
-if not os.environ.get('DISCORD_TOKEN'):
-    import dotenv
-    dotenv.load_dotenv()
+from bot import Bot
+import config
 
-client = bot.Bot()
-client.run(os.getenv('DISCORD_TOKEN'))
+# On Windows, the selector event loop is required for aiodns.
+if os.name == "nt":
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+
+client = Bot(
+    command_prefix=config.BOT_PREFIXES,
+    description='Skyblock Simplified',
+    owner_ids=config.OWNER_IDS,
+    case_insensitive=True,
+    max_messages=None,
+    fetch_offline_members=False,
+    activity=discord.Game(f'| 🍤 {config.BOT_PREFIXES[-1]} help')
+)
+
+for extension in config.COG_EXTENSIONS:
+    try:
+        client.load_extension(extension)
+    except Exception:
+        print(f'Failed to load extension {extension}.', file=sys.stderr)
+        traceback.print_exc()
+
+client.run(config.DISCORD_TOKEN)
