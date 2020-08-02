@@ -40,8 +40,11 @@ class ViewMissing(commands.Cog, name='Damage'):
 
         embed = Embed(
             ctx=ctx,
-            title=f'Player {player.uname} on profile {profile.name.capitalize()} is missing '
-                  f'{len(talismans)}/{len(TALISMANS)} talisman{"" if len(talismans) == 1 else "s"}!',
+            title=f'{player.uname} | {profile.name.capitalize()}',
+            description=f'```This porfile is currently missing '
+                        f'{len(talismans)}/{len(TALISMANS)} talisman{"" if len(talismans) == 1 else "s"}!```'
+        ).set_thumbnail(
+            url=player.get_avatar_url()
         )
 
         if talismans:
