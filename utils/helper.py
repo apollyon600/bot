@@ -1,8 +1,9 @@
 import aiohttp
 import asyncio
 import re
+from urllib.parse import quote
 
-from lib import ExternalAPIError, BadNameError
+from lib import ExternalAPIError, BadNameError, BadGuildError, Guild
 from constants import MOBS_RELEVANT_ENCHANTS, ENCHANTMENT_BONUS, STAT_NAMES
 from constants.discord import TIMEOUT_EMOJIS
 
@@ -70,7 +71,7 @@ async def get_item_id(item_name, *, session):
     """
     Search with item name and return the first result's item id.
     """
-    item_name = item_name.replace(' ', '%20')
+    item_name = quote(item_name)
     try:
         async with session.get(f'https://auctions.craftlink.xyz/api/items/search?name={item_name}') as response:
             json = await response.json(content_type=None)
@@ -188,7 +189,7 @@ async def ask_for_skyblock_profiles(ctx, player, profile, *, session, hypixel_ap
         player = await ctx.ask(message=f'{ctx.author.mention}, What is your minecraft username?')
 
     player_name, player_uuid = await get_uuid_from_name(player, session=session)
-    player = await hypixel_api_client.get_player(player_name, player_uuid)
+    player = await hypixel_api_client.get_player(player_uuid, uname=player_name)
 
     if profile:
         await player.get_skyblock_profiles(selected_profile=profile)
@@ -202,3 +203,20 @@ async def ask_for_skyblock_profiles(ctx, player, profile, *, session, hypixel_ap
         await player.get_player_guild()
 
     return player
+
+
+async def ask_for_guild(ctx, guild, *, hypixel_api_client, load_members=False):
+    if not guild:
+        guild = await ctx.ask(message=f'{ctx.author.mention}, What is the guild you want to check?')
+
+    await ctx.send(f'{ctx.author.mention}, I am getting the guild information, please wait a little bit!')
+    guild_data = await hypixel_api_client.get_guild(params={'name': quote(guild)})
+    if guild_data is None:
+        raise BadGuildError(guild)
+
+    guild = Guild(guild_data)
+
+    if load_members:
+        await guild.load_all_members(hypixel_api_client=hypixel_api_client)
+
+    return guild

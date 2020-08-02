@@ -121,9 +121,6 @@ class APIError(Exception):
     The base exception type for errors regarding API.
     """
 
-    def __str__(self):
-        return self.reason
-
 
 class ExternalAPIError(APIError):
     """
@@ -132,6 +129,9 @@ class ExternalAPIError(APIError):
 
     def __init__(self, reason=''):
         self.reason = reason
+
+    def __str__(self):
+        return self.reason
 
 
 class HypixelAPIRateLimitError(APIError):

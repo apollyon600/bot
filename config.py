@@ -24,6 +24,7 @@ COG_EXTENSIONS = [
     # Auction commands
     'cogs.auction_price',
     # Spy commands
+    'cogs.view_guild',
     'cogs.view_player',
 ]
 

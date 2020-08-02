@@ -42,16 +42,16 @@ class ViewPlayer(commands.Cog, name='Spy'):
             ctx=ctx,
             title=f'{player.uname} | {profile.name}',
             description=f'```{api_header}```\n'
-                        f'```Deaths > {profile.deaths}\n'
+                        f'```Deaths > {profile.deaths:,}\n'
                         f'Guild > {guild.name if guild else None}\n'
-                        f'Money > {profile.bank_balance + profile.purse:,.0f}\n'
+                        f'Money > {profile.bank_balance + profile.purse:,.2f}\n'
                         f'Pet > {format_pet(profile.pet)}```'
         ).add_field(
             name=f'🔰 \tSkills',
             value=f'```diff\n'
                   f'Average > {profile.skill_average:.2f}\n'
-                  f'Total XP > {total_xp:.0f}\n'
-                  f'{(profile.skill_average / 50 * 100):.1f}% Maxed```',
+                  f'Total XP > {total_xp:,.0f}\n'
+                  f'{(profile.skill_average / 50 * 100):.2f}% Maxed```',
             inline=False
         ).add_field(
             name=f'🛠️ \tMinions',
@@ -70,8 +70,8 @@ class ViewPlayer(commands.Cog, name='Spy'):
                 name=f'{SKILL_EMOJIS[skill]}\t{skill.capitalize()}',
                 value=f'```diff\n'
                       f'Level > {level}\n'
-                      f'XP > {profile.skills_xp.get(skill, 0):.0f}\n'
-                      f'{percent_to_max:.1f}% Maxed```'
+                      f'XP > {profile.skills_xp.get(skill, 0):,.0f}\n'
+                      f'{percent_to_max:.2f}% Maxed```'
             )
         # So every skill embed field is same size
         left_over_field = 3 - (len(profile.skills) % 3)
@@ -85,8 +85,8 @@ class ViewPlayer(commands.Cog, name='Spy'):
                 name=f'{SKILL_EMOJIS[slayer]}\t{slayer.capitalize()}',
                 value=f'```diff\n'
                       f'Level > {level}\n'
-                      f'XP > {profile.slayers_xp.get(slayer, 0):.0f}\n'
-                      f'{percent_to_max:.1f}% Maxed```'
+                      f'XP > {profile.slayers_xp.get(slayer, 0):,.0f}\n'
+                      f'{percent_to_max:.2f}% Maxed```'
             )
 
         embed.add_field(

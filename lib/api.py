@@ -87,6 +87,7 @@ class HypixelAPIClient:
         """
         await self._ready.wait()
 
+        # Add API key to params
         if 'params' not in kwargs:
             kwargs['params'] = {}
         kwargs['params']['key'] = self.key
@@ -108,7 +109,7 @@ class HypixelAPIClient:
         """
         return await self.request("GET", endpoint, raise_for_status=raise_for_status, **kwargs)
 
-    async def get_player(self, uname, uuid, *, raise_for_status: bool = True, **kwargs):
+    async def get_player(self, uuid, *, uname=None, guild=None, raise_for_status: bool = True, **kwargs):
         """
         Hypixel API get player, return player object.
         """
@@ -117,7 +118,8 @@ class HypixelAPIClient:
             uname=uname,
             uuid=uuid,
             player_data=data['player'],
-            hypixel_api_client=self
+            hypixel_api_client=self,
+            guild=guild
         )
 
     async def get_skyblock_profiles(self, uuid, *, raise_for_status: bool = True, **kwargs):

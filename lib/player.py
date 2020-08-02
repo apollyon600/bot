@@ -5,7 +5,7 @@ from . import NeverPlayedSkyblockError, BadProfileError, BadNameError
 
 
 class Player:
-    def __init__(self, *, uname, uuid, player_data, hypixel_api_client):
+    def __init__(self, *, uname=None, uuid, player_data, hypixel_api_client, guild=None):
         self.hypixel_api_client = hypixel_api_client
         self.uname = uname
         self.uuid = uuid
@@ -14,16 +14,18 @@ class Player:
         self.player_data = player_data
         self.online = player_data.get('lastLogout', 0) < player_data.get('lastLogin', 0)
         self.achievements = player_data.get('achievements', {})
+        if self.uname is None:
+            self.uname = player_data.get('playername', '')
 
         self.profiles = []
         self.profile = None
 
-        self.guild = None
+        self.guild = guild
 
     def __str__(self):
         return self.uname
 
-    async def get_skyblock_profiles(self, *, selected_profile='', **kwargs):
+    async def get_skyblock_profiles(self, *, selected_profile='', load_all=True, **kwargs):
         """
         Get player's skyblock profiles and set the selected profile, if not it will set the last save profile.
         """
@@ -37,7 +39,8 @@ class Player:
         for profile_data in profiles:
             profile = Profile(
                 player=self,
-                profile_data=profile_data
+                profile_data=profile_data,
+                load_all=load_all
             )
             self.profiles.append(profile)
             if selected_profile.lower() == profile.name:
@@ -55,9 +58,10 @@ class Player:
         """
         Get player's guild data
         """
-        guild_data = await self.hypixel_api_client.get_guild(params={'player': self.uuid})
-        if guild_data is not None:
-            self.guild = Guild(guild_data, self)
+        if self.guild is None:
+            guild_data = await self.hypixel_api_client.get_guild(params={'player': self.uuid})
+            if guild_data is not None:
+                self.guild = Guild(guild_data, self)
 
     def get_avatar_url(self, *, size=None):
         if size:
