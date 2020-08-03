@@ -1,6 +1,6 @@
 from discord.ext import commands
 
-from utils import Embed, get_item_price_stats, get_item_id
+from utils import Embed, get_item_price_stats, get_item_list
 
 
 class AuctionPrice(commands.Cog, name='Auction'):
@@ -20,12 +20,19 @@ class AuctionPrice(commands.Cog, name='Auction'):
         """
         Displays the average price for any item on the auction.
         """
-        item_id = await get_item_id(item_name, session=self.bot.http_session)
-        if not item_id:
+        item_list = await get_item_list(item_name, session=self.bot.http_session)
+        if not item_list:
             return await ctx.send(f'{ctx.author.mention}, There is no item called `{" ".join(item_name)}`.\n'
                                   f'Or there was a problem connecting to https://auctions.craftlink.xyz/.')
 
-        item_price_stats = await get_item_price_stats(item_id[0]['_id'], session=self.bot.http_session)
+        filtered_item_list = [item.get('_source', {}).get('name', None) for item in item_list[:5]]
+        ans = await ctx.prompt_with_list(filtered_item_list, per_page=5,
+                                         title='Which item do you want to check price?',
+                                         footer='You may enter the corresponding item number.')
+
+        item_id = item_list[ans - 1]
+
+        item_price_stats = await get_item_price_stats(item_id['_id'], session=self.bot.http_session)
         if not item_price_stats:
             return await ctx.send(f'{ctx.author.mention}, There is no item called `{" ".join(item_name)}`.\n'
                                   f'Or there was a problem connecting to https://auctions.craftlink.xyz/.')

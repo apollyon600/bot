@@ -67,7 +67,7 @@ async def get_item_price_stats(item_id, *, session):
         raise ExternalAPIError('Could not connect to https://auctions.craftlink.xyz.') from None
 
 
-async def get_item_id(item_name, *, session):
+async def get_item_list(item_name, *, session):
     """
     Search with item name and return the first result's item id.
     """
