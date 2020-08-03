@@ -136,7 +136,7 @@ def damage_optimizer(profile, *, perfect_crit_chance, attack_speed_limit, only_b
 
     # --- weapon damage ---
     if profile.weapon == 'MIDAS_SWORD' and not only_blacksmith_reforges:
-        m.eqn.add(m.wd == profile.weapon.stats.get_stat('damage') + quicksum(
+        m.eqn.add(m.wd == profile.weapon.stats.get_stat('damage', base=True, raw=True) + quicksum(
             (reforges_set['sword'][k][j].get('damage', 0) * m.reforge_counts['sword', j, k] for i, j, k in
              m.reforge_set if i == 'sword'), linear=False))
     # ---
