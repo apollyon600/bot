@@ -5,4 +5,4 @@ from .help_command import PaginatedHelpCommand
 from .command_with_cooldown import CommandWithCooldown
 from .pages import Pages
 from .context import Context
-
+from .guild_pages import GuildPages

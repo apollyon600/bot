@@ -1,5 +1,6 @@
 import asyncio
 from datetime import datetime
+import copy
 
 from lib import NeverPlayedSkyblockError
 from constants import GUILD_LEVEL_REQUIREMENT
@@ -73,6 +74,15 @@ class Guild:
         self.slayers = {}
         self.slayers_xp = {}
 
+        self.all_members_skill_average = {}
+        self.all_members_unique_minions = {}
+        self.all_members_minion_slots = {}
+        self.all_members_skills = {}
+        self.all_members_skills_xp = {}
+        self.all_members_slayers = {}
+        self.all_members_slayers_xp = {}
+        self.all_members_total_slayers_xp = {}
+
     def __str__(self):
         return self.name
 
@@ -93,7 +103,7 @@ class Guild:
 
         member.player = await hypixel_api_client.get_player(member.uuid, guild=self)
         try:
-            await member.player.get_skyblock_profiles(load_all=False)
+            await member.player.load_skyblock_profiles(load_all=False)
         except NeverPlayedSkyblockError:
             pass
 
@@ -116,6 +126,15 @@ class Guild:
             profile = player.profile
             if profile is None:
                 continue  # for those guild member doesn't player skyblock
+
+            self.all_members_skill_average.update({player.uname: profile.skill_average})
+            self.all_members_unique_minions.update({player.uname: profile.unique_minions})
+            self.all_members_minion_slots.update({player.uname: profile.minion_slots})
+            self.all_members_skills.update({player.uname: profile.skills.copy()})
+            self.all_members_skills_xp.update({player.uname: profile.skills_xp.copy()})
+            self.all_members_slayers.update({player.uname: copy.deepcopy(profile.slayers)})
+            self.all_members_slayers_xp.update({player.uname: copy.deepcopy(profile.slayers_xp)})
+            self.all_members_total_slayers_xp.update({player.uname: profile.total_slayer_xp})
 
             self.current_online += player.online
             total_deaths += profile.deaths

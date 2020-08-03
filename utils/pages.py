@@ -8,7 +8,7 @@ class Pages:
     def __init__(self, ctx, entries, *, per_page=10, embed_footer='', timeout=120.0):
         self.bot = ctx.bot
         self.ctx = ctx
-        self.message = None
+        self.message = ctx.message
         self.channel = ctx.channel
         self.author = ctx.author
         self.entries = entries
@@ -59,13 +59,15 @@ class Pages:
         return self.embed
 
     def prepare_embed(self, entries, page):
-        p = []
-        for index, entry in enumerate(entries, 1 + ((page - 1) * self.per_page)):
-            p.append(f'```{index} > {entry}```')
+        self.embed.clear_fields()
 
         page_number = f'\nPage {page} / {self.maximum_pages}.' if self.maximum_pages > 1 else ''
         footer = f'{self.embed_footer}{page_number}'
         self.embed.set_footer(text=footer)
+
+        p = []
+        for index, entry in enumerate(entries, 1 + ((page - 1) * self.per_page)):
+            p.append(f'```{index} > {entry}```')
 
         self.embed.description = ''.join(p)
 

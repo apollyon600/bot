@@ -3,8 +3,8 @@ import asyncio
 import re
 from urllib.parse import quote
 
-from lib import ExternalAPIError, BadNameError, BadGuildError, Guild
-from constants import MOBS_RELEVANT_ENCHANTS, ENCHANTMENT_BONUS, STAT_NAMES
+from lib import Guild, ExternalAPIError, BadNameError, BadGuildError
+from constants import MOBS_RELEVANT_ENCHANTS, ENCHANTMENT_BONUS, STAT_NAMES, SKILL_NAMES, SLAYER_NAMES
 from constants.discord import TIMEOUT_EMOJIS
 
 
@@ -209,10 +209,10 @@ async def ask_for_guild(ctx, guild, *, hypixel_api_client, load_members=False):
     if not guild:
         guild = await ctx.ask(message=f'{ctx.author.mention}, What is the guild you want to check?')
 
-    await ctx.send(f'{ctx.author.mention}, I am getting the guild information, please wait a little bit!')
     guild_data = await hypixel_api_client.get_guild(params={'name': quote(guild)})
     if guild_data is None:
         raise BadGuildError(guild)
+    await ctx.send(f'{ctx.author.mention}, I am getting the guild information, please wait a little bit!')
 
     guild = Guild(guild_data)
 
@@ -220,3 +220,57 @@ async def ask_for_guild(ctx, guild, *, hypixel_api_client, load_members=False):
         await guild.load_all_members(hypixel_api_client=hypixel_api_client)
 
     return guild
+
+
+def get_guild_leaderboard(guild):
+    all_leaderboard = {}
+
+    # Skill average leaderboard
+    skill_average_leaderboard = sorted(guild.all_members_skill_average, reverse=True,
+                                       key=lambda member: guild.all_members_skill_average[member])
+    skill_average_leaderboard = [
+        f'#{str(i + 1).ljust(3)} {member} > {guild.all_members_skill_average[member]:.2f}' for i, member in
+        enumerate(skill_average_leaderboard)]
+    all_leaderboard['Skill Average'] = skill_average_leaderboard
+
+    # Unique minions leaderboard
+    unique_minions_leaderboard = sorted(guild.all_members_unique_minions, reverse=True,
+                                        key=lambda member: guild.all_members_unique_minions[member])
+    unique_minions_leaderboard = [
+        f'#{str(i + 1).ljust(3)} {member} > {guild.all_members_unique_minions[member]} '
+        f'[{guild.all_members_minion_slots[member]}]' for i, member in enumerate(unique_minions_leaderboard)]
+    all_leaderboard['Unique Minions'] = unique_minions_leaderboard
+
+    # Skill leaderboards
+    for skill in SKILL_NAMES:
+        skill_leaderboard = sorted(guild.all_members_skills_xp, reverse=True,
+                                   key=lambda member: guild.all_members_skills_xp[member].get(skill, 0))
+        skill_leaderboard = [
+            f'#{str(i + 1).ljust(3)} {member} > {guild.all_members_skills_xp[member].get(skill, 0):,.0f} '
+            f'[{guild.all_members_skills[member].get(skill, 0)}]' for i, member in
+            enumerate(skill_leaderboard)]
+        all_leaderboard[skill] = skill_leaderboard
+
+    # Slayer leaderboards
+    for slayer in SLAYER_NAMES:
+        slayer_leaderboard = sorted(guild.all_members_slayers_xp, reverse=True,
+                                    key=lambda member: guild.all_members_slayers_xp[member].get(slayer, 0))
+        slayer_leaderboard = [
+            f'#{str(i + 1).ljust(3)} {member} > {guild.all_members_slayers_xp[member].get(slayer, 0):,.0f} '
+            f'[{guild.all_members_slayers[member].get(slayer, 0)}]' for i, member in
+            enumerate(slayer_leaderboard)]
+        all_leaderboard[slayer] = slayer_leaderboard
+
+    # Total slayer xp leaderboard
+    total_slayer_xp_leaderboard = sorted(guild.all_members_total_slayers_xp, reverse=True,
+                                         key=lambda member: guild.all_members_total_slayers_xp[member])
+    total_slayer_xp_leaderboard = [
+        f'#{str(i + 1).ljust(3)} {member} > {guild.all_members_total_slayers_xp[member]:,.0f}' for i, member in
+        enumerate(total_slayer_xp_leaderboard)]
+    all_leaderboard['Total Slayer XP'] = total_slayer_xp_leaderboard
+
+    for name in all_leaderboard.keys():
+        leaderboard = "\n".join(all_leaderboard[name])
+        all_leaderboard[name] = f'```css\n{leaderboard}```'
+
+    return all_leaderboard
