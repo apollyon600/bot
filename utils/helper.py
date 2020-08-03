@@ -269,8 +269,4 @@ def get_guild_leaderboard(guild):
         enumerate(total_slayer_xp_leaderboard)]
     all_leaderboard['Total Slayer XP'] = total_slayer_xp_leaderboard
 
-    for name in all_leaderboard.keys():
-        leaderboard = "\n".join(all_leaderboard[name])
-        all_leaderboard[name] = f'```css\n{leaderboard}```'
-
     return all_leaderboard

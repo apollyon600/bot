@@ -23,8 +23,34 @@ class GuildPages(Pages):
         if page != 1:
             # Load leaderboard page
             self.embed.title = f'{guild.name} {self.header_entries[page - 1]}'
+            self.embed.description = ''
 
-            self.embed.description = ''.join(entries)
+            entries = entries[0]
+            top3 = '\n'.join(entries[:3])
+            if top3:
+                self.embed.add_field(
+                    name='**Top 3**',
+                    value=f'```css\n{top3}```',
+                    inline=False
+                )
+
+            top10 = '\n'.join(entries[3:10])
+            if top10:
+                self.embed.add_field(
+                    name='**Top 10**',
+                    value=f'```css\n{top10}```',
+                    inline=False
+                )
+
+            for i in range(1, (len(entries) // 10) + (1 if (len(entries) % 10) else 0)):
+                top = '\n'.join(entries[i * 10:(i + 1) * 10])
+                if not top:
+                    break
+                self.embed.add_field(
+                    name=f'**Top {(i + 1) * 10}**',
+                    value=f'```css\n{top}```',
+                    inline=False
+                )
         else:
             # Load first page
             self.embed.title = f'{guild.name} | {guild.tag}' if guild.tag else guild.name
