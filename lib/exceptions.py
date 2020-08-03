@@ -98,24 +98,6 @@ class SessionTimeout(Exception):
     pass
 
 
-class SkyblockLibError(Exception):
-    """
-    The base exception type for errors regarding skyblock library.
-    """
-
-    def __str__(self):
-        return self.reason
-
-
-class DataError(SkyblockLibError):
-    """
-    Exception raised when something is wrong while processing the data.
-    """
-
-    def __init__(self, reason=''):
-        self.reason = reason
-
-
 class APIError(Exception):
     """
     The base exception type for errors regarding API.
@@ -174,16 +156,3 @@ class HypixelResponseCodeError(APIError):
     def __str__(self):
         response = self.response_json if self.response_json else self.response_text
         return f"Status: {self.status} Response: {response}"
-
-
-class APIKeyError(APIError):
-    """
-    Exception raised when the API key is invalid.
-    """
-
-    def __init__(self, key, reason=''):
-        self.key = key
-        self.reason = reason
-
-    def __str__(self):
-        return f'{self.reason}: {self.key}'
