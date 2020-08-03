@@ -172,8 +172,10 @@ class Profile:
                     for other_fam_member in TIERED_TALISMANS[talisman.internal_name]:
                         if other_fam_member in self.talismans:
                             talisman.active = False
-                            continue
+                            break
 
+                if not talisman.active:
+                    continue  # if talisman active already set to false due to families
                 # Check for duplicate talismans
                 if self.talismans.count(talisman) > 1:
                     talisman.active = False
