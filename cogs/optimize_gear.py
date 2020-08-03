@@ -170,12 +170,11 @@ class OptimizeGear(commands.Cog, name='Damage'):
         ).send()
 
         def check(m):
-            if m.author.id != ctx.author.id or m.channel.id != ctx.channel.id:
-                return False
-            if m.clean_content.lower() == 'exit':
-                raise SessionTimeout
-            elif m.clean_content.isdigit():
-                return True
+            if m.author.id == ctx.author.id and m.channel.id == ctx.channel.id:
+                if m.clean_content.lower() == 'exit':
+                    raise SessionTimeout
+                if m.clean_content.isdigit():
+                    return True
             return False
 
         while True:
@@ -365,9 +364,12 @@ class OptimizeGear(commands.Cog, name='Damage'):
         ).send()
 
         def check(m):
-            if m.clean_content.lower() == 'exit':
-                raise SessionTimeout
-            return m.author.id == ctx.author.id and m.channel.id == ctx.channel.id and not m.clean_content.isdigit()
+            if m.author.id == ctx.author.id and m.channel.id == ctx.channel.id:
+                if m.clean_content.lower() == 'exit':
+                    raise SessionTimeout
+                if not m.clean_content.isdigit():
+                    return True
+            return False
 
         while True:
             msg = await ctx.bot.wait_for('message', timeout=60.0, check=check)

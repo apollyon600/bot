@@ -63,9 +63,12 @@ class Context(commands.Context):
         pages_task = self.bot.loop.create_task(pages.paginate())
 
         def check(m):
-            if m.clean_content.lower() == 'exit':
-                raise SessionTimeout
-            return m.clean_content.isdigit() and m.author.id == self.author.id and m.channel.id == self.channel.id
+            if m.author.id == self.author.id and m.channel.id == self.channel.id:
+                if m.clean_content.lower() == 'exit':
+                    raise SessionTimeout
+                if m.clean_content.isdigit():
+                    return True
+            return False
 
         valid_index = [i + 1 for i, _ in enumerate(entries)]
 
@@ -101,9 +104,11 @@ class Context(commands.Context):
 
         if not message_check:
             def check(m):
-                if m.clean_content.lower() == 'exit':
-                    raise SessionTimeout
-                return m.author.id == self.author.id and m.channel.id == self.channel.id
+                if m.author.id == self.author.id and m.channel.id == self.channel.id:
+                    if m.clean_content.lower() == 'exit':
+                        raise SessionTimeout
+                    return True
+                return False
 
             message_check = check
 
