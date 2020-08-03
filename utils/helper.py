@@ -192,9 +192,9 @@ async def ask_for_skyblock_profiles(ctx, player, profile, *, session, hypixel_ap
     player = await hypixel_api_client.get_player(player_uuid, uname=player_name)
 
     if profile:
-        await player.get_skyblock_profiles(selected_profile=profile)
+        await player.load_skyblock_profiles(selected_profile=profile)
     else:
-        await player.get_skyblock_profiles()
+        await player.load_skyblock_profiles()
 
     if auto_set:
         player.profile.set_pet_armor_automatically()

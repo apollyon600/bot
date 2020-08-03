@@ -25,7 +25,7 @@ class Player:
     def __str__(self):
         return self.uname
 
-    async def get_skyblock_profiles(self, *, selected_profile='', load_all=True, **kwargs):
+    async def load_skyblock_profiles(self, *, selected_profile='', load_all=True, **kwargs):
         """
         Get player's skyblock profiles and set the selected profile, if not it will set the last save profile.
         """
