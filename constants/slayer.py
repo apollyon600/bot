@@ -1,4 +1,4 @@
-SLAYERS = ['zombie', 'spider', 'wolf']
+SLAYER_NAMES = ['zombie', 'spider', 'wolf']
 
 SLAYER_REWARDS = {
     'zombie': [{'health': 0}, {'health': 2}, {'health': 4}, {'health': 7}, {'health': 10}, {'health': 14}, {'health': 18},

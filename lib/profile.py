@@ -63,7 +63,7 @@ class Profile:
         # Load profile's slayer data
         self.slayers_xp = {}
         self.slayers = {}
-        for slayer_name in SLAYERS:
+        for slayer_name in SLAYER_NAMES:
             xp = self.profile_data.get('slayer_bosses', {}).get(slayer_name, {}).get('xp', 0)
             self.slayers_xp[slayer_name] = xp
             self.slayers[slayer_name] = level_from_xp_table(xp, SLAYER_LEVEL_REQUIREMENT[slayer_name])
