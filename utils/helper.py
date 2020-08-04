@@ -156,7 +156,7 @@ def get_stats_from_description(desc, *, dungeon=False):
                     reforge_value = float(reforge_value)
                     reforge_stats[stat_type] = reforge_value
 
-            if dungeon:
+            if dungeon and stat_type not in ('crit chance', 'attack speed'):
                 dungeon_match = dungeon_regex.match(stat_match.group(3))
                 if dungeon_match is None:
                     continue

@@ -13,7 +13,7 @@ class Stats:
         self._stats = stats_dict
         self.multiplier = 1
         self.modifiers = {}
-        self.dungeon_bonus = 1
+        self.dungeon_bonus = 0
 
         self.profile = None
         self.type = None
@@ -32,7 +32,7 @@ class Stats:
 
     def add_stat(self, key, value):
         """
-        Default add stat is add to non dungeon base stat
+        Default add stat is add to non dungeon base stat.
         """
         if isinstance(key, str) and isinstance(value, (int, float)):
             if key in self._stats:
@@ -44,7 +44,7 @@ class Stats:
 
     def set_stat(self, key, value):
         """
-        Default set stat is set stat to non dungeon base stat
+        Default set stat is set stat to non dungeon base stat.
         """
         if isinstance(key, str) and isinstance(value, (int, float)):
             self._stats[key] = value
@@ -53,7 +53,7 @@ class Stats:
 
     def add_modifier(self, key, modifier):
         """
-        Add a modifier to the modifiers dict
+        Add a modifier to the modifiers dict.
         """
         if isinstance(key, str) and callable(modifier):
             if key in self._static_stats:
@@ -95,9 +95,10 @@ class ProfileStats(Stats):
 
     def get_stat(self, key, *, base=False, raw=False, dungeon=False, ignore=None):
         """
-        Default get stat is get all stat + multiplier + modifiers
-        Base stat is profile stat without profile multiplier + children base stat
-        Raw stat is profile stat without modifiers + children base stat
+        Default get stat is get all stat + multiplier + modifiers.
+        Dungeon stat is stat with option and children stat with dungeon bonus.
+        Base stat is profile stat without profile multiplier + children base stat.
+        Raw stat is profile stat without modifiers + children base stat.
         """
         if ignore is None:
             ignore = []
@@ -130,13 +131,14 @@ class ProfileStats(Stats):
 class ItemStats(Stats):
     """
     Item stats class, extends from Stats class and has extra reforge stat attribute.
-    So getting a base stat from item stat will be: item stat - reforge stat
+    So getting a base stat from item stat will be: item stat - reforge stat.
     """
 
-    def __init__(self, stats_dict=None, item=None):
+    def __init__(self, stats_dict=None, item=None, *, dungeon=False):
         super().__init__(stats_dict)
         self.item = item
         self.type = item.type
+        self.dungeon = dungeon
         self.profile = item.profile
         self.reforge_stat = {}
 
@@ -144,7 +146,7 @@ class ItemStats(Stats):
         """
         Default get stat is get all stat + multiplier + modifiers.
         Base stat is stat without reforge stat.
-        Stat returns is always with multiplier and modifiers
+        Stat returns is always with multiplier and modifiers.
         """
         if isinstance(key, str):
             stat = self._stats.get(key, 0)
@@ -153,14 +155,34 @@ class ItemStats(Stats):
             if key in self.modifiers:  # this wont affect static stat due to add_modifier never accept static stat
                 for func in self.modifiers[key]:
                     stat = func(stat)
+            if dungeon and self.dungeon:
+                if key in ('crit chance', 'attack speed'):
+                    stat = stat * (1 + self.dungeon_bonus)
+                else:
+                    stat = stat * (1 + self.dungeon_bonus + self.profile.stats.dungeon_bonus)
             return stat if key in self._static_stats else stat * self.multiplier
         else:
             raise TypeError
 
+    def get_dungeon_bonus(self, key, *, total=True):
+        if isinstance(key, str):
+            dungeon_bonus = 1
+
+            if self.dungeon:
+                dungeon_bonus += self.dungeon_bonus
+
+                if total and key not in ('crit chance', 'attack speed'):
+                    dungeon_bonus += self.profile.stats.dungeon_bonus
+                return dungeon_bonus
+            else:
+                return dungeon_bonus
+        else:
+            raise KeyError
+
 
 class PetStats(Stats):
     """
-    Pet stats class, extends from Stats class
+    Pet stats class, extends from Stats class.
     """
 
     def __init__(self, stats_dict=None, pet=None):

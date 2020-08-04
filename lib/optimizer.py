@@ -44,14 +44,14 @@ def create_model(counts, reforge_set, only_blacksmith_reforges):
     return m
 
 
-def create_constraint_rule(stat, m, counts, profile, reforges_set):
+def create_constraint_rule(stat, m, counts, profile, reforges_set, include_dungeon):
     rule = quicksum((reforges_set['talisman'][k][j].get(stat, 0) * m.reforge_counts['talisman', j, k] for i, j, k in
                      m.reforge_set if i == 'talisman'), linear=False)
     for equip in counts:
         if equip != 'talisman':
             for child in profile.stats.childrens:
                 if child.type == equip:
-                    rule += child.multiplier * quicksum(
+                    rule += child.multiplier * (child.get_dungeon_bonus(stat) if include_dungeon else 1) * quicksum(
                         (reforges_set[armor_check(equip)][k][j].get(stat, 0) * m.reforge_counts[equip, j, k] for
                          i, j, k in m.reforge_set if i == equip), linear=False)
     return rule
@@ -64,7 +64,8 @@ def armor_check(armor):
 # TODO: Add gap limit = 0.10%
 # TODO: possibly a thread limit = 4?
 # noinspection PyUnresolvedReferences,PyTypeChecker,PyCallingNonCallable
-def damage_optimizer(profile, *, perfect_crit_chance, attack_speed_limit, only_blacksmith_reforges, reforges_set):
+def damage_optimizer(profile, *, perfect_crit_chance, attack_speed_limit, only_blacksmith_reforges, include_dungeon,
+                     reforges_set):
     # overhead due to rounding
     if attack_speed_limit == 100:
         attack_speed_limit = 100.5
@@ -126,7 +127,7 @@ def damage_optimizer(profile, *, perfect_crit_chance, attack_speed_limit, only_b
     if profile.weapon == 'MIDAS_SWORD' and not only_blacksmith_reforges:
         m.wd = Var(domain=Reals, initialize=200)
     else:
-        m.wd = profile.weapon.stats.get_stat('damage')
+        m.wd = profile.weapon.stats.get_stat('damage', dungeon=include_dungeon)
     # ---
 
     # --- modifiers ---
@@ -136,7 +137,7 @@ def damage_optimizer(profile, *, perfect_crit_chance, attack_speed_limit, only_b
 
     # --- weapon damage ---
     if profile.weapon == 'MIDAS_SWORD' and not only_blacksmith_reforges:
-        m.eqn.add(m.wd == profile.weapon.stats.get_stat('damage', base=True) + quicksum(
+        m.eqn.add(m.wd == profile.weapon.stats.get_stat('damage', base=True, dungeon=include_dungeon) + quicksum(
             (reforges_set['sword'][k][j].get('damage', 0) * m.reforge_counts['sword', j, k] for i, j, k in
              m.reforge_set if i == 'sword'), linear=False))
     # ---
@@ -149,27 +150,31 @@ def damage_optimizer(profile, *, perfect_crit_chance, attack_speed_limit, only_b
     # ---
 
     # --- crit chance ---
-    cc_rule = create_constraint_rule('crit chance', m, counts, profile, reforges_set)
-    m.eqn.add(m.cc == m.m * (cc_rule + profile.stats.get_stat('crit chance', base=True, raw=True)))
+    cc_rule = create_constraint_rule('crit chance', m, counts, profile, reforges_set, include_dungeon)
+    m.eqn.add(
+        m.cc == m.m * (cc_rule + profile.stats.get_stat('crit chance', base=True, raw=True, dungeon=include_dungeon)))
     if perfect_crit_chance:
         m.eqn.add(99.5 <= m.cc)
     # ---
 
     # --- attack speed ---
-    a_rule = create_constraint_rule('attack speed', m, counts, profile, reforges_set)
-    m.eqn.add(m.a == m.m * (a_rule + profile.stats.get_stat('attack speed', base=True, raw=True)))
+    a_rule = create_constraint_rule('attack speed', m, counts, profile, reforges_set, include_dungeon)
+    m.eqn.add(
+        m.a == m.m * (a_rule + profile.stats.get_stat('attack speed', base=True, raw=True, dungeon=include_dungeon)))
     if attack_speed_limit:
         m.eqn.add(attack_speed_limit >= m.a)
     # ---
 
     # --- strength ---
-    strength_rule = create_constraint_rule('strength', m, counts, profile, reforges_set)
-    m.eqn.add(m.s == m.m * (strength_rule + profile.stats.get_stat('strength', base=True, raw=True)))
+    strength_rule = create_constraint_rule('strength', m, counts, profile, reforges_set, include_dungeon)
+    m.eqn.add(
+        m.s == m.m * (strength_rule + profile.stats.get_stat('strength', base=True, raw=True, dungeon=include_dungeon)))
     # ---
 
     # --- crit damage ---
-    cd_rule = create_constraint_rule('crit damage', m, counts, profile, reforges_set)
-    m.eqn.add(m.cd == m.m * (cd_rule + profile.stats.get_stat('crit damage', base=True, raw=True) + cd_tara_helm))
+    cd_rule = create_constraint_rule('crit damage', m, counts, profile, reforges_set, include_dungeon)
+    m.eqn.add(m.cd == m.m * (cd_rule + profile.stats.get_stat('crit damage', base=True, raw=True,
+                                                              dungeon=include_dungeon) + cd_tara_helm))
     # ---
 
     m.eqn.add(m.floored_strength >= m.s / 5 - 0.9999)

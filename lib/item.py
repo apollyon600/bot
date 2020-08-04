@@ -73,7 +73,7 @@ class Item:
 
         # Load item stats
         stats, reforge_stat, dungeon_bonus = get_stats_from_description(self.description_clean, dungeon=self.dungeon)
-        self.stats = ItemStats(stats, item=self)
+        self.stats = ItemStats(stats, item=self, dungeon=self.dungeon)
         self.stats.reforge_stat = reforge_stat
         if self.dungeon:
             self.stats.dungeon_bonus += self.dungeon_level / 10

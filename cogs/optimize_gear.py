@@ -36,15 +36,37 @@ class OptimizeGear(commands.Cog, name='Damage'):
         weapon = await self.prompt_for_weapon(ctx, profile)
         if not weapon:
             raise NoWeaponError
-        profile.set_weapon(weapon)
 
         armor = await self.prompt_for_armor(ctx, profile)
         if not armor:
             raise NoArmorError
-        profile.set_armor(armor)
 
         pet = await self.prompt_for_pet(ctx, profile)
-        profile.set_pet(pet)
+
+        # Check if user selected dungeon items
+        dungeon_item_used = False
+        if weapon.dungeon:
+            dungeon_item_used = True
+        if not dungeon_item_used:
+            for piece in armor.values():
+                if piece is None:
+                    continue
+                if piece.dungeon:
+                    dungeon_item_used = True
+                    break
+
+        include_dungeon = False
+        if dungeon_item_used:
+            include_dungeon = await ctx.prompt(
+                embed=Embed(
+                    ctx=ctx,
+                    title='For those dungeon items you have, do you want to use item\'s dungeon stats or regular stats?'
+                )
+            )
+
+        profile.set_weapon(weapon)
+        profile.set_armor(armor, dungeon=include_dungeon)
+        profile.set_pet(pet, dungeon=include_dungeon)
 
         profile_confirm = await self.confirm_equipment(ctx, profile)
         if not profile_confirm:
@@ -66,7 +88,8 @@ class OptimizeGear(commands.Cog, name='Damage'):
         selected_buffs = await self.prompt_for_support_item(ctx, profile)
 
         option_confirm = await self.confirm_options(ctx, perfect_crit_chance, attack_speed_limit, only_blacksmith,
-                                                    ignored_reforges, selected_pots, selected_buffs)
+                                                    ignored_reforges, selected_pots, selected_buffs, dungeon_item_used,
+                                                    include_dungeon)
         if not option_confirm:
             raise SessionTimeout
 
@@ -75,13 +98,14 @@ class OptimizeGear(commands.Cog, name='Damage'):
             perfect_crit_chance=perfect_crit_chance,
             attack_speed_limit=attack_speed_limit,
             only_blacksmith_reforges=only_blacksmith,
+            include_dungeon=include_dungeon,
             reforges_set=reforges_set
         )
 
-        await self.send_optimizer_result(ctx, profile, best_route)
+        await self.send_optimizer_result(ctx, profile, best_route, include_dungeon)
 
     @staticmethod
-    async def send_optimizer_result(ctx, profile, best_route):
+    async def send_optimizer_result(ctx, profile, best_route, include_dungeon):
         weapon = profile.weapon
         best_stats = best_route[0] or {}
         best_equip = best_route[1] or {}
@@ -95,7 +119,9 @@ class OptimizeGear(commands.Cog, name='Damage'):
             ctx=ctx,
             title='{s}'.format(s='Successful!' if is_optimized else 'Unsuccessful!')
         ).set_footer(
-            text='Player\'s stats include pots.\nPlease double check result stats and in game before reforge.\n'
+            text='Player\'s stats include pots.\n'
+                 '{s}'.format(s='Armor/Weapon includes dungeon stats.\n' if include_dungeon else '') +
+                 'Please double check result stats and in game before reforge.\n'
         )
 
         for equipment in best_equip:
@@ -109,47 +135,72 @@ class OptimizeGear(commands.Cog, name='Damage'):
                 )
 
         base_mod = profile.stats.combat_bonus + (profile.stats.archery_bonus if weapon.type == 'bow' else 0)
-        zealot_mod = emod('zealots', weapon) + base_mod
-        slayer_mod = emod('slayer bosses', weapon) + base_mod
 
-        slayer_mult = 1
-        if weapon.internal_name == 'REAPER_SWORD':
-            slayer_mult = 3
-        elif weapon.internal_name == 'SCORPION_FOIL':
-            slayer_mult = 2.5
+        if include_dungeon:
+            normal_mod = emod('base', weapon) + base_mod
 
-        zealot_damage = damage(profile.weapon.stats.get_stat('damage'), profile.stats.get_stat('strength'),
-                               profile.stats.get_stat('crit damage'), zealot_mod)
-        slayer_damage = damage(profile.weapon.stats.get_stat('damage'), profile.stats.get_stat('strength'),
-                               profile.stats.get_stat('crit damage'), slayer_mod)
-        slayer_damage *= slayer_mult
+            normal_damage_before = damage(profile.weapon.stats.get_stat('damage', dungeon=include_dungeon),
+                                          profile.stats.get_stat('strength', dungeon=include_dungeon),
+                                          profile.stats.get_stat('crit damage', dungeon=include_dungeon), normal_mod)
 
-        zealot_damage_after = damage(best_stats['damage'], best_stats['strength'],
-                                     best_stats['crit damage'], zealot_mod)
-        slayer_damage_after = damage(best_stats['damage'], best_stats['strength'],
-                                     best_stats['crit damage'], slayer_mod)
-        slayer_damage_after *= slayer_mult
+            normal_damage_after = damage(best_stats['damage'], best_stats['strength'],
+                                         best_stats['crit damage'], normal_mod)
+
+            before_damage = f'```Base > {normal_damage_before:,.0f}```'
+            after_damage = f'```Base > {normal_damage_after:,.0f}```'
+        else:
+            zealot_mod = emod('zealots', weapon) + base_mod
+            slayer_mod = emod('slayer bosses', weapon) + base_mod
+
+            slayer_mult = 1
+            if weapon.internal_name == 'REAPER_SWORD':
+                slayer_mult = 3
+            elif weapon.internal_name == 'SCORPION_FOIL':
+                slayer_mult = 2.5
+
+            zealot_damage_before = damage(profile.weapon.stats.get_stat('damage', dungeon=include_dungeon),
+                                          profile.stats.get_stat('strength', dungeon=include_dungeon),
+                                          profile.stats.get_stat('crit damage', dungeon=include_dungeon), zealot_mod)
+            slayer_damage_before = damage(profile.weapon.stats.get_stat('damage', dungeon=include_dungeon),
+                                          profile.stats.get_stat('strength', dungeon=include_dungeon),
+                                          profile.stats.get_stat('crit damage', dungeon=include_dungeon), slayer_mod)
+            slayer_damage_before *= slayer_mult
+
+            zealot_damage_after = damage(best_stats['damage'], best_stats['strength'],
+                                         best_stats['crit damage'], zealot_mod)
+            slayer_damage_after = damage(best_stats['damage'], best_stats['strength'],
+                                         best_stats['crit damage'], slayer_mod)
+            slayer_damage_after *= slayer_mult
+
+            before_damage = f'```Zealots > {zealot_damage_before:,.0f}\nSlayers > {slayer_damage_before:,.0f}```'
+            after_damage = f'```Zealots > {zealot_damage_after:,.0f}\nSlayers > {slayer_damage_after:,.0f}```'
+
+        weapon_damage_before = ''
+        weapon_damage_after = ''
+        if weapon.internal_name == 'MIDAS_SWORD':
+            weapon_damage_before = f'Weapon damage > {profile.weapon.stats.get_stat("damage", dungeon=include_dungeon):.0f}'
+            weapon_damage_after = f'Weapon damage > {best_stats["damage"]:.0f}'
 
         embed.add_field(
             name='**Before**',
-            value=f'```{profile.stats.get_stat("strength"):.0f} strength\n{profile.stats.get_stat("crit damage"):.0f} crit damage\n'
-                  f'{profile.stats.get_stat("crit chance"):.0f} crit chance\n{profile.stats.get_stat("attack speed"):.0f} attack speed\n'
-                  f'{profile.weapon.stats.get_stat("damage"):.0f} weapon damage```'
-                  f'```{zealot_damage:,.0f} to zealots\n{slayer_damage:,.0f} to slayers```'
+            value=f'```Strength > {profile.stats.get_stat("strength", dungeon=include_dungeon):.0f}\n'
+                  f'Crit damage > {profile.stats.get_stat("crit damage", dungeon=include_dungeon):.0f}%\n'
+                  f'Crit chance > {profile.stats.get_stat("crit chance", dungeon=include_dungeon):.0f}%\n'
+                  f'Attack speed > {profile.stats.get_stat("attack speed", dungeon=include_dungeon):.0f}%\n'
+                  f'{weapon_damage_before}```{before_damage}'
         )
         embed.add_field(
             name='**After**',
-            value=f'```{best_stats["strength"]:.0f} strength\n{best_stats["crit damage"]:.0f} crit damage\n'
-                  f'{best_stats["crit chance"]:.0f} crit chance\n{best_stats["attack speed"]:.0f} attack speed\n'
-                  f'{best_stats["damage"]:.0f} weapon damage```'
-                  f'```{zealot_damage_after:,.0f} to zealots\n{slayer_damage_after:,.0f} to slayers```'
+            value=f'```Strength > {best_stats["strength"]:.0f}\nCrit damage > {best_stats["crit damage"]:.0f}%\n'
+                  f'Crit chance > {best_stats["crit chance"]:.0f}%\nAttack speed > {best_stats["attack speed"]:.0f}%\n'
+                  f'{weapon_damage_after}```{after_damage}'
         )
 
         if not is_optimized:
             embed.add_field(
                 name='**Warning**',
-                value='The bot took too long to optimize your gear so it gave up.'
-                      '\nThe result is the best it could do for this short amount of time.',
+                value='The bot took too long to optimize your gear so it gave up.\n'
+                      'The result is the best it could do for this short amount of time.',
                 inline=False
             )
 
@@ -279,9 +330,9 @@ class OptimizeGear(commands.Cog, name='Damage'):
 
     @staticmethod
     async def confirm_options(ctx, perfect_crit_chance, attack_speed_limit, only_blacksmith, ignored_reforges,
-                              selected_pots, selected_buffs):
+                              selected_pots, selected_buffs, dungeon_item_used, include_dungeon):
         potions_list = [f'{name.capitalize()}: {level}' for name, level in selected_pots if level != 0]
-        return await ctx.prompt(embed=Embed(
+        embed = Embed(
             ctx=ctx,
             title='Are these options correct?'
         ).add_field(
@@ -302,7 +353,14 @@ class OptimizeGear(commands.Cog, name='Damage'):
         ).add_field(
             name='Support items',
             value=f"```{', '.join([f'{item.capitalize()}' for item in selected_buffs]) if selected_buffs else 'None'}```"
-        ))
+        )
+        if dungeon_item_used:
+            embed.add_field(
+                name='Dungeon items',
+                value=f'```{"Dungeon stats" if include_dungeon else "Regular stats"}```',
+                inline=False
+            )
+        return await ctx.prompt(embed=embed)
 
     @staticmethod
     async def prompt_for_potions(ctx, profile):
