@@ -24,13 +24,15 @@ class AuctionPrice(commands.Cog, name='Auction'):
         if not item_list:
             return await ctx.send(f'{ctx.author.mention}, There is no item called `{" ".join(item_name)}`.\n'
                                   f'Or there was a problem connecting to https://auctions.craftlink.xyz/.')
+        elif len(item_list) == 1:
+            item_id = item_list[0]
+        else:
+            filtered_item_list = [item.get('_source', {}).get('name', None) for item in item_list[:5]]
+            ans = await ctx.prompt_with_list(filtered_item_list, per_page=5,
+                                             title='Which item do you want to check price?',
+                                             footer='You may enter the corresponding item number.')
 
-        filtered_item_list = [item.get('_source', {}).get('name', None) for item in item_list[:5]]
-        ans = await ctx.prompt_with_list(filtered_item_list, per_page=5,
-                                         title='Which item do you want to check price?',
-                                         footer='You may enter the corresponding item number.')
-
-        item_id = item_list[ans - 1]
+            item_id = item_list[ans - 1]
 
         item_price_stats = await get_item_price_stats(item_id['_id'], session=self.bot.http_session)
         if not item_price_stats:
