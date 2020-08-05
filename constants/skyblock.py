@@ -565,6 +565,12 @@ DAMAGE_REFORGES = {
             'legendary': {'strength': 25, 'crit chance': 13, 'crit damage': 50},
             'mythic': {'strength': 34, 'crit chance': 15, 'crit damage': 75},
             'blacksmith': True
+        },
+        'spiritual': {
+            'epic': {'strength': 20, 'crit chance': 10, 'crit damage': 37},
+            'legendary': {'strength': 28, 'crit chance': 12, 'crit damage': 55},
+            'mythic': {'strength': 38, 'crit chance': 14, 'crit damage': 75},
+            'blacksmith': True
         }
     },
     'armor': {
