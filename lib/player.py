@@ -39,7 +39,7 @@ class Player:
         for profile_data in profiles:
             profile = Profile(
                 player=self,
-                profile_data=profile_data,
+                raw_profile_data=profile_data,
                 load_all=load_all
             )
             self.profiles.append(profile)

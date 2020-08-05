@@ -7,25 +7,27 @@ from constants import *
 
 
 class Profile:
-    def __init__(self, *, player, profile_data, load_all):
+    def __init__(self, *, player, raw_profile_data, load_all):
         self.player = player
-        self.profile_data = profile_data['members'][player.uuid]
-        self.id = profile_data['profile_id']
-        self.name = profile_data['cute_name'].lower()
+        self.profile_data = raw_profile_data['members'][player.uuid]
+        self.id = raw_profile_data['profile_id']
+        self.name = raw_profile_data['cute_name'].lower()
         self.last_save = datetime.fromtimestamp(self.profile_data.get('last_save', 0) / 1000.0)
         self.join_date = datetime.fromtimestamp(self.profile_data.get('first_join', 0) / 1000.0)
         self.purse = float(f'{self.profile_data.get("coin_purse", 0.00):.2f}')
 
         # Get coop members uuid and coop crafted minions if there is
         self.coop_members = []
-        minions = []
-        if len(profile_data['members']) > 1:
-            for member in profile_data['members'].keys():
-                minions += profile_data['members'][member].get('crafted_generators', [])
+        if len(raw_profile_data['members']) > 1:
+            minions = []
+            for member in raw_profile_data['members'].keys():
+                minions += raw_profile_data['members'][member].get('crafted_generators', [])
 
                 if member != player.uuid:
                     self.coop_members.append(member)
-        self.minions = self._parse_collection(minions)
+            self.minions = self._parse_collection(minions)
+        else:
+            self.minions = self._parse_collection(self.profile_data.get('crafted_generators', []))
 
         self.enabled_api = {'skills': False, 'collection': False, 'inventory': False, 'banking': False}
         self.current_armor = {'helmet': None, 'chestplate': None, 'leggings': None, 'boots': None}
@@ -39,10 +41,10 @@ class Profile:
         # Load profile's bank data if banking api is enabled
         self.bank_balance = 0.00
         self.bank_transactions = None
-        if 'banking' in profile_data:
+        if 'banking' in raw_profile_data:
             self.enabled_api['banking'] = True
-            self.bank_balance = float(f'{profile_data["banking"].get("balance", 0.00):.2f}')
-            self.bank_transactions = profile_data['banking'].get('transactions', [])
+            self.bank_balance = float(f'{raw_profile_data["banking"].get("balance", 0.00):.2f}')
+            self.bank_transactions = raw_profile_data['banking'].get('transactions', [])
 
         # Loads profile's skill skills api is enabled
         self.skills_xp = {}
