@@ -189,6 +189,7 @@ TALISMANS = {re.compile(k): v for k, v in {
     'SCARF_GRIMOIRE': 'Scarf\'s Grimoire',
     'HUNTER_RING': 'Hunter Ring',
     'SEAL_OF_THE_FAMILY': 'Seal of the Family',
+    'TREASURE_ARTIFACT': 'Treasure Artifact'
 }.items()}
 
 SKILL_NAMES = ['farming', 'mining', 'combat', 'foraging', 'fishing', 'enchanting', 'alchemy', 'taming', 'carpentry',
@@ -297,7 +298,9 @@ TIERED_TALISMANS = {
     'CAT_TALISMAN': ['LYNX_TALISMAN', 'CHEETAH_TALISMAN'],
     'LYNX_TALISMAN': ['CHEETAH_TALISMAN'],
     'SCARF_STUDIES': ['SCARF_THESIS', 'SCARF_GRIMOIRE'],
-    'SCARF_THESIS': ['SCARF_GRIMOIRE']
+    'SCARF_THESIS': ['SCARF_GRIMOIRE'],
+    'TREASURE_RING': ['TREASURE_ARTIFACT'],
+    'TREASURE_TALISMAN': ['TREASURE_RING', 'TREASURE_ARTIFACT']
 }
 
 ENCHANTMENT_BONUS = {
