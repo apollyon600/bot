@@ -60,7 +60,7 @@ class OptimizeGear(commands.Cog, name='Damage'):
             include_dungeon = await ctx.prompt(
                 embed=Embed(
                     ctx=ctx,
-                    title='For those dungeon items you have, do you want to use item\'s dungeon stats or regular stats?'
+                    title="Do you want to use your items' dungeon stats? yes/no"
                 )
             )
 
@@ -121,7 +121,7 @@ class OptimizeGear(commands.Cog, name='Damage'):
         ).set_footer(
             text='Player\'s stats include pots.\n'
                  '{s}'.format(s='Armor/Weapon includes dungeon stats.\n' if include_dungeon else '') +
-                 'Please double check result stats and in game before reforge.\n'
+                 'Please make sure your "before" stats are correct before reforging.\n'
         )
 
         for equipment in best_equip:
@@ -200,7 +200,7 @@ class OptimizeGear(commands.Cog, name='Damage'):
             embed.add_field(
                 name='**Warning**',
                 value='The bot took too long to optimize your gear so it gave up.\n'
-                      'The result is the best it could do for this short amount of time.',
+                      'This result is the best it could do in the allotted time.',
                 inline=False
             )
 
