@@ -82,6 +82,7 @@ class Guild:
         self.all_members_slayers = {}
         self.all_members_slayers_xp = {}
         self.all_members_total_slayers_xp = {}
+        self.all_members_dungeon_level = {}
 
     def __str__(self):
         return self.name
@@ -135,6 +136,7 @@ class Guild:
             self.all_members_slayers.update({player.uname: copy.deepcopy(profile.slayers)})
             self.all_members_slayers_xp.update({player.uname: copy.deepcopy(profile.slayers_xp)})
             self.all_members_total_slayers_xp.update({player.uname: profile.total_slayer_xp})
+            self.all_members_dungeon_level.update({player.uname: profile.dungeon_skill})
 
             self.current_online += player.online
             total_deaths += profile.deaths

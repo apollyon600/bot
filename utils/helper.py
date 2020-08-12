@@ -269,4 +269,11 @@ def get_guild_leaderboard(guild):
         enumerate(total_slayer_xp_leaderboard)]
     all_leaderboard['Total Slayer XP'] = total_slayer_xp_leaderboard
 
+    # Dungeon level leaderboard
+    dungeon_level_leaderboard = sorted(guild.all_members_dungeon_level, reverse=True,
+                                       key=lambda member: guild.all_members_dungeon_level[member])
+    dungeon_level_leaderboard = [f'#{str(i + 1).ljust(3)} {member} > Level {guild.all_members_dungeon_level[member]}'
+                                 for i, member in enumerate(dungeon_level_leaderboard)]
+    all_leaderboard['Dungeon Level'] = dungeon_level_leaderboard
+
     return all_leaderboard

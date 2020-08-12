@@ -95,72 +95,72 @@ class Profile:
         self.unique_minions = sum(self.minions.values())
         self.minion_slots = level_from_xp_table(self.unique_minions, MINION_SLOT_REQUIREMENT)
 
+        # Load profile stats
+        self.stats = ProfileStats(BASE_PLAYER_STATS.copy(), profile=self)
+
+        self.stats.combat_bonus = self.skills.get('combat', 0) * 4
+
+        self.fairy_souls = self.profile_data.get('fairy_souls_collected', 0)
+        self.stats.add_stat('health', FAIRY_SOUL_HP_BONUS[self.fairy_souls // 5])
+        self.stats.add_stat('defense', self.fairy_souls // 5 + self.fairy_souls // 25)
+        self.stats.add_stat('strength', self.fairy_souls // 5 + self.fairy_souls // 25)
+        self.stats.add_stat('speed', self.fairy_souls // 50)
+
+        for slayer_name, slayer_level in self.slayers.items():
+            self.stats += ProfileStats(SLAYER_REWARDS[slayer_name][slayer_level])
+
+        for skill_name, skill_level in self.skills.items():
+            self.stats += ProfileStats(SKILL_REWARDS[skill_name][skill_level])
+
+        # Load profile's current equipped armor
+        for armor in self._parse_inventory(self.profile_data, ['inv_armor', 'data']):
+            # check for special type
+            if armor.type == 'hatccessory':
+                self.current_armor['helmet'] = armor
+            else:
+                self.current_armor[armor.type] = armor
+
+        # Load profile's inventories
+        self.inventory = self._parse_inventory(self.profile_data, ['inv_contents', 'data'])
+        self.echest = self._parse_inventory(self.profile_data, ['ender_chest_contents', 'data'])
+        self.talisman_bag = self._parse_inventory(self.profile_data, ['talisman_bag', 'data'])
+        # Comment out unnecessary inventories for now
+        # self.candy_bag = self._parse_inventory(self.profile_raw_data, ['candy_inventory_contents', 'data'])
+        # self.potion_bag = self._parse_inventory(self.profile_raw_data, ['potion_bag', 'data'])
+        # self.fish_bag = self._parse_inventory(self.profile_raw_data, ['fishing_bag', 'data'])
+        # self.quiver = self._parse_inventory(self.profile_raw_data, ['quiver', 'data'])
+        if self.inventory or self.echest or self.talisman_bag:
+            self.enabled_api['inventory'] = True
+
+        # Load profile's weapon from inventory and ender chest
+        self.weapons = [item for item in self.inventory + self.echest if item.type in ('sword', 'bow')]
+
+        # Load profile's wardrobe
+        self.wardrobe = []
+        wardrobe = self._parse_inventory(self.profile_data, ['wardrobe_contents', 'data'], index_empty=True)
+        for wardrobe_page in range(0, 2 * 36, 36):  # 2 for current max 2 pages of wardrobe
+            for i in range(wardrobe_page, wardrobe_page + 9):
+                armor_set = {
+                    'helmet': safe_list_get(wardrobe, i),
+                    'chestplate': safe_list_get(wardrobe, i + 9),
+                    'leggings': safe_list_get(wardrobe, i + 18),
+                    'boots': safe_list_get(wardrobe, i + 27)
+                }
+                if all(item is None for item in armor_set.values()):
+                    continue
+                self.wardrobe.append(armor_set)
+
+        # Check if player has dungeon armor/wep items
+        self.has_dungeon_items = False
+        for item in self.inventory + self.echest + wardrobe:
+            if not item:
+                continue
+            if item.dungeon:
+                self.has_dungeon_items = True
+                break
+
         self.loaded_all = load_all
         if load_all:
-            # Load profile stats
-            self.stats = ProfileStats(BASE_PLAYER_STATS.copy(), profile=self)
-
-            self.stats.combat_bonus = self.skills.get('combat', 0) * 4
-
-            self.fairy_souls = self.profile_data.get('fairy_souls_collected', 0)
-            self.stats.add_stat('health', FAIRY_SOUL_HP_BONUS[self.fairy_souls // 5])
-            self.stats.add_stat('defense', self.fairy_souls // 5 + self.fairy_souls // 25)
-            self.stats.add_stat('strength', self.fairy_souls // 5 + self.fairy_souls // 25)
-            self.stats.add_stat('speed', self.fairy_souls // 50)
-
-            for slayer_name, slayer_level in self.slayers.items():
-                self.stats += ProfileStats(SLAYER_REWARDS[slayer_name][slayer_level])
-
-            for skill_name, skill_level in self.skills.items():
-                self.stats += ProfileStats(SKILL_REWARDS[skill_name][skill_level])
-
-            # Load profile's current equipped armor
-            for armor in self._parse_inventory(self.profile_data, ['inv_armor', 'data']):
-                # check for special type
-                if armor.type == 'hatccessory':
-                    self.current_armor['helmet'] = armor
-                else:
-                    self.current_armor[armor.type] = armor
-
-            # Load profile's inventories
-            self.inventory = self._parse_inventory(self.profile_data, ['inv_contents', 'data'])
-            self.echest = self._parse_inventory(self.profile_data, ['ender_chest_contents', 'data'])
-            self.talisman_bag = self._parse_inventory(self.profile_data, ['talisman_bag', 'data'])
-            # Comment out unnecessary inventories for now
-            # self.candy_bag = self._parse_inventory(self.profile_raw_data, ['candy_inventory_contents', 'data'])
-            # self.potion_bag = self._parse_inventory(self.profile_raw_data, ['potion_bag', 'data'])
-            # self.fish_bag = self._parse_inventory(self.profile_raw_data, ['fishing_bag', 'data'])
-            # self.quiver = self._parse_inventory(self.profile_raw_data, ['quiver', 'data'])
-            if self.inventory or self.echest or self.talisman_bag:
-                self.enabled_api['inventory'] = True
-
-            # Load profile's weapon from inventory and ender chest
-            self.weapons = [item for item in self.inventory + self.echest if item.type in ('sword', 'bow')]
-
-            # Load profile's wardrobe
-            self.wardrobe = []
-            wardrobe = self._parse_inventory(self.profile_data, ['wardrobe_contents', 'data'], index_empty=True)
-            for wardrobe_page in range(0, 2 * 36, 36):  # 2 for current max 2 pages of wardrobe
-                for i in range(wardrobe_page, wardrobe_page + 9):
-                    armor_set = {
-                        'helmet': safe_list_get(wardrobe, i),
-                        'chestplate': safe_list_get(wardrobe, i + 9),
-                        'leggings': safe_list_get(wardrobe, i + 18),
-                        'boots': safe_list_get(wardrobe, i + 27)
-                    }
-                    if all(item is None for item in armor_set.values()):
-                        continue
-                    self.wardrobe.append(armor_set)
-
-            # Check if player has dungeon armor/wep items
-            self.has_dungeon_items = False
-            for item in self.inventory + self.echest + wardrobe:
-                if not item:
-                    continue
-                if item.dungeon:
-                    self.has_dungeon_items = True
-                    break
-
             # Load profile's talismans from inventory + talisman bag and talisman counts
             self.talismans = [talisman for talisman in self.inventory + self.talisman_bag if
                               talisman.type in ('accessory', 'hatccessory')]
