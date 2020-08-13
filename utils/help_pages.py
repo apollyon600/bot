@@ -5,14 +5,14 @@ from . import Embed, embed_timeout_handler
 
 
 class HelpPages:
-    def __init__(self, help_command, ctx, entries, *, dm_help=False):
+    def __init__(self, ctx, entries, *, dm_help=False):
         self.bot = ctx.bot
         self.ctx = ctx
         self.message = ctx.message
         self.channel = ctx.channel
         self.author = ctx.author
         self.entries = entries
-        self.prefix = help_command.clean_prefix
+        self.prefix = ctx.bot.command_prefix[-1]
         self.dm_help = dm_help
         self.embed = Embed(ctx=ctx)
         self.paginating = len(entries) > 1

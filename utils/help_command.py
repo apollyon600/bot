@@ -29,7 +29,7 @@ class PaginatedHelpCommand(commands.HelpCommand):
             cog_emoji = actual_cog.emoji
             pages.append((cog, description, cog_emoji, commands))
 
-        help_pages = HelpPages(self, self.context, pages, dm_help=self.dm_help)
+        help_pages = HelpPages(self.context, pages, dm_help=self.dm_help)
         await help_pages.paginate()
 
     async def send_cog_help(self, cog):
@@ -37,7 +37,7 @@ class PaginatedHelpCommand(commands.HelpCommand):
         cog_commands = filter(lambda c: c.cog_name == cog.qualified_name, all_commands)
         cog_commands = sorted(cog_commands, key=lambda c: c.name)
         entries = [(cog.qualified_name, cog.description, cog.emoji, cog_commands)]
-        help_pages = HelpPages(self, self.context, entries, dm_help=self.dm_help)
+        help_pages = HelpPages(self.context, entries, dm_help=self.dm_help)
 
         await help_pages.paginate()
 

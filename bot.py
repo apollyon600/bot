@@ -31,7 +31,10 @@ class Bot(commands.AutoShardedBot):
             return
 
         ctx = await self.get_context(message, cls=Context)
-        await self.invoke(ctx)
+        if self.user.mentioned_in(ctx.message) and len(ctx.message.content.split()) == 1:
+            await ctx.send_help()  # Send help if bot get ping
+        else:
+            await self.invoke(ctx)
 
     async def on_message(self, message):
         if message.author.bot or not self.is_ready():
@@ -44,8 +47,8 @@ class Bot(commands.AutoShardedBot):
             # in case it raised from on_command_error
             return
         error = traceback.format_exc().replace('```', '"""')
-        for id in self.config.DEV_IDS:
-            await self.get_user(id).send(f'```{error[-1950:]}```')
+        for dev_id in self.config.DEV_IDS:
+            await self.get_user(dev_id).send(f'```{error[-1950:]}```')
         print(error)
 
     def add_cog(self, cog: commands.Cog):

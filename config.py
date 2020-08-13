@@ -33,10 +33,11 @@ BOT_PREFIXES = [
     'sbs' + ' ',
 ]
 
-# to use high level commands
+# to use owner command?
 OWNER_IDS = [
     148460858438057985,  # yuerino
     181152738086748160,  # plutie
+    154743493464555521,  # crafted
 ]
 
 # to get error DM from bot
@@ -50,4 +51,5 @@ ADMIN_IDS = [
     148460858438057985,  # yuerino
     181152738086748160,  # plutie
     288896160385597440,  # grm
+    154743493464555521,  # crafted
 ]
