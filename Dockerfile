@@ -8,13 +8,14 @@ RUN apt-get update && apt-get install -y wget libgfortran4 libblas3 liblapack3 l
 RUN wget https://www.scipopt.org/download/release/SCIPOptSuite-7.0.1-Linux.sh -O scip.sh && chmod +x scip.sh && ./scip.sh --skip-license && mv bin/scip /app/scip
 
 VOLUME ["/app"]
+ADD . /app/
 WORKDIR /app
 
 # Install pip requirements
 ADD requirements.txt .
 RUN python -m pip install -r requirements.txt
 
-ADD . /app
+ADD . /app/
 
 # Switching to a non-root user, please refer to https://aka.ms/vscode-docker-python-user-rights
 RUN useradd appuser && chown -R appuser /app
