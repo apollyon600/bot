@@ -12,7 +12,6 @@ ADD . /app/
 WORKDIR /app
 
 # Install pip requirements
-ADD requirements.txt .
 RUN python -m pip install -r requirements.txt
 
 ADD . /app/
