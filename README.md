@@ -4,11 +4,14 @@ Multi-purpose bot for hypixel skyblock
 # REQUIREMENTS
 
 Python 3.8+
+
 SCIP Solver binary (https://www.scipopt.org/index.php#download) in same folder as bot
 
 # DOCKER DEPLOYMENT
 `git clone https://github.com/Skyblock-Simplified/bot`
+
 Edit the Dockerfile and add your API key and Discord token to it.
+
 `docker-compose up`
 
 # NORMAL DEPLOYMENT
