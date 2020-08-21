@@ -9,7 +9,7 @@ ENV PYTHONUNBUFFERED 1
 
 # Install SCIP requirements
 RUN apt-get update && apt-get install -y wget libgfortran4
-RUN wget https://scip.zib.de/download.php?fname=SCIPOptSuite-7.0.1-Linux.deb -O scip.deb
+RUN wget https://www.scipopt.org/download/release/SCIPOptSuite-7.0.1-Linux.deb -O scip.deb
 RUN dpkg -i scip.deb
 
 # Hypixel API key
