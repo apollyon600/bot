@@ -14,7 +14,7 @@ RUN wget -O boost_1_65_1.tar.gz https://dl.bintray.com/boostorg/release/1.65.1/s
 WORKDIR /boost_1_65_1
 
 RUN ./bootstrap.sh --prefix=/usr/
-RUN ./b2 && ./b2 install
+RUN ./b2 toolset=clang cxxflags="-stdlib=libc++" linkflags="-stdlib=libc++" -j  `lscpu | grep "Core(s) per socket" | awk -F ':' '{print $2}' | tr -d ' '`  && ./b2 install
 WORKDIR /
 RUN wget https://www.scipopt.org/download/release/SCIPOptSuite-7.0.1-Linux.deb -O scip.deb && dpkg -i scip.deb
 
