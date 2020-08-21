@@ -7,4 +7,4 @@ services:
       context: .
       dockerfile: Dockerfile
     volumes:
-    - "/data:/app"
+    - "./app:/app"
