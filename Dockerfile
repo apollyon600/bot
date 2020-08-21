@@ -9,7 +9,7 @@ ENV PYTHONUNBUFFERED 1
 
 # Install SCIP requirements
 RUN apt-get update && apt-get install -y wget libgfortran4 libblas3 liblapack3 libtbb-dev libgsl-dev libboost-all-dev build-essential g++ python-dev autotools-dev libicu-dev build-essential libbz2-dev libgmp3-dev libreadline-dev 
-RUN wget https://www.scipopt.org/download/release/SCIPOptSuite-7.0.1-Linux.sh -O scip.sh && ./scip.sh --skip-license && cp bin/scip ../app/scip
+RUN wget https://www.scipopt.org/download/release/SCIPOptSuite-7.0.1-Linux.sh -O scip.sh && chmod +x scip.sh && ./scip.sh --skip-license && cp bin/scip ../app/scip
 
 # Hypixel API key
 ENV API_KEY = ""
