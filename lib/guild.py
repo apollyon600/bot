@@ -73,6 +73,7 @@ class Guild:
         self.skills_xp = {}
         self.slayers = {}
         self.slayers_xp = {}
+        self.average_dungeon_level = 0
 
         self.all_members_skill_average = {}
         self.all_members_unique_minions = {}
@@ -114,6 +115,7 @@ class Guild:
         total_average_skills = 0.00
         total_minion_slots = 0
         total_unique_minions = 0
+        total_dungeon_level = 0
 
         total_skills = {'farming': 0, 'mining': 0, 'combat': 0, 'foraging': 0, 'fishing': 0, 'enchanting': 0,
                         'alchemy': 0, 'taming': 0, 'carpentry': 0, 'runecrafting': 0}
@@ -144,6 +146,7 @@ class Guild:
             total_average_skills += profile.skill_average
             total_minion_slots += profile.minion_slots
             total_unique_minions += profile.unique_minions
+            total_dungeon_level += profile.dungeon_skill
 
             for skill in total_skills.keys():
                 total_skills[skill] += profile.skills.get(skill, 0)
@@ -158,6 +161,7 @@ class Guild:
         self.average_skills = total_average_skills / self.member_amount
         self.minion_slot = total_minion_slots // self.member_amount
         self.unique_minions = total_unique_minions // self.member_amount
+        self.average_dungeon_level = total_dungeon_level / self.member_amount
 
         for skill in total_skills.keys():
             self.skills[skill] = total_skills[skill] // self.member_amount

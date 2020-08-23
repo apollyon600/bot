@@ -1,5 +1,6 @@
 import asyncio
 
+from lib import SessionTimeout
 from . import Pages
 from constants.discord import SKILL_EMOJIS
 
@@ -85,6 +86,11 @@ class GuildPages(Pages):
                     value=f'```Level > {level}\n'
                           f'XP > {guild.slayers_xp.get(slayer, 0):,.0f}```'
                 )
+
+            self.embed.add_field(
+                name=f'{SKILL_EMOJIS["dungeons"]}\tDungeon Catacombs',
+                value=f'```Average Level > {guild.average_dungeon_level:.2f}```'
+            )
 
     async def show_guild_pages_help(self):
         """
