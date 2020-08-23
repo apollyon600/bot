@@ -27,6 +27,7 @@ class Bot(commands.AutoShardedBot):
         self.db = self.mongo_client.sbs
 
         self.verified_discord_ids = []
+        self.blacklisted_discord_ids = []
         self.blacklisted_guild_ids = []
 
         self._connector = None
@@ -40,8 +41,14 @@ class Bot(commands.AutoShardedBot):
             await self.invoke(ctx)
 
     async def on_message(self, message):
+        # ignore bots or if bot isnt ready
         if message.author.bot or not self.is_ready():
             return
+
+        # ignore blacklisted discord id
+        if message.author.id in self.blacklisted_discord_ids:
+            return
+
         # ignore blacklisted guild
         if message.guild is not None and message.guild.id in self.blacklisted_guild_ids:
             return
@@ -122,10 +129,14 @@ class Bot(commands.AutoShardedBot):
         """
         Cache stuff from db
         """
-        # Cache verified discord ids
         async for player in self.db['players'].find():
             for discord_id in player['discord_ids']:
-                self.verified_discord_ids.append(discord_id['discord_id'])
+                if player['global_blacklisted']:
+                    # Cache blacklisted discord ids
+                    self.blacklisted_discord_ids.append(discord_id['discord_id'])
+                else:
+                    # Cache verified discord ids
+                    self.verified_discord_ids.append(discord_id['discord_id'])
 
         # Cache blacklisted guild ids
         async for guild in self.db['guilds'].find({'global_blacklisted': True}):
