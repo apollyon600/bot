@@ -67,10 +67,10 @@ PLAYER_DATA = {
 
 REPUTATION = {
     'guild_id': None,
-    'reporter_discord_id': None,
+    'reported_discord_id': None,
     'submitter_discord_id': None,
     'reason': None,
-    'positive': None,
+    'positive': True,
     'type': None,
     'staff_sorted_discord_id': None,
     'submitted_timestamp': None
