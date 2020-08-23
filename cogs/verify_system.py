@@ -15,6 +15,9 @@ class Verify(commands.Cog, name='Skyblock'):
     @commands.command(cls=CommandWithCooldown, cooldown_after_parsing=True)
     @commands.cooldown(1, 10.0, commands.BucketType.user)
     async def verify(self, ctx, player: str = ''):
+        """
+        Verify your hypixel account to your discord.
+        """
         if not player:
             player = await ctx.ask(message=f'{ctx.author.mention}\nWhat is your minecraft username?')
 

@@ -6,9 +6,20 @@ class Reputation(commands.Cog, name='Skyblock'):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command()
+    @commands.command(name='+rep')
     @commands.guild_only()
-    async def rep(self, ctx, player: discord.Member, reason):
+    async def positive_rep(self, ctx, player: discord.Member, reason):
+        """
+        Give a player a postive reputation.
+        """
+        pass
+
+    @commands.command(name='-rep')
+    @commands.guild_only()
+    async def negative_rep(self, ctx, player: discord.Member, reason):
+        """
+        Give a player a negative reputation.
+        """
         pass
 
 

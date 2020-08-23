@@ -64,3 +64,14 @@ PLAYER_DATA = {
     'guild_report_blacklisted': [],
     'guild_reputation_blacklisted': [],
 }
+
+REPUTATION = {
+    'guild_id': None,
+    'reporter_discord_id': None,
+    'submitter_discord_id': None,
+    'reason': None,
+    'positive': None,
+    'type': None,
+    'staff_sorted_discord_id': None,
+    'submitted_timestamp': None
+}

@@ -49,6 +49,9 @@ class SkyblockEvents(commands.Cog, name='Skyblock'):
     @events.group(invoke_without_command=True)
     @checks.is_sbs_admin()
     async def schedule(self, ctx):
+        """
+        Commands for scheduling skyblock events.
+        """
         await ctx.send_help(ctx.command)
 
     @schedule.command()
@@ -227,7 +230,7 @@ class SkyblockEvents(commands.Cog, name='Skyblock'):
                                   adapter=AsyncWebhookAdapter(self.bot.http_session))
 
         embed.timestamp = datetime.now()
-        embed.add_footer(
+        embed.set_footer(
             text='Skyblock Simplified',
             icon_url='https://i.imgur.com/V7ENVHr.png'
         )
