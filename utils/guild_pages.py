@@ -124,18 +124,23 @@ class GuildPages(Pages):
 
     async def numbered_page(self):
         """
-        Lets you type a page number to go to
+        Lets you type a page number to go to.
         """
         to_delete = [await self.ctx.send(f'{self.author.mention}, What page do you want to go to?')]
 
         def message_check(m):
-            return m.author == self.author and self.channel == m.channel and m.clean_content.isdigit()
+            if m.author.id == self.author.id and m.channel.id == self.channel.id:
+                if m.clean_content.lower() == 'exit':
+                    raise SessionTimeout
+                if m.clean_content.isdigit():
+                    return True
+            return False
 
         try:
             msg = await self.bot.wait_for('message', check=message_check, timeout=30.0)
-        except asyncio.TimeoutError:
-            to_delete.append(await self.ctx.send(f'{self.author.mention}, Took too long!'))
-            await asyncio.sleep(5)
+        except (asyncio.TimeoutError, SessionTimeout):
+            to_delete.append(await self.ctx.send(f'{self.author.mention}, Input session closed.'))
+            await asyncio.sleep(4)
         else:
             page = int(msg.clean_content)
             to_delete.append(msg)
@@ -144,7 +149,7 @@ class GuildPages(Pages):
             else:
                 to_delete.append(
                     await self.ctx.send(f'{self.author.mention}, Invalid page given. ({page}/{self.maximum_pages})'))
-                await asyncio.sleep(5)
+                await asyncio.sleep(4)
 
         try:
             await self.channel.delete_messages(to_delete)
