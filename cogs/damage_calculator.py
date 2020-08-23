@@ -18,10 +18,10 @@ class DamageCalculator(commands.Cog, name='Damage'):
         """
         stats = {'strength': 0, 'crit damage': 0, 'weapon damage': 0, 'combat level': 0}
         questions = {
-            'strength': f'{ctx.author.mention}, How much **strength** do you want to have?',
-            'crit damage': f'{ctx.author.mention}, How much **crit damage** do you want to have?',
-            'weapon damage': f'{ctx.author.mention},, How much **damage** does your weapon have on the tooltip?',
-            'combat level': f'{ctx.author.mention}, What is your **combat level**?'
+            'strength': f'{ctx.author.mention}\nHow much **strength** do you want to have?',
+            'crit damage': f'{ctx.author.mention}\nHow much **crit damage** do you want to have?',
+            'weapon damage': f'{ctx.author.mention}\nHow much **damage** does your weapon have on the tooltip?',
+            'combat level': f'{ctx.author.mention}\nWhat is your **combat level**?'
         }
 
         for stat in stats.keys():
@@ -31,7 +31,7 @@ class DamageCalculator(commands.Cog, name='Damage'):
         mob = await self.prompt_for_mobs(ctx)
 
         enchant_levels = await ctx.prompt(
-            message=f'{ctx.author.mention}, Do you want to use **level 5** or **level 6** enchantments?',
+            message=f'{ctx.author.mention}\nDo you want to use **level 5** or **level 6** enchantments?',
             emoji_list=[('5️⃣', ENCHANTED_BOOK_5), ('6️⃣', ENCHANTED_BOOK_6)]
         )
 
@@ -61,23 +61,23 @@ class DamageCalculator(commands.Cog, name='Damage'):
             ctx=ctx,
             title=f'Calculated damage'
         ).add_field(
-            name='Critical hit',
-            value=f'```{calculated_dmg}```'
+            name='Damage with crit',
+            value=f'{calculated_dmg}'
         ).add_field(
-            name='Non critical hit',
-            value=f'```{no_crit_dmg}```'
+            name='Damage without crit',
+            value=f'{no_crit_dmg}'
         ).add_field().add_field(
             name='Strength',
-            value=f'```{stats["strength"]}```'
+            value=f'{stats["strength"]}'
         ).add_field(
             name='Crit damage',
-            value=f'```{stats["crit damage"]}%```'
+            value=f'{stats["crit damage"]}%'
         ).add_field().add_field(
             name='Weapon damage',
-            value=f'```{stats["weapon damage"]}```'
+            value=f'{stats["weapon damage"]}'
         ).add_field(
             name='Combat level',
-            value=f'```{stats["combat level"]}```'
+            value=f'{stats["combat level"]}'
         ).add_field().send()
 
     @staticmethod
@@ -87,7 +87,7 @@ class DamageCalculator(commands.Cog, name='Damage'):
             ctx=ctx,
             title='Which mob will you be targeting with this setup?'
         ).add_field(
-            value=f'```{mobs}```'
+            value=f'{mobs}'
         ).send()
 
         def check(m):
@@ -103,7 +103,7 @@ class DamageCalculator(commands.Cog, name='Damage'):
             if msg.clean_content.lower() in MOBS_RELEVANT_ENCHANTS:
                 return msg.clean_content.lower()
             else:
-                await ctx.send(f'{ctx.author.mention}, Invalid mob! Please choose one of the listed mobs.')
+                await ctx.send(f'{ctx.author.mention}\nInvalid mob! Please choose one of the listed mobs.')
 
     @staticmethod
     async def prompt_for_stat(ctx, message):
@@ -122,7 +122,7 @@ class DamageCalculator(commands.Cog, name='Damage'):
             if int(msg.clean_content) in range(0, 10000):
                 return int(msg.clean_content)
             else:
-                await ctx.send(f'{ctx.author.mention}, Invalid number! Please choose a number between 0 and 10000')
+                await ctx.send(f'{ctx.author.mention}\nInvalid number! Please choose a number between 0 and 10000')
 
 
 def setup(bot):
