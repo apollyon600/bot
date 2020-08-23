@@ -1,14 +1,15 @@
 from discord.ext import commands
 
-from config import ADMIN_IDS
-
 
 class CommandWithCooldown(commands.Command):
+    """
+    Modified for owners to bypass cooldown.
+    """
     async def prepare(self, ctx):
         try:
             return await super().prepare(ctx)
         except commands.CommandOnCooldown as e:
-            if ctx.message.author.id in ADMIN_IDS:
+            if await ctx.bot.is_owner(ctx.author):
                 return
             else:
                 raise e
