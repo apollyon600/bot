@@ -36,6 +36,6 @@ COG_EXTENSIONS = [
 ]
 
 BOT_PREFIXES = [
-    'Exp' + ' ',
-    'exp' + ' ',
+    'Sbs' + ' ',
+    'sbs' + ' ',
 ]
