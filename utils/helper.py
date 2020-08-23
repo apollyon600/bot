@@ -99,12 +99,17 @@ def format_pet(pet):
 async def embed_timeout_handler(ctx, emoji_list, message=None):
     message = message or ctx.message
     try:
-        for (emoji, _) in emoji_list:
-            await message.remove_reaction(emoji, ctx.bot.user)
+        await message.clear_reactions()
         for emoji in TIMEOUT_EMOJIS:
             await message.add_reaction(emoji)
-    except:
-        pass
+    except Exception:
+        try:
+            for (emoji, _) in emoji_list:
+                await message.remove_reaction(emoji, ctx.bot.user)
+            for emoji in TIMEOUT_EMOJIS:
+                await message.add_reaction(emoji)
+        except Exception:
+            pass
 
 
 def emod(activity, weapon):
