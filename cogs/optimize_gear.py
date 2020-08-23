@@ -118,7 +118,7 @@ class OptimizeGear(commands.Cog, name='Damage'):
         embed = Embed(
             ctx=ctx,
             title='{s}'.format(s='Successful!' if is_optimized else 'Unsuccessful!')
-        ).set_footer(
+        ).add_footer(
             text='Player\'s stats include pots.\n'
                  '{s}'.format(s='Armor/Weapon includes dungeon stats.\n' if include_dungeon else '') +
                  'Please make sure your "before" stats are correct before reforging.\n'
@@ -216,7 +216,7 @@ class OptimizeGear(commands.Cog, name='Damage'):
         ).add_field(
             name='Option',
             value='If you want to choose a customized attack speed limit, enter a number between 0 and 100.'
-        ).set_footer(
+        ).add_footer(
             text='The attack speed limit must be a whole number!'
         ).send()
 

@@ -227,7 +227,7 @@ class SkyblockEvents(commands.Cog, name='Skyblock'):
                                   adapter=AsyncWebhookAdapter(self.bot.http_session))
 
         embed.timestamp = datetime.now()
-        embed.set_footer(
+        embed.add_footer(
             text='Skyblock Simplified',
             icon_url='https://i.imgur.com/V7ENVHr.png'
         )

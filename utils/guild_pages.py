@@ -19,7 +19,7 @@ class GuildPages(Pages):
 
         page_number = f'\nPage {page} / {self.maximum_pages}.' if self.maximum_pages > 1 else ''
         footer = f'{self.embed_footer}{page_number}'
-        self.embed.set_footer(text=footer)
+        self.embed.add_footer(text=footer)
 
         if page != 1:
             # Load leaderboard page
@@ -99,7 +99,7 @@ class GuildPages(Pages):
         self.embed.clear_fields()
 
         self.embed.title = 'Welcome to the help page.'
-        self.embed.set_footer(text=f'We were on page {self.current_page} before this message.')
+        self.embed.add_footer(text=f'We were on page {self.current_page} before this message.')
 
         description = '\n'.join(
             [f'Page {i + 1} > {name}' for i, name in enumerate(self.header_entries)])

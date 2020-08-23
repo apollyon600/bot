@@ -50,7 +50,7 @@ class HelpPages:
             inline=False
         )
 
-        self.embed.set_footer(text=f'Use "{self.prefix[-1]}help [command]" for more info on a command.')
+        self.embed.add_footer(text=f'Use "{self.prefix[-1]}help [command]" for more info on a command.')
 
         for entry in entries:
             signature = f'{entry.qualified_name} {entry.signature}'

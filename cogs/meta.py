@@ -85,7 +85,7 @@ class Meta(commands.Cog, name='Bot'):
             inline=False
         )
 
-        embed.set_footer(text=f'This message was delivered in {self.bot.latency * 1000:.0f} milliseconds.')
+        embed.add_footer(text=f'This message was delivered in {self.bot.latency * 1000:.0f} milliseconds.')
 
         await embed.send()
 
@@ -109,7 +109,7 @@ class Meta(commands.Cog, name='Bot'):
             ctx=ctx,
             title='Here\'s a link to my support server',
             description='[https://discord.gg/sbs]'
-        ).set_footer(
+        ).add_footer(
             text='(ﾉ◕ヮ◕)ﾉ*:･ﾟ✧'
         ).send()
 
