@@ -31,7 +31,7 @@ class Bot(commands.AutoShardedBot):
             return
 
         ctx = await self.get_context(message, cls=Context)
-        if self.user.mentioned_in(ctx.message) and len(ctx.message.content.split()) == 1:
+        if ctx.message.content == (f'<@!{self.user.id}>', self.user.mention) and len(ctx.message.content.split()) == 1:
             await ctx.send_help()  # Send help if bot get ping
         else:
             await self.invoke(ctx)
