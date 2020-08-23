@@ -3,6 +3,7 @@ import traceback
 import discord
 import aiohttp
 import socket
+import motor.motor_asyncio
 from typing import Optional
 from discord.ext import commands
 
@@ -22,6 +23,8 @@ class Bot(commands.AutoShardedBot):
         self.config = config
         self.http_session: Optional[aiohttp.ClientSession] = None
         self.hypixel_api_client = HypixelAPIClient(config.API_KEY, self.loop, timeout=aiohttp.ClientTimeout(total=30))
+        self.mongo_client = motor.motor_asyncio.AsyncIOMotorClient(config.DATABASE_URI)
+        self.db = self.mongo_client.sbs
 
         self._connector = None
         self._resolver = None
