@@ -140,6 +140,11 @@ class ErrorHandler(commands.Cog):
                 ctx,
                 description='You can\'t use this command in DM! Please try again it again in a server.'
             ).send()
+        elif isinstance(error, NotVerified):
+            await CommandErrorEmbed(
+                ctx,
+                description='You need to be verified to use this command.\nVerify yourself by using command `sbs verify`.'
+            ).send()
         else:
             # other unimplemented check exceptions
             raise error

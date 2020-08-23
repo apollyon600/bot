@@ -55,6 +55,7 @@ class Verify(commands.Cog, name='Skyblock'):
                 })
 
             await self.players_db.insert_one(player_data)
+            self.bot.verified_discord_ids.append(ctx.author.id)
 
             await ctx.send(f'{ctx.author.mention}\nSuccesfully verified your hypixel account with your discord.')
         elif any(ctx.author.id == discord_id['discord_id'] for discord_id in player_data['discord_ids']) and not any(
@@ -90,6 +91,7 @@ class Verify(commands.Cog, name='Skyblock'):
 
             await self.players_db.update_one({'mojang_uuids.mojang_uuid': player.uuid},
                                              {'$push': {'discord_ids': discord_id}})
+            self.bot.verified_discord_ids.append(ctx.author.id)
 
             await ctx.send(f'{ctx.author.mention}\nSuccessfully verified your new discord!')
         else:

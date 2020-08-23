@@ -1,5 +1,7 @@
 from discord.ext import commands
 
+from lib import NotVerified
+
 
 async def check_guild_permissions(ctx, perms, *, check=all):
     if ctx.guild is None:
@@ -31,7 +33,7 @@ async def check_sbs_permissions(ctx, perms, *, check=all):
     if member is None:
         raise commands.MissingPermissions([perm for perm in perms.keys()])
 
-    resolved = member.guild_permissionsx
+    resolved = member.guild_permissions
     if not check(getattr(resolved, name, None) == value for name, value in perms.items()):
         raise commands.MissingPermissions([perm for perm in perms.keys()])
 
@@ -80,5 +82,15 @@ def is_guild_admin():
 def is_guild_mod():
     async def pred(ctx):
         return await check_guild_permissions(ctx, {'manage_guild': True})
+
+    return commands.check(pred)
+
+
+def is_player_verified():
+    async def pred(ctx):
+        if ctx.author.id not in ctx.bot.verified_discord_ids:
+            raise NotVerified
+
+        return True
 
     return commands.check(pred)

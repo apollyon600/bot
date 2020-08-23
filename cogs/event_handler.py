@@ -33,6 +33,10 @@ class EventHandler(commands.Cog):
         """
         Executes when a guild updates.
         """
+        # Skip blacklisted guilds
+        if before.id in self.bot.blacklisted_guild_ids:
+            return
+
         to_update = {}
         if before.name != after.name:
             to_update.update({'name': after.name})

@@ -1,6 +1,6 @@
 import aiohttp
 from typing import Optional
-from discord.ext.commands import UserInputError
+from discord.ext.commands import UserInputError, CheckFailure
 
 
 class SkyblockCommandError(UserInputError):
@@ -80,6 +80,13 @@ class NoWeaponError(SkyblockCommandError):
 class HypixelLanguageError(SkyblockCommandError):
     """
     Exception raised when the player's hypixel language is not english.
+    """
+    pass
+
+
+class NotVerified(CheckFailure):
+    """
+    Exception raised when player is not verified.
     """
     pass
 
