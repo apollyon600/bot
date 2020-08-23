@@ -241,7 +241,7 @@ async def ask_for_guild(ctx, guild, *, hypixel_api_client, load_members=False):
     if not guild:
         guild = await ctx.ask(message=f'{ctx.author.mention}, What is the guild you want to check?')
 
-    guild_data = await hypixel_api_client.get_guild(params={'name': quote(guild)})
+    guild_data = await hypixel_api_client.get_guild(params={'name': guild})
     if guild_data is None:
         raise BadGuildError(guild)
     await ctx.send(f'{ctx.author.mention}, I am getting the guild information, please wait a little bit!')
