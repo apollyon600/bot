@@ -63,7 +63,7 @@ class ViewMissing(commands.Cog, name='Damage'):
                                                               '\nduplicated or part of a talisman family.```'
             )
 
-        embed.set_footer(text='Only counting talismans in your talisman bag or inventory.')
+        embed.add_footer(text='Only counting talismans in your talisman bag or inventory.')
 
         await embed.send()
 

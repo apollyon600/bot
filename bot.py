@@ -3,6 +3,7 @@ import traceback
 import discord
 import aiohttp
 import socket
+import motor.motor_asyncio
 from typing import Optional
 from discord.ext import commands
 
@@ -22,23 +23,36 @@ class Bot(commands.AutoShardedBot):
         self.config = config
         self.http_session: Optional[aiohttp.ClientSession] = None
         self.hypixel_api_client = HypixelAPIClient(config.API_KEY, self.loop, timeout=aiohttp.ClientTimeout(total=30))
+        self.mongo_client = motor.motor_asyncio.AsyncIOMotorClient(config.DATABASE_URI)
+        self.db = self.mongo_client.sbs
+
+        self.verified_discord_ids = []
+        self.blacklisted_discord_ids = []
+        self.blacklisted_guild_ids = []
 
         self._connector = None
         self._resolver = None
 
     async def process_commands(self, message):
-        if message.author.bot:
-            return
-
         ctx = await self.get_context(message, cls=Context)
-        if self.user.mentioned_in(ctx.message) and len(ctx.message.content.split()) == 1:
+        if ctx.message.content == (f'<@!{self.user.id}>', self.user.mention) and len(ctx.message.content.split()) == 1:
             await ctx.send_help()  # Send help if bot get ping
         else:
             await self.invoke(ctx)
 
     async def on_message(self, message):
+        # ignore bots or if bot isnt ready
         if message.author.bot or not self.is_ready():
             return
+
+        # ignore blacklisted discord id
+        if message.author.id in self.blacklisted_discord_ids:
+            return
+
+        # ignore blacklisted guild
+        if message.guild is not None and message.guild.id in self.blacklisted_guild_ids:
+            return
+
         await self.process_commands(message)
 
     async def on_error(self, event_method, *args, **kwargs):
@@ -47,8 +61,8 @@ class Bot(commands.AutoShardedBot):
             # in case it raised from on_command_error
             return
         error = traceback.format_exc().replace('```', '"""')
-        for dev_id in self.config.DEV_IDS:
-            await self.get_user(dev_id).send(f'```{error[-1950:]}```')
+        for maintainer_id in config.MAINTAINER_IDS.split(','):
+            await self.get_user(int(maintainer_id)).send(f'```{error[-1950:]}```')
         print(error)
 
     def add_cog(self, cog: commands.Cog):
@@ -85,6 +99,7 @@ class Bot(commands.AutoShardedBot):
         Re-create the connector and set up sessions before logging into Discord.
         """
         self._recreate()
+        await self._cache()
         await super().login(*args, **kwargs)
 
     # noinspection PyProtectedMember
@@ -109,3 +124,20 @@ class Bot(commands.AutoShardedBot):
         self.http_session = aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=30), connector=self._connector,
                                                   raise_for_status=True)
         self.hypixel_api_client.recreate(force=True, connector=self._connector)
+
+    async def _cache(self):
+        """
+        Cache stuff from db
+        """
+        async for player in self.db['players'].find():
+            for discord_id in player['discord_ids']:
+                if player['global_blacklisted']:
+                    # Cache blacklisted discord ids
+                    self.blacklisted_discord_ids.append(discord_id['discord_id'])
+                else:
+                    # Cache verified discord ids
+                    self.verified_discord_ids.append(discord_id['discord_id'])
+
+        # Cache blacklisted guild ids
+        async for guild in self.db['guilds'].find({'global_blacklisted': True}):
+            self.blacklisted_guild_ids.append(guild['_id'])

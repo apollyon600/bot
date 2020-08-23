@@ -202,7 +202,7 @@ def decode_inventory_data(raw, profile=None, *, backpack=False, index_empty=Fals
         else:
             dictionary.append(payload)
 
-    raw.read(3)  # Remove file header (we ingore footer)
+    raw.read(3)  # Remove file header (we ignore footer)
     root = {}
     parse_next_tag(root)
 

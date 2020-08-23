@@ -1,4 +1,5 @@
 import discord
+from datetime import datetime
 
 
 class Embed(discord.Embed):
@@ -27,7 +28,21 @@ class Embed(discord.Embed):
     def add_field(self, *, name=None, value=nbst, inline=True):
         return super().add_field(name=f'**{name}**' if name else self.nbst, value=value, inline=inline)
 
+    def add_footer(self, text):
+        super().set_footer(
+            text=f'{text}\nSkyblock Simplified',
+            icon_url='https://i.imgur.com/V7ENVHr.png'
+        )
+
     async def send(self, *, dm=False, dm_extra=False):
+        self.timestamp = datetime.now()
+
+        if not self.footer:
+            super().set_footer(
+                text='Skyblock Simplified',
+                icon_url='https://i.imgur.com/V7ENVHr.png'
+            )
+
         if dm and not isinstance(self.channel, discord.DMChannel):
             msg = await self.user.send(self.user.mention, embed=self)
             if dm_extra:

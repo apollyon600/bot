@@ -1,7 +1,10 @@
 from discord.ext import commands
+from copy import deepcopy
+import time
 
 from lib import SessionTimeout
-from utils import checks, Embed
+from utils import Embed, checks
+from constants.db_schema import GUILD_CONFIG
 
 
 class Staff(commands.Cog):
@@ -18,7 +21,7 @@ class Staff(commands.Cog):
 
     # TODO: adding logs and reason for enable/disable command
     @commands.command()
-    @commands.check_any(commands.is_owner(), checks.is_admin(), checks.is_dev())
+    @checks.is_sbs_admin()
     async def disable(self, ctx):
         """
         Use this to disable a command!
@@ -60,7 +63,7 @@ class Staff(commands.Cog):
                 await ctx.send(f'{ctx.author.mention}, Did you make a typo? Choose a command from the list.')
 
     @commands.command()
-    @commands.check_any(commands.is_owner(), checks.is_admin(), checks.is_dev())
+    @checks.is_sbs_admin()
     async def enable(self, ctx):
         """
         Use this to enable a command!
@@ -102,7 +105,7 @@ class Staff(commands.Cog):
                 await ctx.send(f'{ctx.author.mention}, Did you make a typo? Choose a command from the list.')
 
     @commands.command()
-    @commands.check_any(commands.is_owner(), checks.is_admin(), checks.is_dev())
+    @checks.is_sbs_admin()
     async def apikey(self, ctx):
         """
         Use this command to check the current api key status.
@@ -138,6 +141,109 @@ class Staff(commands.Cog):
             value=f'{data["totalQueries"]}',
             inline=False
         ).send()
+
+    @commands.group(invoke_without_command=True)
+    @checks.is_sbs_admin()
+    async def blacklist(self, ctx):
+        """
+        Command for staff to blacklist.
+        """
+        await ctx.send_help(ctx.command)
+
+    @blacklist.group(invoke_without_command=True)
+    @checks.is_sbs_admin()
+    async def guild(self, ctx):
+        """
+        Command for staff to blacklist a guild.
+        """
+        await ctx.send_help(ctx.command)
+
+    @guild.command()
+    @checks.is_sbs_admin()
+    async def add(self, ctx, guild_id):
+        """
+        Command to add a guild to global blacklist.
+        """
+        guilds_db = self.bot.db['guilds']
+        if not guild_id.isdigit():
+            return await ctx.send(f'{ctx.author.mention}\nEnter guild ID only.')
+
+        if int(guild_id) == 652148034448261150:
+            return await ctx.send('https://tenor.com/view/nick-young-what-huh-wait-what-wtf-gif-4793800')
+
+        guild_config = await guilds_db.find_one({'_id': int(guild_id)})
+        if guild_config is None:
+            guild = self.bot.get_guild(int(guild_id))
+
+            # If bot not in the guild
+            if guild is None:
+                confirm = await ctx.prompt(
+                    message=f'{ctx.author.mention}\nI am not in this guild, do you want to blacklist anyways?')
+                if not confirm:
+                    raise SessionTimeout from None
+
+            guild_config = deepcopy(GUILD_CONFIG)
+
+            guild_config['_id'] = int(guild_id)
+            guild_config['name'] = guild.name if guild is not None else None
+            guild_config['icon'] = str(guild.icon_url) if guild is not None else None
+            guild_config['banner'] = str(guild.banner_url) if guild is not None else None
+            guild_config['global_blacklisted'] = True
+            guild_config['last_updated'] = int(time.time())
+
+            confirm = await ctx.prompt(
+                message=f'{ctx.author.mention}\nDo you want to blacklist guild: {guild_id}?')
+            if not confirm:
+                raise SessionTimeout from None
+
+            await guilds_db.insert_one(guild_config)
+            self.bot.blacklisted_guild_ids.append(int(guild_id))
+
+            return await ctx.send(f'{ctx.author.mention}\nYou blacklisted guild {guild_id}')
+
+        if guild_config['global_blacklisted']:
+            return await ctx.send(f'{ctx.author.mention}\nThis guild is already blacklisted!')
+
+        confirm = await ctx.prompt(
+            message=f'{ctx.author.mention}\nDo you want to blacklist guild: {guild_id}?')
+        if not confirm:
+            raise SessionTimeout from None
+
+        await guilds_db.update_one({'_id': guild_config['_id']}, {'$set': {'global_blacklisted': True}})
+        self.bot.blacklisted_guild_ids.append(guild_config['_id'])
+
+        await ctx.send(f'{ctx.author.mention}\nYou blacklisted guild {guild_id}')
+
+    @guild.command()
+    @checks.is_sbs_admin()
+    async def remove(self, ctx, guild_id):
+        """
+        Command to remove a guild from global blacklist.
+        """
+        guilds_db = self.bot.db['guilds']
+        if not guild_id.isdigit():
+            return await ctx.send(f'{ctx.author.mention}\nEnter guild ID only.')
+
+        if int(guild_id) == 652148034448261150:
+            return await ctx.send('https://tenor.com/view/nick-young-what-huh-wait-what-wtf-gif-4793800')
+
+        guild_config = await guilds_db.find_one({'_id': int(guild_id)})
+        if guild_config is None:
+            return await ctx.send(f'{ctx.author.mention}\nI can\'t find this guild in database.\n'
+                                  f'But by default guild not in database shouldn\'t be blacklisted.')
+
+        if not guild_config['global_blacklisted']:
+            return await ctx.send(f'{ctx.author.mention}\nThis guild is not blacklisted!')
+
+        confirm = await ctx.prompt(
+            message=f'{ctx.author.mention}\nDo you want to remove this guild: {guild_id} from blacklist?')
+        if not confirm:
+            raise SessionTimeout from None
+
+        await guilds_db.update_one({'_id': guild_config['_id']}, {'$set': {'global_blacklisted': False}})
+        self.bot.blacklisted_guild_ids.remove(guild_config['_id'])
+
+        await ctx.send(f'{ctx.author.mention}\nYou removed guild {guild_id} from blacklist')
 
 
 def setup(bot):

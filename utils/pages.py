@@ -63,7 +63,7 @@ class Pages:
 
         page_number = f'\nPage {page} / {self.maximum_pages}.' if self.maximum_pages > 1 else ''
         footer = f'{self.embed_footer}{page_number}'
-        self.embed.set_footer(text=footer)
+        self.embed.add_footer(text=footer)
 
         p = []
         for index, entry in enumerate(entries, 1 + ((page - 1) * self.per_page)):

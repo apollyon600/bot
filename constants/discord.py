@@ -123,3 +123,46 @@ SKILL_EMOJIS = {
     'slayers': '☠️',
     'dungeons': '⚔️'
 }
+
+SKYBLOCK_EVENTS = {
+    "magmaBoss": {
+        'name': 'Magma Boss',
+        'endpoint': 'skyblock/bosstimer/magma/estimatedSpawn',
+        'emoji': '🌋'
+    },
+    "darkAuction": {
+        'name': 'Dark Auction',
+        'endpoint': 'skyblock/darkauction/estimate',
+        'emoji': '🕵️'
+    },
+    "bankInterest": {
+        'name': 'Bank Interest',
+        'endpoint': 'skyblock/bank/interest/estimate',
+        'emoji': '💸'
+    },
+    "newYear": {
+        'name': 'New Year Celebration',
+        'endpoint': 'skyblock/newyear/estimate',
+        'emoji': '🍰'
+    },
+    "zoo": {
+        'name': 'Travelling Zoo',
+        'endpoint': 'skyblock/zoo/estimate',
+        'emoji': '🐵'
+    },
+    "spookyFestival": {
+        'name': 'Spooky Festival',
+        'endpoint': 'skyblock/spookyFestival/estimate',
+        'emoji': '🍬'
+    },
+    "winterEvent": {
+        'name': 'Winter Event',
+        'endpoint': 'skyblock/winter/estimate',
+        'emoji': '❄️'
+    },
+    "jerryWorkshopEvent": {
+        'name': 'Jerry Event',
+        'endpoint': 'skyblock/jerryWorkshop/estimate',
+        'emoji': '☃️'
+    },
+}

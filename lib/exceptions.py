@@ -84,9 +84,9 @@ class HypixelLanguageError(SkyblockCommandError):
     pass
 
 
-class NotStaff(CheckFailure):
+class NotVerified(CheckFailure):
     """
-    Exception raised when the user is not a sbs staff.
+    Exception raised when player is not verified.
     """
     pass
 

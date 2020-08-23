@@ -6,16 +6,17 @@ from . import NeverPlayedSkyblockError, BadProfileError, BadNameError
 
 class Player:
     def __init__(self, *, uname=None, uuid, player_data, hypixel_api_client, guild=None):
-        self.hypixel_api_client = hypixel_api_client
-        self.uname = uname
-        self.uuid = uuid
         if not player_data:
             raise BadNameError(self.uname)
+        self.hypixel_api_client = hypixel_api_client
+        self.uname = uname
+        if self.uname is None:
+            self.uname = player_data.get('playername', '')
+        self.uuid = uuid
         self.player_data = player_data
         self.online = player_data.get('lastLogout', 0) < player_data.get('lastLogin', 0)
         self.achievements = player_data.get('achievements', {})
-        if self.uname is None:
-            self.uname = player_data.get('playername', '')
+        self.discord_tag = player_data.get('socialMedia', {}).get('links', {}).get('DISCORD', None)
 
         self.profiles = []
         self.profile = None

@@ -1,5 +1,6 @@
 import itertools
 from discord.ext import commands
+from discord.ext.commands import CommandError, NoPrivateMessage
 
 from . import Embed, HelpPages
 
@@ -53,6 +54,17 @@ class PaginatedHelpCommand(commands.HelpCommand):
         self.common_command_formatting(embed, command)
         await embed.send()
 
+    async def send_group_help(self, group):
+        subcommands = group.commands
+        if len(subcommands) == 0:
+            return await self.send_command_help(group)
+
+        entries = await self.filter_commands(subcommands, sort=True)
+        entries = [(group.qualified_name, group.help, '', entries)]
+        pages = HelpPages(self.context, entries, dm_help=self.dm_help)
+
+        await pages.paginate()
+
     async def get_all_commands(self):
         bot = self.context.bot
         return await self.filter_commands(bot.commands, sort=True, key=self.key)
@@ -72,3 +84,39 @@ class PaginatedHelpCommand(commands.HelpCommand):
     @staticmethod
     def key(c):
         return c.cog_name or '\u200bNo Category'
+
+    # noinspection PyShadowingNames
+    async def filter_commands(self, commands, *, sort=False, key=None):
+        """
+        Modified filter_commands to bypass guild_only() and is_guild_owner() check.
+        """
+
+        if sort and key is None:
+            key = lambda c: c.name
+
+        iterator = commands if self.show_hidden else filter(lambda c: not c.hidden, commands)
+
+        if not self.verify_checks:
+            # if we do not need to verify the checks then we can just
+            # run it straight through normally without using await.
+            return sorted(iterator, key=key) if sort else list(iterator)
+
+        # if we're here then we need to check every command if it can run
+        # noinspection PyShadowingNames
+        async def predicate(cmd):
+            try:
+                return await cmd.can_run(self.context)
+            except NoPrivateMessage:
+                return True
+            except CommandError:
+                return False
+
+        ret = []
+        for cmd in iterator:
+            valid = await predicate(cmd)
+            if valid:
+                ret.append(cmd)
+
+        if sort:
+            ret.sort(key=key)
+        return ret

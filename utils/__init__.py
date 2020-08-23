@@ -6,3 +6,5 @@ from .command_with_cooldown import CommandWithCooldown
 from .pages import Pages
 from .context import Context
 from .guild_pages import GuildPages
+from .scheduler import Scheduler
+from .event_pages import EventPages

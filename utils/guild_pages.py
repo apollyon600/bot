@@ -1,5 +1,6 @@
 import asyncio
 
+from lib import SessionTimeout
 from . import Pages
 from constants.discord import SKILL_EMOJIS
 
@@ -18,7 +19,7 @@ class GuildPages(Pages):
 
         page_number = f'\nPage {page} / {self.maximum_pages}.' if self.maximum_pages > 1 else ''
         footer = f'{self.embed_footer}{page_number}'
-        self.embed.set_footer(text=footer)
+        self.embed.add_footer(text=footer)
 
         if page != 1:
             # Load leaderboard page
@@ -86,6 +87,11 @@ class GuildPages(Pages):
                           f'XP > {guild.slayers_xp.get(slayer, 0):,.0f}```'
                 )
 
+            self.embed.add_field(
+                name=f'{SKILL_EMOJIS["dungeons"]}\tDungeon Catacombs',
+                value=f'```Average Level > {guild.average_dungeon_level:.2f}```'
+            )
+
     async def show_guild_pages_help(self):
         """
         Shows how which page is what leaderboard.
@@ -93,7 +99,7 @@ class GuildPages(Pages):
         self.embed.clear_fields()
 
         self.embed.title = 'Welcome to the help page.'
-        self.embed.set_footer(text=f'We were on page {self.current_page} before this message.')
+        self.embed.add_footer(text=f'We were on page {self.current_page} before this message.')
 
         description = '\n'.join(
             [f'Page {i + 1} > {name}' for i, name in enumerate(self.header_entries)])
@@ -118,18 +124,23 @@ class GuildPages(Pages):
 
     async def numbered_page(self):
         """
-        Lets you type a page number to go to
+        Lets you type a page number to go to.
         """
         to_delete = [await self.ctx.send(f'{self.author.mention}, What page do you want to go to?')]
 
         def message_check(m):
-            return m.author == self.author and self.channel == m.channel and m.clean_content.isdigit()
+            if m.author.id == self.author.id and m.channel.id == self.channel.id:
+                if m.clean_content.lower() == 'exit':
+                    raise SessionTimeout
+                if m.clean_content.isdigit():
+                    return True
+            return False
 
         try:
             msg = await self.bot.wait_for('message', check=message_check, timeout=30.0)
-        except asyncio.TimeoutError:
-            to_delete.append(await self.ctx.send(f'{self.author.mention}, Took too long!'))
-            await asyncio.sleep(5)
+        except (asyncio.TimeoutError, SessionTimeout):
+            to_delete.append(await self.ctx.send(f'{self.author.mention}, Input session closed.'))
+            await asyncio.sleep(4)
         else:
             page = int(msg.clean_content)
             to_delete.append(msg)
@@ -138,7 +149,7 @@ class GuildPages(Pages):
             else:
                 to_delete.append(
                     await self.ctx.send(f'{self.author.mention}, Invalid page given. ({page}/{self.maximum_pages})'))
-                await asyncio.sleep(5)
+                await asyncio.sleep(4)
 
         try:
             await self.channel.delete_messages(to_delete)
