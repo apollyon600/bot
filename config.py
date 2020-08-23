@@ -9,7 +9,7 @@ DISCORD_TOKEN = os.getenv('DISCORD_TOKEN')
 API_KEY = os.getenv('API_KEY')
 SCIP_TIMELIMIT = os.getenv('SCIP_TIMELIMIT', 4)
 DATABASE_URI = os.getenv('DATABASE_URI')
-MAINTAINER_IDS = os.getenv('MAINTAINER_IDS')
+MAINTAINER_IDS = os.getenv('MAINTAINER_IDS', '')
 
 COG_EXTENSIONS = [
     # Event/Error handler
