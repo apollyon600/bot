@@ -8,9 +8,26 @@ RUN mkdir /data
 RUN mv /app/docker-entrypoint.sh /
 RUN chmod +x /docker-entrypoint.sh
 
+# SCIP version
+ENV SCIP_VERSION 6.0.0
+
 # Install SCIP requirements
-RUN apt-get update && apt-get install -y wget libgfortran4 libblas3 liblapack3 libtbb-dev libgsl-dev libboost-all-dev build-essential g++ python-dev autotools-dev libicu-dev build-essential libbz2-dev libgmp3-dev libreadline-dev 
-RUN wget https://www.scipopt.org/download/release/SCIPOptSuite-7.0.1-Linux.sh -O scip.sh && chmod +x scip.sh && ./scip.sh --skip-license && mv bin/scip* /app/
+RUN apt-get update && apt-get install -y wget python-dev build-essential g++ zlib1g-dev bison flex libgmp-dev libreadline-dev libncurses5-dev
+RUN wget https://www.scipopt.org/download/release/scipoptsuite-${SCIP_VERSION}.tgz
+RUN tar zxvf scipoptsuite-${SCIP_VERSION}.tgz && \
+    rm scipoptsuite-${SCIP_VERSION}.tgz && \
+    cd scipoptsuite-${SCIP_VERSION} && \
+    make ZIMPL=false && \
+    cd scip/interfaces/ampl && \
+    ./get.ASL && \
+    cd solvers && \
+    sh configurehere && \
+    make && \
+    cd .. && \
+    make && \
+    cd bin && \
+    mv -v scipampl.linux.x86_64.gnu.opt.spx2 scip && \
+    mv -v scip /app/
 
 WORKDIR /app
 
@@ -37,4 +54,7 @@ ENV API_KEY key
 ENV DISCORD_TOKEN token
 
 # SCIP Timeout
-ENV SCIP_TIMEOUT 10
+ENV SCIP_TIMEOUT 4
+
+# MongoDB URI
+ENV DATABASE_URI mongo uri
