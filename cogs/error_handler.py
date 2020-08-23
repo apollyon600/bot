@@ -87,7 +87,6 @@ class ErrorHandler(commands.Cog):
         )
 
         user_missing_errors = (
-            NotStaff,
             commands.CheckAnyFailure,
             commands.NotOwner,
             commands.MissingPermissions,
