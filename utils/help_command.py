@@ -1,5 +1,6 @@
 import itertools
 from discord.ext import commands
+from discord.ext.commands import CommandError, NoPrivateMessage
 
 from . import Embed, HelpPages
 
@@ -52,6 +53,17 @@ class PaginatedHelpCommand(commands.HelpCommand):
         embed = Embed(ctx=self.context)
         self.common_command_formatting(embed, command)
         await embed.send()
+
+    async def send_group_help(self, group):
+        subcommands = group.commands
+        if len(subcommands) == 0:
+            return await self.send_command_help(group)
+
+        entries = await self.filter_commands(subcommands, sort=True)
+        entries = [(group.qualified_name, group.help, '', entries)]
+        pages = HelpPages(self.context, entries, dm_help=self.dm_help)
+
+        await pages.paginate()
 
     async def get_all_commands(self):
         bot = self.context.bot
