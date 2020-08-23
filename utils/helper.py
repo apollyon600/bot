@@ -355,7 +355,7 @@ async def get_guild_config(guild_db, *, ctx=None, guild=None, safe=True):
 async def send_no_permission_embed(ctx):
     return await Embed(
         ctx=ctx,
-        title='Command Errors',
+        title='Command Error',
         description='Sorry, it looks like I don\'t have the permissions or roles to do that.\n'
                     'Try enabling your DM or contract the server owner to give me more permissions.'
     ).send()
