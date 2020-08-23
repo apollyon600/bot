@@ -30,7 +30,7 @@ COG_EXTENSIONS = [
     'cogs.view_player',
     # Skyblock general
     'cogs.verify_system',
-    'cogs.reputation',
+    'cogs.reputation_system',
     'cogs.skyblock_events',
 ]
 

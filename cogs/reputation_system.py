@@ -2,10 +2,11 @@ import discord
 from discord.ext import commands
 import time
 
-from utils import CommandWithCooldown
+from utils import CommandWithCooldown, checks
 from constants.db_schema import REPUTATION
 
 
+# TODO: add rep management command
 class Reputation(commands.Cog, name='Skyblock'):
     def __init__(self, bot):
         self.bot = bot
@@ -14,6 +15,7 @@ class Reputation(commands.Cog, name='Skyblock'):
     @commands.command(name='+rep', cls=CommandWithCooldown, cooldown_after_parsing=True)
     @commands.cooldown(1, 60.0, commands.BucketType.member)
     @commands.guild_only()
+    @checks.is_player_verified()
     async def positive_rep(self, ctx, player: discord.Member, *, reason: str):
         """
         Give a player a postive reputation.
