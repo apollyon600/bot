@@ -16,7 +16,6 @@ client = Bot(
     description='Skyblock Simplified',
     case_insensitive=True,
     max_messages=None,
-    fetch_offline_members=False,
     activity=discord.Game(f'| 🍤 {config.BOT_PREFIXES[-1]} help')
 )
 
