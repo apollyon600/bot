@@ -1,6 +1,6 @@
 from discord.ext import commands
 
-from utils import Embed, get_item_price_stats, get_item_list
+from utils import Embed, CommandWithCooldown, get_item_price_stats, get_item_list
 
 
 class AuctionPrice(commands.Cog, name='Auction'):
@@ -13,7 +13,7 @@ class AuctionPrice(commands.Cog, name='Auction'):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command()
+    @commands.command(cls=CommandWithCooldown, cooldown_after_parsing=True)
     @commands.cooldown(1, 10.0, commands.BucketType.user)
     @commands.max_concurrency(1, per=commands.BucketType.channel, wait=False)
     async def price(self, ctx, *, item_name):
