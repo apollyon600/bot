@@ -28,6 +28,10 @@ COG_EXTENSIONS = [
     # Spy commands
     'cogs.view_guild',
     'cogs.view_player',
+    # Skyblock general
+    'cogs.verify_system',
+    'cogs.reputation',
+    'cogs.skyblock_events',
 ]
 
 BOT_PREFIXES = [

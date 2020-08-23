@@ -1,11 +1,15 @@
-import aiohttp
 import asyncio
+import aiohttp
+import time
 import re
+from copy import deepcopy
 from urllib.parse import quote
 
 from lib import Guild, ExternalAPIError, BadNameError, BadGuildError
+from . import Embed
 from constants import MOBS_RELEVANT_ENCHANTS, ENCHANTMENT_BONUS, STAT_NAMES, SKILL_NAMES, SLAYER_NAMES
 from constants.discord import TIMEOUT_EMOJIS
+from constants.db_schema import GUILD_CONFIG
 
 
 async def get_uuid_from_name(name, *, session):
@@ -305,3 +309,53 @@ def get_guild_leaderboard(guild):
     all_leaderboard['Dungeon Level'] = dungeon_level_leaderboard
 
     return all_leaderboard
+
+
+async def get_event_estimate_time(endpoint, *, session):
+    try:
+        async with session.get(f'https://hypixel-api.inventivetalent.org/api/{endpoint}') as resp:
+            json = await resp.json(content_type=None)
+            if json is None or 'success' not in json:
+                return None
+            if not json['success']:
+                return None
+            return json['estimate']
+    except asyncio.TimeoutError:
+        raise ExternalAPIError('Could not connect to https://hypixel-api.inventivetalent.org.') from None
+
+
+def current_milli_time():
+    return int(round(time.time() * 1000.0))
+
+
+async def get_guild_config(guild_db, *, ctx=None, guild=None, safe=True):
+    if guild is None:
+        guild = ctx.guild
+        if guild is None:
+            return None
+
+    guild_config = await guild_db.find_one({'_id': guild.id})
+
+    if guild_config is None:
+        if not safe:
+            return None
+        guild_config = deepcopy(GUILD_CONFIG)
+
+        guild_config['_id'] = guild.id
+        guild_config['name'] = guild.name
+        guild_config['icon'] = str(guild.icon_url)
+        guild_config['banner'] = str(guild.banner_url)
+        guild_config['last_updated'] = int(time.time())
+
+        await guild_db.insert_one(guild_config)
+
+    return guild_config
+
+
+async def send_no_permission_embed(ctx):
+    return await Embed(
+        ctx=ctx,
+        title='Command Errors',
+        description='Sorry, it looks like I don\'t have the permissions or roles to do that.\n'
+                    'Try enabling your DM or contract the server owner to give me more permissions.'
+    ).send()
