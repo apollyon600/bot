@@ -18,7 +18,7 @@ class Staff(commands.Cog):
 
     # TODO: adding logs and reason for enable/disable command
     @commands.command()
-    @commands.check_any(commands.is_owner(), checks.is_admin(), checks.is_dev())
+    @checks.is_sbs_admin()
     async def disable(self, ctx):
         """
         Use this to disable a command!
@@ -60,7 +60,7 @@ class Staff(commands.Cog):
                 await ctx.send(f'{ctx.author.mention}, Did you make a typo? Choose a command from the list.')
 
     @commands.command()
-    @commands.check_any(commands.is_owner(), checks.is_admin(), checks.is_dev())
+    @checks.is_sbs_admin()
     async def enable(self, ctx):
         """
         Use this to enable a command!
@@ -102,7 +102,7 @@ class Staff(commands.Cog):
                 await ctx.send(f'{ctx.author.mention}, Did you make a typo? Choose a command from the list.')
 
     @commands.command()
-    @commands.check_any(commands.is_owner(), checks.is_admin(), checks.is_dev())
+    @checks.is_sbs_admin()
     async def apikey(self, ctx):
         """
         Use this command to check the current api key status.

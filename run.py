@@ -14,7 +14,6 @@ if os.name == "nt":
 client = Bot(
     command_prefix=config.BOT_PREFIXES,
     description='Skyblock Simplified',
-    owner_ids=config.OWNER_IDS,
     case_insensitive=True,
     max_messages=None,
     fetch_offline_members=False,
