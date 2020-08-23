@@ -31,6 +31,7 @@ COG_EXTENSIONS = [
     # Skyblock general
     'cogs.verify_system',
     'cogs.reputation_system',
+    'cogs.scam_report_system',
     'cogs.skyblock_events',
 ]
 

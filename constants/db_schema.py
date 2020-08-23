@@ -75,3 +75,16 @@ REPUTATION = {
     'staff_sorted_discord_id': None,
     'submitted_timestamp': None
 }
+
+REPORT = {
+    'guild_id': None,
+    'reported_discord_id': None,
+    'reported_mojang_uuid': None,
+    'submitter_discord_id': None,
+    'submitter_mojang_uuid': None,
+    'reason': None,
+    'proof': None,
+    'staff_verified_discord_id': None,
+    'staff_note': None,
+    'submitted_timestamp': None
+}
