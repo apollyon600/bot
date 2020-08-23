@@ -22,8 +22,11 @@ async def get_uuid_from_name(name, *, session):
             return json['name'], json['id']
     except (asyncio.TimeoutError, aiohttp.ClientConnectorError):
         raise ExternalAPIError('Could not connect to https://api.mojang.com.') from None
-    except aiohttp.ClientResponseError:
-        raise BadNameError(name) from None
+    except aiohttp.ClientResponseError as e:
+        if e.status == 429:
+            raise ExternalAPIError('Mojang API ratelimit has been reached!') from None
+        else:
+            raise BadNameError(name) from None
 
 
 def level_from_xp_table(xp, table):
