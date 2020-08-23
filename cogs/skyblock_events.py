@@ -140,7 +140,9 @@ class SkyblockEvents(commands.Cog, name='Skyblock'):
             description=f'The event is starting soon in {_howlong:.2f} minutes at {_when}.'
         )
 
-        async for guild in self.guilds_db.find({'events.default_enabled': True, f'events.{event}.enabled': True}):
+        async for guild in self.guilds_db.find(
+                {'events.default_enabled': True, f'events.{event}.enabled': True, 'global_blacklisted': False,
+                 'global_blacklisted_commands': {'$ne': 'events'}}):
             self.bot.loop.create_task(self._event_alert(guild, event, embed))
 
         # Calculate time when to get new estimate time. (20 min after event happened)
