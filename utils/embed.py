@@ -33,6 +33,7 @@ class Embed(discord.Embed):
             text=f'{text}\nSkyblock Simplified',
             icon_url='https://i.imgur.com/V7ENVHr.png'
         )
+        return self
 
     async def send(self, *, dm=False, dm_extra=False):
         self.timestamp = datetime.now()

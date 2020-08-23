@@ -121,7 +121,7 @@ class OptimizeGear(commands.Cog, name='Damage'):
         ).add_footer(
             text='Player\'s stats include pots.\n'
                  '{s}'.format(s='Armor/Weapon includes dungeon stats.\n' if include_dungeon else '') +
-                 'Please make sure your "before" stats are correct before reforging.\n'
+                 'Please make sure your "before" stats are correct before reforging.'
         )
 
         for equipment in best_equip:
