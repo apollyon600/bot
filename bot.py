@@ -50,8 +50,8 @@ class Bot(commands.AutoShardedBot):
             # in case it raised from on_command_error
             return
         error = traceback.format_exc().replace('```', '"""')
-        for dev_id in self.config.DEV_IDS:
-            await self.get_user(dev_id).send(f'```{error[-1950:]}```')
+        for maintainer_id in config.MAINTAINER_IDS.split(','):
+            await self.get_user(maintainer_id).send(f'```{error[-1950:]}```')
         print(error)
 
     def add_cog(self, cog: commands.Cog):

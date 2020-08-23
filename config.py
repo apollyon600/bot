@@ -8,6 +8,8 @@ if os.environ.get('DISCORD_TOKEN') is None:
 DISCORD_TOKEN = os.getenv('DISCORD_TOKEN')
 API_KEY = os.getenv('API_KEY')
 SCIP_TIMELIMIT = os.getenv('SCIP_TIMELIMIT', 4)
+DATABASE_URI = os.getenv('DATABASE_URI')
+MAINTAINER_IDS = os.getenv('MAINTAINER_IDS')
 
 COG_EXTENSIONS = [
     # Event/Error handler
@@ -29,27 +31,6 @@ COG_EXTENSIONS = [
 ]
 
 BOT_PREFIXES = [
-    'Sbs' + ' ',
-    'sbs' + ' ',
-]
-
-# to use owner command?
-OWNER_IDS = [
-    148460858438057985,  # yuerino
-    181152738086748160,  # plutie
-    154743493464555521,  # crafted
-]
-
-# to get error DM from bot
-DEV_IDS = [
-    148460858438057985,  # yuerino
-    181152738086748160,  # plutie
-]
-
-# to bypass cooldown
-ADMIN_IDS = [
-    148460858438057985,  # yuerino
-    181152738086748160,  # plutie
-    288896160385597440,  # grm
-    154743493464555521,  # crafted
+    'Exp' + ' ',
+    'exp' + ' ',
 ]
