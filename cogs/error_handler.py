@@ -102,10 +102,12 @@ class ErrorHandler(commands.Cog):
         elif isinstance(error, user_missing_errors):
             await ctx.send(
                 f'{ctx.author.mention}, Sorry, it looks like you don\'t have the permissions or roles to use this command.')
+        elif isinstance(error, commands.NoPrivateMessage):
+            await ctx.send(
+                f'{ctx.author.mention}, You can\'t use this command in DM! Please try again it again in a server.')
         else:
             # other unimplemented check exceptions
-            print(error)
-            pass
+            raise error
 
     async def handle_unexpected_error(self, ctx: commands.Context, error):
         await self.send_default_error_message(ctx)
