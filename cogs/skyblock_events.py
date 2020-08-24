@@ -208,20 +208,32 @@ class SkyblockEvents(commands.Cog, name='Skyblock'):
             return f'{SKYBLOCK_EVENTS[event]["name"]} is already running.\n'
 
         estimate = await get_event_estimate_time(SKYBLOCK_EVENTS[event]['endpoint'], session=self.bot.http_session)
-        if estimate is None:
-            return f'Failed to schedule {SKYBLOCK_EVENTS[event]["name"]}.\n'
+        if estimate is None or estimate < (current_milli_time() + (300 * 1000)):
+            time = (current_milli_time() / 1000.0) + 1200
+            time = datetime.fromtimestamp(time)
 
-        # Calculate when to alert event (5 mins before event starts)
-        time = datetime.fromtimestamp((estimate / 1000.0) - 300.0)
+            # Schedule in 20 mins to get new estimate
+            event_data = {
+                'name': event,
+                'task_id': id(time),
+                'type': 'get_estimate',
+                'estimate': estimate,
+                'time': time
+            }
 
-        event_data = {
-            'name': event,
-            'task_id': id(time),
-            'type': 'alert',
-            'estimate': estimate,
-            'time': time
-        }
-        self._schedule_event_task(event_data)
+            self._schedule_event_task(event_data)
+        else:
+            # Calculate when to alert event (5 mins before event starts)
+            time = datetime.fromtimestamp((estimate / 1000.0) - 300.0)
+
+            event_data = {
+                'name': event,
+                'task_id': id(time),
+                'type': 'alert',
+                'estimate': estimate,
+                'time': time
+            }
+            self._schedule_event_task(event_data)
 
         return f'{SKYBLOCK_EVENTS[event]["name"]} has been successfully started.\n'
 
