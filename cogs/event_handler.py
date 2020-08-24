@@ -24,8 +24,7 @@ class EventHandler(commands.Cog):
     @commands.Cog.listener()
     async def on_command(self, ctx):
         filtered_args = ctx.message.clean_content.split()[2:] or []
-        print(f'{ctx.author} used {ctx.command} {filtered_args} in '
-              f'{"a DM" if isinstance(ctx.channel, discord.DMChannel) else ctx.guild.name} '
+        print(f'{ctx.author} used {ctx.command} {filtered_args} in {"a DM" if ctx.guild is None else ctx.guild.name} '
               f'at {ctx.message.created_at}.')
 
     @commands.Cog.listener()
@@ -54,6 +53,10 @@ class EventHandler(commands.Cog):
         """
         Executes when bot joins a guild.
         """
+        # Skip blacklisted guilds
+        if guild.id in self.bot.blacklisted_guild_ids:
+            return
+
         await get_guild_config(self.bot.db['guilds'], guild=guild)
 
 

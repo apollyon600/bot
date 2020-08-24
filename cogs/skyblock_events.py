@@ -3,7 +3,8 @@ from discord.ext import commands
 from datetime import datetime
 
 from constants.discord import SKYBLOCK_EVENTS
-from utils import Scheduler, EventPages, Embed, checks, current_milli_time, get_guild_config, get_event_estimate_time
+from utils import Scheduler, EventPages, Embed, checks, current_milli_time, get_guild_config, get_event_estimate_time, \
+    EST, datetime_fmt, time_fmt
 
 
 # TODO: known issue: magma boss time is a little bit off atm.
@@ -99,14 +100,16 @@ class SkyblockEvents(commands.Cog, name='Skyblock'):
         embed = Embed(
             ctx=ctx,
             title='Current event schedules status',
-            description=f'There is currently {len(self.event_schedules)} event schedules.'
+            description=f'There are currently {len(self.event_schedules)} event schedules. (EST time)'
         )
 
         for event in self.event_schedules.values():
+            estimate = datetime.fromtimestamp(event["estimate"] / 1000.0).astimezone(EST).strftime(datetime_fmt).lstrip(
+                '0').replace(' 0', ' ')
             embed.add_field(
                 name=f'{SKYBLOCK_EVENTS[event["name"]]["name"]} Status',
-                value=f'Current estimate > {datetime.fromtimestamp(event["estimate"] / 1000.0).isoformat(" ", "seconds")}\n'
-                      f'Next schedule > {event["time"].isoformat(" ", "seconds")}\n'
+                value=f'Current estimate > {estimate}\n'
+                      f'Next schedule > {event["time"].astimezone(EST).strftime(datetime_fmt).lstrip("0").replace(" 0", " ")}\n'
                       f'Next schedule type > {event["type"]}',
                 inline=False
             )
@@ -133,11 +136,12 @@ class SkyblockEvents(commands.Cog, name='Skyblock'):
         del self.event_schedules[event_data['task_id']]
 
         event = event_data['name']
-        _howlong = ((event_data['estimate'] - current_milli_time()) / 1000.0) / 60.0
-        _when = datetime.fromtimestamp(event_data["estimate"] / 1000.0).isoformat(" ", "seconds")
+        _howlong = round(((event_data['estimate'] - current_milli_time()) / 1000.0) / 60.0)
+        _when = datetime.fromtimestamp(event_data["estimate"] / 1000.0).astimezone(EST).strftime(time_fmt).lstrip(
+            '0').replace(' 0', ' ')
         embed = Embed(
             title=f'{SKYBLOCK_EVENTS[event]["name"]} Alert',
-            description=f'The event is starting soon in {_howlong:.2f} minutes at {_when}.'
+            description=f'The event is starting in {_howlong} minutes at {_when} EST.'
         )
 
         async for guild in self.guilds_db.find(
@@ -244,7 +248,7 @@ class SkyblockEvents(commands.Cog, name='Skyblock'):
         # Send webhook embed
         try:
             await webhook.send(content=f'<@&{mention_id}>' if mention_id else '', embed=embed,
-                               username=f'{SKYBLOCK_EVENTS[event]["name"]} Alert',
+                               username=f'Skyblock Event Alert',
                                avatar_url='https://i.imgur.com/Fhx03E7.png')
         except Exception:
             await self._handle_failed_webhook_send(guild_config, event, int(guild_config['_id']))

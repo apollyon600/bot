@@ -4,12 +4,17 @@ import time
 import re
 from copy import deepcopy
 from urllib.parse import quote
+import pytz
 
 from lib import Guild, ExternalAPIError, BadNameError, BadGuildError
 from . import Embed
 from constants import MOBS_RELEVANT_ENCHANTS, ENCHANTMENT_BONUS, STAT_NAMES, SKILL_NAMES, SLAYER_NAMES
 from constants.discord import TIMEOUT_EMOJIS
 from constants.db_schema import GUILD_CONFIG
+
+EST = pytz.timezone('US/Eastern')
+datetime_fmt = '%b %d, %Y %I:%M %p'
+time_fmt = '%I:%M %p'
 
 
 async def get_uuid_from_name(name, *, session):
