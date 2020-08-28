@@ -73,7 +73,7 @@ class Meta(commands.Cog, name='Bot'):
         for x in range(self.bot.shard_count):
             embed.add_field(
                 name=f'Shard {x + 1}',
-                value=f'{shards[x][0]} servers\n{shards[x][1]} channels\n{shards[x][2]} members',
+                value=f'{shards[x][0]:,} servers\n{shards[x][1]:,} channels\n{shards[x][2]:,} members',
                 inline=True
             )
 
