@@ -26,7 +26,6 @@ class Bot(commands.AutoShardedBot):
         self.mongo_client = motor.motor_asyncio.AsyncIOMotorClient(config.DATABASE_URI)
         self.db = self.mongo_client.sbs
 
-        self.verified_discord_ids = []
         self.blacklisted_discord_ids = []
         self.blacklisted_guild_ids = []
 
@@ -129,14 +128,10 @@ class Bot(commands.AutoShardedBot):
         """
         Cache stuff from db
         """
-        async for player in self.db['players'].find():
+        # Cache blacklisted discord ids
+        async for player in self.db['players'].find({'global_blacklisted': True}):
             for discord_id in player['discord_ids']:
-                if player['global_blacklisted']:
-                    # Cache blacklisted discord ids
-                    self.blacklisted_discord_ids.append(discord_id['discord_id'])
-                else:
-                    # Cache verified discord ids
-                    self.verified_discord_ids.append(discord_id['discord_id'])
+                self.blacklisted_discord_ids.append(discord_id['discord_id'])
 
         # Cache blacklisted guild ids
         async for guild in self.db['guilds'].find({'global_blacklisted': True}):
