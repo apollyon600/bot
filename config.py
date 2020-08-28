@@ -16,6 +16,7 @@ COG_EXTENSIONS = [
     'cogs.event_handler',
     'cogs.error_handler',
     # Staff commands
+    'cogs.check_user',
     'cogs.staff',
     # Bot commands
     'cogs.meta',
