@@ -73,12 +73,12 @@ class Profile:
 
         # Loads profile's kills and deaths
         self.kills = int(self.profile_data.get('stats', {'kills': 0}).get('kills', 0))
-        self.specifc_kills = {name.replace('kills_', '').replace('_', ' '): int(amount)
-                              for name, amount in self.profile_data['stats'].items() if re.match('kills_', name)}
+        self.specifc_kills = {name.replace('kills_', '').replace('_', ' '): int(amount) for name, amount in
+                              self.profile_data.get('stats', {}).items() if re.match('kills_', name)}
 
         self.deaths = int(self.profile_data.get('stats', {'deaths': 0}).get('deaths', 0))
-        self.specifc_deaths = {name.replace('deaths_', '').replace('_', ' '): int(amount)
-                               for name, amount in self.profile_data['stats'].items() if re.match('deaths_', name)}
+        self.specifc_deaths = {name.replace('deaths_', '').replace('_', ' '): int(amount) for name, amount in
+                               self.profile_data.get('stats', {}).items() if re.match('deaths_', name)}
 
         # Loads profile's collections if collection api is enabled
         try:
