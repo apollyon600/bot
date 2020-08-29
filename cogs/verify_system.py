@@ -150,7 +150,7 @@ class Verify(commands.Cog, name='Skyblock'):
             await ctx.send(
                 f'{ctx.author.mention}\nThis hypixel player is not verified with discord user {discord_user.name}.')
 
-    @remove.command(name='mojang')
+    @remove.command(name='mojang', aliases=['minecraft', 'mc'])
     @checks.is_sbs_admin()
     async def remove_mojang_name(self, ctx, mojang_username, discord_user: discord.User = ''):
         """

@@ -50,7 +50,7 @@ class CheckUser(commands.Cog, name='Staff'):
             value=f'{mojang_usernames if mojang_usernames else None}'
         ).add_field().send()
 
-    @check.command(name='mojang')
+    @check.command(name='mojang', aliases=['minecraft', 'mc'])
     @checks.is_sbs_admin()
     async def mojang_name(self, ctx, mojang_name):
         """
