@@ -1,4 +1,5 @@
 from .embed import Embed
+from .converters import UserConverterSafe
 from .helper import *
 from .help_pages import HelpPages
 from .help_command import PaginatedHelpCommand
