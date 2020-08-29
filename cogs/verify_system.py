@@ -3,7 +3,7 @@ import discord
 from copy import deepcopy
 import time
 
-from utils import GroupWithCooldown, get_uuid_from_name, checks
+from utils import GroupWithCooldown, get_from_name_uuid, checks
 from constants.db_schema import PLAYER_DATA, DISCORD_USERNAME
 
 
@@ -22,7 +22,7 @@ class Verify(commands.Cog, name='Skyblock'):
         if not player:
             player = await ctx.ask(message=f'{ctx.author.mention}\nWhat is your minecraft username?')
 
-        player_name, player_uuid = await get_uuid_from_name(player, session=self.bot.http_session)
+        player_name, player_uuid = await get_from_name_uuid(player, session=self.bot.http_session)
         player = await self.bot.hypixel_api_client.get_player(player_uuid, uname=player_name)
 
         if str(ctx.author) != player.discord_tag:
@@ -75,7 +75,7 @@ class Verify(commands.Cog, name='Skyblock'):
         if not discord_user:
             discord_user = ctx.author
 
-        player_name, player_uuid = await get_uuid_from_name(mojang_username, session=self.bot.http_session)
+        player_name, player_uuid = await get_from_name_uuid(mojang_username, session=self.bot.http_session)
 
         player_data = await self.players_db.find_one(
             {'$or': [{'discord_ids': discord_user.id}, {'mojang_uuids': player_uuid}]})
@@ -135,7 +135,7 @@ class Verify(commands.Cog, name='Skyblock'):
         if not discord_user:
             discord_user = ctx.author
 
-        player_name, player_uuid = await get_uuid_from_name(mojang_username, session=self.bot.http_session)
+        player_name, player_uuid = await get_from_name_uuid(mojang_username, session=self.bot.http_session)
 
         player_data = await self.players_db.find_one({'mojang_uuids': player_uuid})
 
@@ -161,7 +161,7 @@ class Verify(commands.Cog, name='Skyblock'):
         if not discord_user:
             discord_user = ctx.author
 
-        player_name, player_uuid = await get_uuid_from_name(mojang_username, session=self.bot.http_session)
+        player_name, player_uuid = await get_from_name_uuid(mojang_username, session=self.bot.http_session)
 
         player_data = await self.players_db.find_one({'discord_ids': discord_user.id})
 

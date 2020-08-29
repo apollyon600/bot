@@ -17,45 +17,25 @@ datetime_fmt = '%b %d, %Y %I:%M %p'
 time_fmt = '%I:%M %p'
 
 
-async def get_uuid_from_name(name, *, session):
+async def get_from_name_uuid(name_uuid, *, session, with_history=False):
     try:
-        async with session.get(f'https://api.mojang.com/users/profiles/minecraft/{name}') as resp:
-            if resp.status == 204:
-                raise BadNameError(name) from None
-
+        async with session.get(f'https://api.ashcon.app/mojang/v2/user/{name_uuid}') as resp:
             json = await resp.json(content_type=None)
 
-            if json is None or 'name' not in json or 'id' not in json:
-                raise BadNameError(name) from None
+            if json is None or 'username' not in json or 'uuid' not in json:
+                raise BadNameError(name_uuid) from None
 
-            return json['name'], json['id']
+            if with_history:
+                return json['username'], json['uuid'].replace('-', ''), json['username_history']
+            else:
+                return json['username'], json['uuid'].replace('-', '')
     except (asyncio.TimeoutError, aiohttp.ClientConnectorError):
-        raise ExternalAPIError('Could not connect to https://api.mojang.com.') from None
+        raise ExternalAPIError('Could not connect to https://api.ashcon.app.') from None
     except aiohttp.ClientResponseError as e:
         if e.status == 429:
-            raise ExternalAPIError('Mojang API ratelimit has been reached!') from None
+            raise ExternalAPIError('Ashcon API ratelimit has been reached!') from None
         else:
-            raise BadNameError(name) from None
-
-
-async def get_name_from_uuid(uuid, *, session):
-    try:
-        async with session.get(f'https://api.mojang.com/user/profiles/{uuid}/names') as resp:
-            if resp.status == 204:
-                raise BadNameError(uuid) from None
-
-            json = await resp.json(content_type=None)
-            if json is None:
-                raise BadNameError(uuid) from None
-
-            return json
-    except (asyncio.TimeoutError, aiohttp.ClientConnectorError):
-        raise ExternalAPIError('Could not connect to https://api.mojang.com.') from None
-    except aiohttp.ClientResponseError as e:
-        if e.status == 429:
-            raise ExternalAPIError('Mojang API ratelimit has been reached!') from None
-        else:
-            raise BadNameError(uuid) from None
+            raise BadNameError(name_uuid) from None
 
 
 def level_from_xp_table(xp, table):
@@ -225,7 +205,7 @@ async def ask_for_skyblock_profiles(ctx, player, profile, *, session, hypixel_ap
     if not player:
         player = await ctx.ask(message=f'{ctx.author.mention}, What is your minecraft username?')
 
-    player_name, player_uuid = await get_uuid_from_name(player, session=session)
+    player_name, player_uuid = await get_from_name_uuid(player, session=session)
     player = await hypixel_api_client.get_player(player_uuid, uname=player_name)
 
     if profile:
