@@ -131,11 +131,11 @@ class Blacklist(commands.Cog, name='Staff'):
             if discord_user is None:
                 return await ctx.send(f'{ctx.author.mention}\nI can\'t find this user.')
 
-        if await self.bot.is_owner(discord_user):
-            return await ctx.send('https://tenor.com/view/nick-young-what-huh-wait-what-wtf-gif-4793800')
-
         player_data = await players_db.find_one({'discord_ids': discord_user.id})
         if player_data is None:
+            if await self.bot.is_owner(discord_user):
+                return await ctx.send('https://tenor.com/view/nick-young-what-huh-wait-what-wtf-gif-4793800')
+
             player_data = deepcopy(PLAYER_DATA)
 
             player_data['discord_ids'].append(discord_user.id)
@@ -151,6 +151,11 @@ class Blacklist(commands.Cog, name='Staff'):
 
             return await ctx.send(
                 f'{ctx.author.mention}\nYou blacklisted user {discord_user.name} ({discord_user.id}).')
+
+        for discord_id in player_data['discord_ids']:
+            discord_user = self.bot.get_user(discord_id)
+            if discord_user is not None and await self.bot.is_owner(discord_user):
+                return await ctx.send('https://tenor.com/view/nick-young-what-huh-wait-what-wtf-gif-4793800')
 
         if player_data['global_blacklisted']:
             return await ctx.send(f'{ctx.author.mention}\nThis user is already blacklisted.')
@@ -178,13 +183,15 @@ class Blacklist(commands.Cog, name='Staff'):
             if discord_user is None:
                 return await ctx.send(f'{ctx.author.mention}\nI can\'t find this user.')
 
-        if await self.bot.is_owner(discord_user):
-            return await ctx.send('https://tenor.com/view/nick-young-what-huh-wait-what-wtf-gif-4793800')
-
         player_data = await players_db.find_one({'discord_ids': discord_user.id})
         if player_data is None:
             return await ctx.send(f'{ctx.author.mention}\nI can\'t find this user in database.\n'
                                   f'But by default user not in database shouldn\'t be blacklisted.')
+
+        for discord_id in player_data['discord_ids']:
+            discord_user = self.bot.get_user(discord_id)
+            if discord_user is not None and await self.bot.is_owner(discord_user):
+                return await ctx.send('https://tenor.com/view/nick-young-what-huh-wait-what-wtf-gif-4793800')
 
         if not player_data['global_blacklisted']:
             return await ctx.send(f'{ctx.author.mention}\nThis user is not blacklisted!')
