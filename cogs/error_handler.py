@@ -76,35 +76,33 @@ class ErrorHandler(commands.Cog):
 
     async def handle_user_input_error(self, ctx: commands.Context, error: commands.UserInputError):
         if isinstance(error, commands.MissingRequiredArgument):
-            await CommandErrorEmbed(
-                ctx,
-                description=f'This command requires arguments: `{error.param.name}`.'
-            ).send()
+            # await CommandErrorEmbed(
+            #     ctx,
+            #     description=f'This command requires arguments: `{error.param.name}`.'
+            # ).send()
             await self.get_help_command(ctx)
         elif isinstance(error, commands.TooManyArguments):
-            await CommandErrorEmbed(
-                ctx,
-                description='You provided too many arugments for this command.'
-            ).send()
+            # await CommandErrorEmbed(
+            #     ctx,
+            #     description='You provided too many arugments for this command.'
+            # ).send()
             await self.get_help_command(ctx)
         elif isinstance(error, commands.BadArgument):
-            await CommandErrorEmbed(
-                ctx,
-                description='Bad argument: Please double-check your input arguments and try again.'
-            ).send()
+            # await CommandErrorEmbed(
+            #     ctx,
+            #     description='Bad argument: Please double-check your input arguments and try again.'
+            # ).send()
             await self.get_help_command(ctx)
         elif isinstance(error, commands.BadUnionArgument):
             await CommandErrorEmbed(
                 ctx,
                 description=f'Bad argument: {error}\n```{error.errors[-1]}```'
             ).send()
-            await self.get_help_command(ctx)
         elif isinstance(error, commands.ArgumentParsingError):
             await CommandErrorEmbed(
                 ctx,
                 description=f'Argument parsing error: {error}.'
             ).send()
-            await self.get_help_command(ctx)
         elif isinstance(error, SkyblockCommandError):
             await self.handle_skyblock_input_error(ctx, error)
 
