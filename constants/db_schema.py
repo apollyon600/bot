@@ -88,3 +88,10 @@ REPORT = {
     'staff_note': None,
     'submitted_timestamp': None
 }
+
+DISCORD_USERNAME = {
+    '_id': None,
+    'current_name': None,
+    'name_history': [],
+    'updated_timestamp': None
+}

@@ -27,6 +27,24 @@ class EventHandler(commands.Cog):
               f'at {ctx.message.created_at}.')
 
     @commands.Cog.listener()
+    async def on_user_update(self, before, after):
+        if before.name != after.name:
+            discord_username = await self.bot.db['discord_usernames'].find_one({'_id': before.id})
+            if discord_username is None:
+                return
+
+            discord_username['current_name'] = after.name
+            if len(discord_username['name_history']) == 5:
+                discord_username.pop(0)
+            discord_username['name_history'].append({
+                'name': before.name,
+                'updated_timestamp': discord_username['updated_timestamp']
+            })
+            discord_username['updated_timestamp'] = int(time.time())
+
+            await self.bot.db['discord_usernames'].replace_one({'_id': before.id}, discord_username)
+
+    @commands.Cog.listener()
     async def on_guild_update(self, before, after):
         """
         Executes when a guild updates.

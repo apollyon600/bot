@@ -134,7 +134,7 @@ class Blacklist(commands.Cog, name='Staff'):
         if await self.bot.is_owner(discord_user):
             return await ctx.send('https://tenor.com/view/nick-young-what-huh-wait-what-wtf-gif-4793800')
 
-        player_data = await players_db.find_one({'discord_ids.discord_id': discord_user.id})
+        player_data = await players_db.find_one({'discord_ids': discord_user.id})
         if player_data is None:
             player_data = deepcopy(PLAYER_DATA)
 
@@ -181,7 +181,7 @@ class Blacklist(commands.Cog, name='Staff'):
         if await self.bot.is_owner(discord_user):
             return await ctx.send('https://tenor.com/view/nick-young-what-huh-wait-what-wtf-gif-4793800')
 
-        player_data = await players_db.find_one({'discord_ids.discord_id': discord_user.id})
+        player_data = await players_db.find_one({'discord_ids': discord_user.id})
         if player_data is None:
             return await ctx.send(f'{ctx.author.mention}\nI can\'t find this user in database.\n'
                                   f'But by default user not in database shouldn\'t be blacklisted.')

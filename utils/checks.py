@@ -88,7 +88,7 @@ def is_guild_mod():
 
 def is_player_verified():
     async def pred(ctx):
-        user_data = await ctx.bot.db['players'].find_one({'discord_ids.discord_id': ctx.author.id})
+        user_data = await ctx.bot.db['players'].find_one({'discord_ids': ctx.author.id})
         if user_data is None or not user_data['global_blacklisted'] or not user_data['discord_ids']:
             try:
                 # Sbs Admin bypass
