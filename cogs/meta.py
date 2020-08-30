@@ -47,7 +47,7 @@ class Meta(commands.Cog, name='Bot'):
         """
         server_rankings = sorted(self.bot.guilds, key=lambda guild: len(guild.members), reverse=True)[:10]
         server_rankings = f'{"Top Servers".ljust(28)} | Users\n' + '\n'.join(
-            [f'{guild.name[:28].ljust(28)} | {len(guild.members)}' for guild in server_rankings])
+            [f'{guild.name[:28].ljust(28)} | {len(guild.members):,}' for guild in server_rankings])
 
         embed = Embed(
             ctx=ctx,
@@ -55,11 +55,11 @@ class Meta(commands.Cog, name='Bot'):
             description=f'This command was run on shard {(ctx.guild.shard_id if ctx.guild else 0) + 1} / {self.bot.shard_count}.\n```{server_rankings}```'
         ).add_field(
             name='Servers',
-            value=f'{self.bot.user.name} is running in {len(self.bot.guilds)} servers with {sum(len(guild.text_channels) for guild in self.bot.guilds)} channels.',
+            value=f'{self.bot.user.name} is running in {len(self.bot.guilds):,} servers with {sum(len(guild.text_channels) for guild in self.bot.guilds):,} channels.',
             inline=False
         ).add_field(
             name='Users',
-            value=f'There are currently {sum(len(guild.members) for guild in self.bot.guilds)} users with access to the bot.',
+            value=f'There are currently {sum(len(guild.members) for guild in self.bot.guilds):,} users with access to the bot.',
             inline=False
         )
         shards = []
