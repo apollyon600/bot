@@ -23,20 +23,34 @@ class Staff(commands.Cog):
         """
         Use this to disable a command!
         """
-        all_commands = self.bot.commands
-        enabled_commands = [command for command in all_commands if
-                            command.enabled and command.name not in ['disable', 'enable']]
+        enabled_commands = []
+        for command in self.bot.walk_commands():
+            if command.enabled and command.qualified_name not in ['disable', 'enable']:
+                enabled_commands.append(command)
+
         if not enabled_commands:
-            return await ctx.send(f'{ctx.author.mention}, There is no enabled commands to disable!')
+            return await ctx.send(f'{ctx.author.mention}\nThere is no enabled commands to disable!')
 
         embed = Embed(
             ctx=ctx,
             title='Enter a command from the list below to disable!'
         )
-        for command in enabled_commands:
-            embed.add_field(
-                value=f'```> {command.name}```'
-            )
+        _num = (len(enabled_commands) // 3)
+        _left_over = len(enabled_commands) % 3
+        _field1 = '\n'.join([command.qualified_name for command in enabled_commands[:_num + _left_over]]) + '\u200b'
+        embed.add_field(
+            value=f'{_field1}'
+        )
+        _field2 = '\n'.join([command.qualified_name for command in
+                             enabled_commands[_num + _left_over:(_num * 2) + _left_over]]) + '\u200b'
+        embed.add_field(
+            value=f'{_field2}'
+        )
+        _field3 = '\n'.join(
+            [command.qualified_name for command in enabled_commands[(_num * 2) + _left_over:]]) + '\u200b'
+        embed.add_field(
+            value=f'{_field3}'
+        )
         await embed.send()
 
         def check(m):
@@ -51,13 +65,13 @@ class Staff(commands.Cog):
         while _run:
             msg = await self.bot.wait_for('message', timeout=60.0, check=check)
             for command in enabled_commands:
-                if msg.clean_content.lower() == command.name:
+                if msg.clean_content.lower() == command.qualified_name:
                     command.enabled = False
-                    await ctx.send(f'{ctx.author.mention}, Successfully disable command `{command.name}`!')
+                    await ctx.send(f'{ctx.author.mention}\nSuccessfully disable command `{command.qualified_name}`!')
                     _run = False
                     break
             if _run:
-                await ctx.send(f'{ctx.author.mention}, Did you make a typo? Choose a command from the list.')
+                await ctx.send(f'{ctx.author.mention}\nDid you make a typo? Choose a command from the list.')
 
     @commands.command()
     @checks.is_sbs_admin()
@@ -65,20 +79,37 @@ class Staff(commands.Cog):
         """
         Use this to enable a command!
         """
-        all_commands = self.bot.commands
-        disabled_commands = [command for command in all_commands if
-                             not command.enabled and command.name not in ['disable', 'enable']]
+        disabled_commands = []
+        for command in self.bot.walk_commands():
+            if not command.enabled and command.qualified_name not in ['disable', 'enable']:
+                disabled_commands.append(command)
+
         if not disabled_commands:
-            return await ctx.send(f'{ctx.author.mention}, There is no disabled commands to enable!')
+            return await ctx.send(f'{ctx.author.mention}\nThere is no disabled commands to enable!')
 
         embed = Embed(
             ctx=ctx,
             title='Enter a command from the list below to enable!'
         )
-        for command in disabled_commands:
+        _num = (len(disabled_commands) // 3)
+        _left_over = len(disabled_commands) % 3
+        _field1 = '\n'.join([command.qualified_name for command in disabled_commands[:_num + _left_over]]) + '\u200b'
+        if _field1:
             embed.add_field(
-                value=f'```> {command.name}```'
+                value=f'{_field1}'
             )
+        else:
+            embed.add_field()
+        _field2 = '\n'.join([command.qualified_name for command in
+                             disabled_commands[_num + _left_over:(_num * 2) + _left_over]]) + '\u200b'
+        embed.add_field(
+            value=f'{_field2}'
+        )
+        _field3 = '\n'.join(
+            [command.qualified_name for command in disabled_commands[(_num * 2) + _left_over:]]) + '\u200b'
+        embed.add_field(
+            value=f'{_field3}'
+        )
         await embed.send()
 
         def check(m):
@@ -93,13 +124,13 @@ class Staff(commands.Cog):
         while _run:
             msg = await self.bot.wait_for('message', timeout=60.0, check=check)
             for command in disabled_commands:
-                if msg.clean_content.lower() == command.name:
+                if msg.clean_content.lower() == command.qualified_name:
                     command.enabled = True
-                    await ctx.send(f'{ctx.author.mention}, Successfully enable command `{command.name}`!')
+                    await ctx.send(f'{ctx.author.mention}\nSuccessfully enable command `{command.qualified_name}`!')
                     _run = False
                     break
             if _run:
-                await ctx.send(f'{ctx.author.mention}, Did you make a typo? Choose a command from the list.')
+                await ctx.send(f'{ctx.author.mention}\nDid you make a typo? Choose a command from the list.')
 
     @commands.command()
     @checks.is_sbs_admin()
