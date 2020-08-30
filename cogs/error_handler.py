@@ -32,7 +32,7 @@ class ErrorHandler(commands.Cog):
         elif isinstance(error, commands.DisabledCommand):
             await CommandErrorEmbed(
                 ctx,
-                description=f'This command: `{ctx.invoked_with}` is currently disabled.'
+                description=f'This command: `{ctx.command.qualified_name}` is currently disabled.'
             ).send()
         elif isinstance(error, commands.CheckFailure):
             await self.handle_check_failure(ctx, error)
