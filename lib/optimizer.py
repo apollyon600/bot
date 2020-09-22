@@ -78,8 +78,8 @@ def damage_optimizer(profile, *, perfect_crit_chance, attack_speed_limit, only_b
     # remove warped if there is no aspect of the end
     if not profile.weapon.internal_name == 'ASPECT_OF_THE_END' and not only_blacksmith_reforges:
         for reforge in reforges_set['sword'].keys():
-            if reforge == 'gilded':
-                reforges_set['sword'].pop('gilded')
+            if reforge == 'warped':
+                reforges_set['sword'].pop('warped')
                 break
                 
     armor_types = [type for type, piece in profile.armor.items() if armor_check(type) == 'armor' and piece is not None]
