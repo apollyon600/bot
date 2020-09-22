@@ -709,7 +709,7 @@ DAMAGE_REFORGES = {
     'talisman': {
         'shaded': {
             'common': {'strength': 2, 'crit damage': 3, 'crit chance': 0 },
-            'uncommon': {'strength': 2, 'crit damage': 3, 'crit chance': 0 },
+            'uncommon': {'strength': 2, 'crit damage': 4, 'crit chance': 0 },
             'rare': {'strength': 4, 'crit damage': 5, 'crit chance': 0 },
             'epic': {'strength': 5, 'crit damage': 6, 'crit chance': 0 },
             'legendary': {'strength': 6, 'crit damage': 9, 'crit chance': 1 },
