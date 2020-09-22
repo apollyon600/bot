@@ -707,6 +707,15 @@ DAMAGE_REFORGES = {
         }
     },
     'talisman': {
+        'shaded': {
+            'common': {'strength': 2, 'crit damage': 3, 'crit chance': 0 },
+            'uncommon': {'strength': 2, 'crit damage': 3, 'crit chance': 0 },
+            'rare': {'strength': 4, 'crit damage': 5, 'crit chance': 0 },
+            'epic': {'strength': 5, 'crit damage': 6, 'crit chance': 0 },
+            'legendary': {'strength': 6, 'crit damage': 9, 'crit chance': 1 },
+            'mythic': {'strength': 8, 'crit damage': 14, 'crit chance': 1 },
+            'blacksmith': True
+        },
         'bizarre': {
             'common': {'strength': 1, 'crit damage': -1, 'health': 1, 'intelligence': 6},
             'uncommon': {'strength': 2, 'crit damage': -2, 'health': 1, 'intelligence': 8},
