@@ -487,8 +487,17 @@ DAMAGE_REFORGES = {
             'blacksmith': False
         },
         'warped': {
-            'rare': {'damage': 165, 'strength': 165 },
+            'rare': {'crit damage': 165, 'crit chance': 165 },
             'epic': {'damage': 165, 'strength': 165 },
+            'blacksmith': False
+        },
+        'suspicious': {
+            'common': {'crit damage': 30, 'crit chance': 1},
+            'uncommon': {'crit damage': 40, 'crit chance': 2},
+            'rare': {'crit damage': 50, 'crit chance': 3},
+            'epic': {'crit damage': 65, 'crit chance': 5},
+            'legendary': {'crit damage': 85, 'crit chance': 7},
+            'mythic': {'crit damage': 110, 'crit chance': 10},
             'blacksmith': False
         },
     },
@@ -700,14 +709,13 @@ DAMAGE_REFORGES = {
             'mythic': {'strength': 15, 'health': 30},
             'blacksmith': False
         },
-        'warped': {
-            # Gain +1/2/3/4/5 Speed icon Speed for 5s
-            'common': {'strength': 2, 'speed': 1, 'attack speed': 2},
-            'uncommon': {'strength': 4, 'speed': 1, 'attack speed': 3},
-            'rare': {'strength': 6, 'speed': 2, 'attack speed': 4},
-            'epic': {'strength': 7, 'speed': 2, 'attack speed': 5},
-            'legendary': {'strength': 10, 'speed': 3, 'attack speed': 6},
-            'mythic': {'strength': 12, 'speed': 4, 'attack speed': 7},
+        'reinforced': {
+            'common': {'defense': 25},
+            'uncommon': {'defense': 35},
+            'rare': {'defense': 50},
+            'epic': {'defense': 65},
+            'legendary': {'defense': 80},
+            'mythic': {'defense': 100},
             'blacksmith': False
         }
     },
