@@ -487,7 +487,7 @@ DAMAGE_REFORGES = {
             'blacksmith': False
         },
         'warped': {
-            'rare': {'crit damage': 165, 'crit chance': 165 },
+            'rare': {'damage': 165, 'strength': 165 },
             'epic': {'damage': 165, 'strength': 165 },
             'blacksmith': False
         },
