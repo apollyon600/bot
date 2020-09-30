@@ -1,9 +1,9 @@
 from discord.ext import commands
 
 from utils import Embed, ask_for_skyblock_profiles, CommandWithCooldown, format_pet
-from constants import SKILL_NAMES, COSMETIC_SKILL_NAMES, SKILL_LEVEL_REQUIREMENT, RUNECRAFTING_LEVEL_REQUIREMENT, \
+from constants import SKILL_NAMES, COSMETIC_SKILL_NAMES, SKILL_LEVEL_REQUIREMENT, DUNGEON_SKILL_LEVEL_REQUIREMENT, RUNECRAFTING_LEVEL_REQUIREMENT,
     SLAYER_LEVEL_REQUIREMENT
-from constants.discord import SKILL_EMOJIS
+from constants.discord import SKILL_EMOJIS, DUNGEON_EMOJIS
 
 
 class ViewPlayer(commands.Cog, name='Spy'):
@@ -84,12 +84,22 @@ class ViewPlayer(commands.Cog, name='Spy'):
                       f'XP > {profile.slayers_xp.get(slayer, 0):,.0f}\n'
                       f'{percent_to_max:.2f}% Maxed```'
             )
-
+            
         embed.add_field(
-            name=f'{SKILL_EMOJIS["dungeons"]}\tDungeon Catacombs',
-            value=f'```Level > {profile.dungeon_skill}```',
+            name=f'{SKILL_EMOJIS["dungeons"]}\tDungeon Stats',
+            value=f'```Selected Class > **{profile.dungeons.selected_dungeon_class.capitalize()}**\n'
+                  f'Experience > **{Math.round(profile.dungeons.dungeon_types.catacombs.experience)}**```\n'
             inline=False
-        ).set_footer(
+        )
+            
+        for d_class, experience in profile.dungeons.player_classes.items():
+            percent_to_max = 100 * min(1, profile.dungeons.player_classes.get(d_class, 0) / DUNGEON_SKILL_LEVEL_REQUIREMENT[d_class][-1])
+            embed.add_field(
+                name=f'{DUNGEON_EMOJIS[d_class]}\t{d_class.capitalize()}',
+                value=f'```Level > ?\n'
+                      f'Experience > {experience:,.0f} XP\n'
+                      f'{percent_to_max:.2f}% Maxed```'
+            ).set_footer(
             text=f'Player is currently {"online" if player.online else "offline"} in game.'
         )
 
