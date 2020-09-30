@@ -61,6 +61,14 @@ PET_EMOJIS = {
     'GOLEM': '🗿',
 }
 
+DUNGEON_EMOJIS = {
+    'healer': '❤️',
+    'mage': '🧙‍',
+    'berserk': '⚔️',
+    'archer': '🏹',
+    'tank': '🛡️'
+}
+
 DAMAGE_POTIONS = {
     'dungeon': {
         'stats': {'strength': [0, 20, 20, 20, 30, 30], 'crit chance': [0, 10, 10, 15, 15, 20],
